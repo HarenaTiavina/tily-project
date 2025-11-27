@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- Fragment: Sidebar du dashboard -->
+<aside th:fragment="sidebar(activePage)" class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <h2 class="sidebar-logo">Tily</h2>
+        <button class="sidebar-toggle" onclick="toggleSidebarCollapse()" title="Réduire/Agrandir">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+    </div>
+    <nav class="sidebar-nav">
+        <a th:href="@{/dashboard}" class="nav-item" th:classappend="${activePage == 'dashboard'} ? 'active'" data-tooltip="Dashboard">
+            <i class="fas fa-home"></i>
+            <span class="nav-text">Dashboard</span>
+        </a>
+        <a th:href="@{/responsables}" class="nav-item" th:classappend="${activePage == 'responsables'} ? 'active'" data-tooltip="Responsable">
+            <i class="fas fa-user-tie"></i>
+            <span class="nav-text">Responsable</span>
+        </a>
+        <a th:href="@{/eleves}" class="nav-item" th:classappend="${activePage == 'eleves'} ? 'active'" data-tooltip="Élèves">
+            <i class="fas fa-user-graduate"></i>
+            <span class="nav-text">Élèves</span>
+        </a>
+        <a th:href="@{/profil}" class="nav-item" th:classappend="${activePage == 'profil'} ? 'active'" data-tooltip="Mon Profil">
+            <i class="fas fa-user-circle"></i>
+            <span class="nav-text">Mon Profil</span>
+        </a>
+    </nav>
+    <div class="sidebar-footer">
+        <a href="#" class="nav-item" data-tooltip="Déconnexion">
+            <i class="fas fa-sign-out-alt"></i>
+            <span class="nav-text">Déconnexion</span>
+        </a>
+    </div>
+</aside>
+
+</html>

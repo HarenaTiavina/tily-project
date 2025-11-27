@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- Fragment: Tableau des commandes -->
+<div th:fragment="orders-table(orders)" class="table-card">
+    <h3>Orders Status</h3>
+    <div class="table-container">
+        <table class="orders-table">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Client</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Country</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="order : ${orders}">
+                    <td th:text="${order.id}">#1532</td>
+                    <td>
+                        <div class="client-info">
+                            <strong th:text="${order.clientName}">John Carter</strong>
+                            <span class="client-email" th:text="${order.clientEmail}">hello@johncarter.com</span>
+                        </div>
+                    </td>
+                    <td th:text="${order.date}">Jan 30, 2024</td>
+                    <td>
+                        <span class="status-badge" 
+                              th:classappend="${order.status}"
+                              th:text="${order.status}">Delivered</span>
+                    </td>
+                    <td th:text="${order.country}">United States</td>
+                    <td th:text="${order.total}">$1,099.24</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Fragment: Tableau statique des commandes (pour démo) -->
+<div th:fragment="orders-table-static" class="table-card">
+    <h3>Orders Status</h3>
+    <div class="table-container">
+        <table class="orders-table">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Client</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Country</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>#1532</td>
+                    <td>
+                        <div class="client-info">
+                            <strong>John Carter</strong>
+                            <span class="client-email">hello@johncarter.com</span>
+                        </div>
+                    </td>
+                    <td>Jan 30, 2024</td>
+                    <td><span class="status-badge delivered">Delivered</span></td>
+                    <td>United States</td>
+                    <td>$1,099.24</td>
+                </tr>
+                <tr>
+                    <td>#1531</td>
+                    <td>
+                        <div class="client-info">
+                            <strong>Sophie Moore</strong>
+                            <span class="client-email">contact@sophiemoore.com</span>
+                        </div>
+                    </td>
+                    <td>Jan 27, 2024</td>
+                    <td><span class="status-badge canceled">Canceled</span></td>
+                    <td>United Kingdom</td>
+                    <td>$5,870.32</td>
+                </tr>
+                <tr>
+                    <td>#1530</td>
+                    <td>
+                        <div class="client-info">
+                            <strong>Matt Cannon</strong>
+                            <span class="client-email">info@mattcannon.com</span>
+                        </div>
+                    </td>
+                    <td>Jan 24, 2024</td>
+                    <td><span class="status-badge delivered">Delivered</span></td>
+                    <td>Australia</td>
+                    <td>$13,899.48</td>
+                </tr>
+                <tr>
+                    <td>#1529</td>
+                    <td>
+                        <div class="client-info">
+                            <strong>Emma Taylor</strong>
+                            <span class="client-email">emma@taylor.com</span>
+                        </div>
+                    </td>
+                    <td>Jan 22, 2024</td>
+                    <td><span class="status-badge pending">Pending</span></td>
+                    <td>Canada</td>
+                    <td>$2,450.00</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</html>
+

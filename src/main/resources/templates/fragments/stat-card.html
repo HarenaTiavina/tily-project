@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- Fragment: Carte de statistique -->
+<div th:fragment="stat-card(icon, gradient, title, value, rate, isUp)" class="stat-card">
+    <div class="card-icon" th:style="'background: linear-gradient(135deg, ' + ${gradient} + ');'">
+        <i th:class="'fas fa-' + ${icon}"></i>
+    </div>
+    <div class="card-content">
+        <h3 th:text="${title}">Title</h3>
+        <div class="card-value" th:text="${value}">0</div>
+        <div class="card-rate" th:classappend="${isUp} ? 'up' : 'down'">
+            <i th:class="${isUp} ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+            <span th:text="${rate}">0%</span>
+        </div>
+    </div>
+</div>
+
+</html>
+

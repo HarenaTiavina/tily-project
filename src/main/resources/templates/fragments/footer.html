@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- Fragment: Footer -->
+<footer th:fragment="footer" class="app-footer">
+    <div class="footer-content">
+        <div class="footer-left">
+            <span class="footer-brand">Tily</span>
+            <span class="footer-separator">•</span>
+            <span>Système de Gestion</span>
+        </div>
+        <div class="footer-center">
+            <span>Développé par <strong>Harena ANDRIAMAHATONY</strong></span>
+        </div>
+        <div class="footer-right">
+            <span>© <span th:text="${#dates.year(#dates.createNow())}">2024</span> Tous droits réservés</span>
+        </div>
+    </div>
+</footer>
+
+</html>
+

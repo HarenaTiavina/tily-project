@@ -1,0 +1,675 @@
+/* Profil Page Styles */
+
+.profil-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Header Card */
+.profil-header-card {
+    background: linear-gradient(135deg, #0B1739 0%, #1a2f5a 100%);
+    border-radius: 16px;
+    padding: 32px;
+    display: flex;
+    gap: 40px;
+    align-items: center;
+    color: white;
+    box-shadow: 0 10px 40px rgba(11, 23, 57, 0.3);
+}
+
+.profil-photo-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.photo-wrapper {
+    position: relative;
+    width: 150px;
+    height: 150px;
+}
+
+.photo-wrapper img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.photo-upload-btn {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    width: 40px;
+    height: 40px;
+    background: var(--primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(137, 81, 255, 0.4);
+}
+
+.photo-upload-btn:hover {
+    background: #7a41e6;
+    transform: scale(1.1);
+}
+
+.profil-name {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.profil-totem {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+}
+
+.profil-badge {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.profil-badge.chef {
+    background: rgba(137, 81, 255, 0.2);
+    color: #a78bfa;
+}
+
+.profil-badge.assistant {
+    background: rgba(79, 172, 254, 0.2);
+    color: #7dd3fc;
+}
+
+.profil-badge.membre {
+    background: rgba(67, 233, 123, 0.2);
+    color: #6ee7b7;
+}
+
+.profil-quick-info {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+}
+
+.quick-info-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.quick-info-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.quick-info-item i {
+    font-size: 24px;
+    color: var(--primary);
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(137, 81, 255, 0.1);
+    border-radius: 10px;
+}
+
+.quick-info-item .label {
+    display: block;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 4px;
+}
+
+.quick-info-item .value {
+    display: block;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+/* FAFI Section - Highlighted */
+.fafi-section {
+    margin: 8px 0;
+}
+
+.fafi-card {
+    background: linear-gradient(135deg, #14CA74 0%, #0ea55c 100%);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(20, 202, 116, 0.3);
+}
+
+.fafi-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 24px;
+    color: white;
+}
+
+.fafi-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+}
+
+.fafi-title {
+    flex: 1;
+}
+
+.fafi-title h3 {
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+}
+
+.fafi-title p {
+    font-size: 14px;
+    opacity: 0.8;
+    margin: 0;
+}
+
+.fafi-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.fafi-status.paid {
+    background: rgba(255, 255, 255, 0.25);
+    color: white;
+}
+
+.fafi-status.unpaid {
+    background: rgba(255, 90, 101, 0.9);
+    color: white;
+}
+
+.fafi-status.partial {
+    background: rgba(253, 181, 42, 0.9);
+    color: #333;
+}
+
+.fafi-body {
+    display: flex;
+    gap: 40px;
+    padding: 0 24px 24px;
+    color: white;
+}
+
+.fafi-amount, .fafi-date {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.amount-label, .date-label {
+    font-size: 13px;
+    opacity: 0.7;
+}
+
+.amount-value {
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.date-value {
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.fafi-form {
+    background: white;
+    padding: 24px;
+    border-radius: 0 0 16px 16px;
+}
+
+.fafi-form h4 {
+    font-size: 16px;
+    color: var(--text-primary);
+    margin: 0 0 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.fafi-form h4 i {
+    color: var(--success);
+}
+
+.form-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.form-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.form-group input,
+.form-group select {
+    padding: 12px 16px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--success);
+    box-shadow: 0 0 0 4px rgba(20, 202, 116, 0.1);
+}
+
+.btn-save-fafi {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #14CA74 0%, #0ea55c 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-save-fafi:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(20, 202, 116, 0.4);
+}
+
+/* Assurance Section */
+.assurance-card {
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border);
+}
+
+.assurance-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 24px;
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+}
+
+.assurance-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+}
+
+.assurance-title {
+    flex: 1;
+}
+
+.assurance-title h3 {
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+}
+
+.assurance-title p {
+    font-size: 14px;
+    opacity: 0.8;
+    margin: 0;
+}
+
+.assurance-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 14px;
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.assurance-status.active {
+    color: white;
+}
+
+.assurance-status.expiree {
+    background: rgba(255, 90, 101, 0.9);
+}
+
+.assurance-body {
+    padding: 24px;
+}
+
+.assurance-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.assurance-info-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: var(--bg-primary);
+    border-radius: 12px;
+}
+
+.assurance-info-item i {
+    font-size: 20px;
+    color: var(--info);
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(79, 172, 254, 0.1);
+    border-radius: 10px;
+}
+
+.assurance-info-item .label {
+    display: block;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.assurance-info-item .value {
+    display: block;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.assurance-form {
+    padding: 24px;
+    border-top: 1px solid var(--border);
+}
+
+.assurance-form h4 {
+    font-size: 16px;
+    color: var(--text-primary);
+    margin: 0 0 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.assurance-form h4 i {
+    color: var(--info);
+}
+
+.btn-save-assurance {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-save-assurance:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(79, 172, 254, 0.4);
+}
+
+/* Info Cards */
+.info-card {
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+}
+
+.info-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.info-header h3 i {
+    color: var(--primary);
+}
+
+.btn-edit {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: var(--bg-primary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-edit:hover {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    padding: 24px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.info-item label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.info-item input,
+.info-item select {
+    padding: 12px 16px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    font-size: 14px;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: all 0.3s ease;
+}
+
+.info-item input:not(:disabled),
+.info-item select:not(:disabled) {
+    background: white;
+    border-color: var(--primary);
+}
+
+.info-item input:focus,
+.info-item select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(137, 81, 255, 0.1);
+}
+
+.info-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    background: var(--bg-primary);
+}
+
+.btn-cancel {
+    padding: 10px 20px;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-cancel:hover {
+    background: var(--bg-primary);
+}
+
+.btn-save {
+    padding: 10px 20px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+}
+
+.btn-save:hover {
+    background: #7a41e6;
+}
+
+/* Notification */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 16px 24px;
+    background: var(--success);
+    color: white;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 10px 30px rgba(20, 202, 116, 0.4);
+    transform: translateX(120%);
+    transition: transform 0.3s ease;
+    z-index: 9999;
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .profil-header-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .profil-quick-info {
+        width: 100%;
+    }
+    
+    .assurance-info-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .profil-quick-info {
+        grid-template-columns: 1fr;
+    }
+    
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-row {
+        flex-direction: column;
+    }
+    
+    .fafi-body {
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .fafi-header,
+    .assurance-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .fafi-status,
+    .assurance-status {
+        margin-top: 16px;
+    }
+}
+

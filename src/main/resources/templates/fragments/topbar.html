@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- Fragment: Topbar du dashboard -->
+<header th:fragment="topbar(pageTitle, userName)" class="topbar">
+    <div class="topbar-left">
+        <button class="menu-toggle" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+        <h1 th:text="${pageTitle}">Dashboard Overview</h1>
+    </div>
+    <div class="topbar-right">
+        <a th:href="@{/profil}" class="profile-menu">
+            <img th:src="'https://ui-avatars.com/api/?name=' + ${userName} + '&background=8951FF&color=fff'" alt="Profile">
+            <span th:text="${userName}">User</span>
+        </a>
+    </div>
+</header>
+
+</html>

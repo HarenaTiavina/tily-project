@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: auth-head('Sign Up - Dashboard')}">
+    <title>Sign Up - Dashboard</title>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-box">
+            <h1 class="auth-title">SignUp</h1>
+            
+            <!-- Boutons sociaux -->
+            <div th:replace="~{fragments/auth-form :: social-buttons('Signup')}"></div>
+
+            <!-- Divider -->
+            <div th:replace="~{fragments/auth-form :: divider('or Signup with')}"></div>
+
+            <form class="auth-form" id="signupForm" th:action="@{/signup}" method="post">
+                <!-- Champ nom -->
+                <div th:replace="~{fragments/auth-form :: name-field}"></div>
+
+                <!-- Champ email -->
+                <div th:replace="~{fragments/auth-form :: email-field}"></div>
+
+                <!-- Champ mot de passe -->
+                <div th:replace="~{fragments/auth-form :: password-field('new-password')}"></div>
+
+                <!-- Bouton submit -->
+                <button th:replace="~{fragments/auth-form :: submit-button('Sign Up')}"></button>
+
+                <!-- Footer -->
+                <p th:replace="~{fragments/auth-form :: auth-footer('Already have an account?', 'Login', '/login')}"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <th:block th:replace="~{fragments/auth-form :: auth-scripts}"></th:block>
+</body>
+</html>

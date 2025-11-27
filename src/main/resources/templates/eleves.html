@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Élèves - Tily</title>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div th:replace="~{fragments/sidebar :: sidebar('eleves')}"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Topbar -->
+        <div th:replace="~{fragments/topbar :: topbar('Élèves', 'User')}"></div>
+
+        <!-- Page Content -->
+        <div class="dashboard-content">
+            <!-- Header avec actions -->
+            <div class="page-header">
+                <div class="header-left">
+                    <h2>Liste des Élèves</h2>
+                    <span class="record-count" id="recordCount">6 élèves</span>
+                </div>
+                <div class="header-actions">
+                    <button class="btn-primary" onclick="openAddModal()">
+                        <i class="fas fa-plus"></i>
+                        Ajouter
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filtres -->
+            <div class="filters-section">
+                <div class="filters-row">
+                    <div class="filter-group">
+                        <label>Recherche</label>
+                        <div class="search-filter">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchInput" placeholder="Nom, prénom, totem..." onkeyup="applyFilters()">
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <label>Secteur</label>
+                        <select id="filterSecteur" onchange="applyFilters()">
+                            <option value="">Tous les secteurs</option>
+                            <option value="Antananarivo">Antananarivo</option>
+                            <option value="Fianarantsoa">Fianarantsoa</option>
+                            <option value="Toamasina">Toamasina</option>
+                            <option value="Mahajanga">Mahajanga</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Section</label>
+                        <select id="filterSection" onchange="applyFilters()">
+                            <option value="">Toutes les sections</option>
+                            <option value="Analamanga">Analamanga</option>
+                            <option value="Itasy">Itasy</option>
+                            <option value="Haute Matsiatra">Haute Matsiatra</option>
+                            <option value="Atsinanana">Atsinanana</option>
+                            <option value="Boeny">Boeny</option>
+                            <option value="Vakinankaratra">Vakinankaratra</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Niveau</label>
+                        <select id="filterNiveau" onchange="applyFilters()">
+                            <option value="">Tous les niveaux</option>
+                            <option value="Louveteau">Louveteau</option>
+                            <option value="Éclaireur">Éclaireur</option>
+                            <option value="Routier">Routier</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Assurance</label>
+                        <select id="filterAssurance" onchange="applyFilters()">
+                            <option value="">Toutes</option>
+                            <option value="Oui">Oui</option>
+                            <option value="Non">Non</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filters-actions">
+                    <button class="btn-secondary" onclick="resetFilters()">
+                        <i class="fas fa-undo"></i>
+                        Réinitialiser
+                    </button>
+                    <button class="btn-pdf" onclick="exportToPDF()">
+                        <i class="fas fa-file-pdf"></i>
+                        Exporter PDF
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tableau des Élèves -->
+            <div class="table-card">
+                <div class="table-container">
+                    <table class="data-table" id="elevesTable">
+                        <thead>
+                            <tr>
+                                <th class="sortable" onclick="sortTable(0)">Photo</th>
+                                <th class="sortable" onclick="sortTable(1)">Nom <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(2)">Prénom <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(3)">Totem <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(4)">Date Naissance <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(5)">Nom Père <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(6)">Nom Mère <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(7)">Secteur <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(8)">Section <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(9)">Niveau <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(10)">Fanekena <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(11)">Assurance <i class="fas fa-sort"></i></th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-secteur="Antananarivo" data-section="Analamanga" data-niveau="Louveteau" data-assurance="Oui">
+                                <td><img src="https://ui-avatars.com/api/?name=Aina+Rakoto&background=667eea&color=fff" class="avatar" alt="Photo"></td>
+                                <td>RAKOTO</td>
+                                <td>Aina</td>
+                                <td>Akanga</td>
+                                <td>15/03/2010</td>
+                                <td>Jean Rakoto</td>
+                                <td>Marie Rasoa</td>
+                                <td>Antananarivo</td>
+                                <td>Analamanga</td>
+                                <td><span class="badge-niveau louveteau">Louveteau</span></td>
+                                <td>12/01/2023</td>
+                                <td><span class="status-badge delivered">Oui</span></td>
+                                <td class="actions-cell">
+                                    <button class="btn-icon" title="Voir"><i class="fas fa-eye"></i></button>
+                                    <button class="btn-icon" title="Modifier"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon danger" title="Supprimer"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            <tr data-secteur="Antananarivo" data-section="Itasy" data-niveau="Éclaireur" data-assurance="Oui">
+                                <td><img src="https://ui-avatars.com/api/?name=Feno+Rabe&background=4facfe&color=fff" class="avatar" alt="Photo"></td>
+                                <td>RABE</td>
+                                <td>Feno</td>
+                                <td>Vorona</td>
+                                <td>22/07/2008</td>
+                                <td>Paul Rabe</td>
+                                <td>Sophie Ravao</td>
+                                <td>Antananarivo</td>
+                                <td>Itasy</td>
+                                <td><span class="badge-niveau eclaireur">Éclaireur</span></td>
+                                <td>05/03/2022</td>
+                                <td><span class="status-badge delivered">Oui</span></td>
+                                <td class="actions-cell">
+                                    <button class="btn-icon" title="Voir"><i class="fas fa-eye"></i></button>
+                                    <button class="btn-icon" title="Modifier"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon danger" title="Supprimer"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            <tr data-secteur="Fianarantsoa" data-section="Haute Matsiatra" data-niveau="Louveteau" data-assurance="Non">
+                                <td><img src="https://ui-avatars.com/api/?name=Tiana+Andria&background=43e97b&color=fff" class="avatar" alt="Photo"></td>
+                                <td>ANDRIA</td>
+                                <td>Tiana</td>
+                                <td>Saka</td>
+                                <td>10/11/2012</td>
+                                <td>Luc Andria</td>
+                                <td>Emma Rajo</td>
+                                <td>Fianarantsoa</td>
+                                <td>Haute Matsiatra</td>
+                                <td><span class="badge-niveau louveteau">Louveteau</span></td>
+                                <td>20/06/2023</td>
+                                <td><span class="status-badge pending">Non</span></td>
+                                <td class="actions-cell">
+                                    <button class="btn-icon" title="Voir"><i class="fas fa-eye"></i></button>
+                                    <button class="btn-icon" title="Modifier"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon danger" title="Supprimer"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            <tr data-secteur="Toamasina" data-section="Atsinanana" data-niveau="Routier" data-assurance="Oui">
+                                <td><img src="https://ui-avatars.com/api/?name=Koto+Razaf&background=f093fb&color=fff" class="avatar" alt="Photo"></td>
+                                <td>RAZAF</td>
+                                <td>Koto</td>
+                                <td>Tsingy</td>
+                                <td>05/09/2006</td>
+                                <td>Marc Razaf</td>
+                                <td>Noro Ranaivo</td>
+                                <td>Toamasina</td>
+                                <td>Atsinanana</td>
+                                <td><span class="badge-niveau routier">Routier</span></td>
+                                <td>15/02/2020</td>
+                                <td><span class="status-badge delivered">Oui</span></td>
+                                <td class="actions-cell">
+                                    <button class="btn-icon" title="Voir"><i class="fas fa-eye"></i></button>
+                                    <button class="btn-icon" title="Modifier"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon danger" title="Supprimer"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            <tr data-secteur="Mahajanga" data-section="Boeny" data-niveau="Éclaireur" data-assurance="Oui">
+                                <td><img src="https://ui-avatars.com/api/?name=Soa+Hari&background=fdb52a&color=fff" class="avatar" alt="Photo"></td>
+                                <td>HARI</td>
+                                <td>Soa</td>
+                                <td>Hazo</td>
+                                <td>28/12/2009</td>
+                                <td>Hery Hari</td>
+                                <td>Lala Ratsima</td>
+                                <td>Mahajanga</td>
+                                <td>Boeny</td>
+                                <td><span class="badge-niveau eclaireur">Éclaireur</span></td>
+                                <td>08/11/2021</td>
+                                <td><span class="status-badge delivered">Oui</span></td>
+                                <td class="actions-cell">
+                                    <button class="btn-icon" title="Voir"><i class="fas fa-eye"></i></button>
+                                    <button class="btn-icon" title="Modifier"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon danger" title="Supprimer"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            <tr data-secteur="Antananarivo" data-section="Vakinankaratra" data-niveau="Louveteau" data-assurance="Non">
+                                <td><img src="https://ui-avatars.com/api/?name=Mamy+Rajao&background=ff5a65&color=fff" class="avatar" alt="Photo"></td>
+                                <td>RAJAO</td>
+                                <td>Mamy</td>
+                                <td>Daka</td>
+                                <td>14/04/2011</td>
+                                <td>Solo Rajao</td>
+                                <td>Vola Rasoana</td>
+                                <td>Antananarivo</td>
+                                <td>Vakinankaratra</td>
+                                <td><span class="badge-niveau louveteau">Louveteau</span></td>
+                                <td>22/09/2023</td>
+                                <td><span class="status-badge pending">Non</span></td>
+                                <td class="actions-cell">
+                                    <button class="btn-icon" title="Voir"><i class="fas fa-eye"></i></button>
+                                    <button class="btn-icon" title="Modifier"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon danger" title="Supprimer"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="table-footer">
+                    <div class="rows-per-page">
+                        <span>Lignes par page:</span>
+                        <select>
+                            <option>10</option>
+                            <option>25</option>
+                            <option>50</option>
+                        </select>
+                    </div>
+                    <div class="pagination">
+                        <span id="paginationInfo">1-6 sur 6</span>
+                        <button class="btn-icon" disabled><i class="fas fa-chevron-left"></i></button>
+                        <button class="btn-icon"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div th:replace="~{fragments/footer :: footer}"></div>
+    </div>
+
+    <script>
+        // Toggle sidebar mobile
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        // Toggle sidebar collapse/expand
+        function toggleSidebarCollapse() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.querySelector('.main-content');
+            const toggleIcon = sidebar.querySelector('.sidebar-toggle i');
+            
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('sidebar-collapsed');
+            
+            if (sidebar.classList.contains('collapsed')) {
+                toggleIcon.classList.remove('fa-chevron-left');
+                toggleIcon.classList.add('fa-chevron-right');
+                localStorage.setItem('sidebarCollapsed', 'true');
+            } else {
+                toggleIcon.classList.remove('fa-chevron-right');
+                toggleIcon.classList.add('fa-chevron-left');
+                localStorage.setItem('sidebarCollapsed', 'false');
+            }
+        }
+        
+        // Restore sidebar state
+        document.addEventListener('DOMContentLoaded', function() {
+            const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            if (isCollapsed) {
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.querySelector('.main-content');
+                const toggleIcon = sidebar.querySelector('.sidebar-toggle i');
+                
+                sidebar.classList.add('collapsed');
+                mainContent.classList.add('sidebar-collapsed');
+                toggleIcon.classList.remove('fa-chevron-left');
+                toggleIcon.classList.add('fa-chevron-right');
+            }
+        });
+
+        // Tri du tableau
+        let sortDirection = {};
+        
+        function sortTable(columnIndex) {
+            const table = document.getElementById('elevesTable');
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            sortDirection[columnIndex] = !sortDirection[columnIndex];
+            const direction = sortDirection[columnIndex] ? 1 : -1;
+            
+            rows.sort((a, b) => {
+                const aValue = a.cells[columnIndex].textContent.trim();
+                const bValue = b.cells[columnIndex].textContent.trim();
+                
+                if (aValue.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+                    const aDate = aValue.split('/').reverse().join('-');
+                    const bDate = bValue.split('/').reverse().join('-');
+                    return direction * (new Date(aDate) - new Date(bDate));
+                }
+                
+                return direction * aValue.localeCompare(bValue, 'fr');
+            });
+            
+            document.querySelectorAll('.sortable i').forEach(icon => {
+                icon.className = 'fas fa-sort';
+            });
+            const header = table.querySelectorAll('th')[columnIndex];
+            const icon = header.querySelector('i');
+            if (icon) {
+                icon.className = sortDirection[columnIndex] ? 'fas fa-sort-up' : 'fas fa-sort-down';
+            }
+            
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        // Appliquer tous les filtres
+        function applyFilters() {
+            const searchValue = document.getElementById('searchInput').value.toLowerCase();
+            const secteurValue = document.getElementById('filterSecteur').value;
+            const sectionValue = document.getElementById('filterSection').value;
+            const niveauValue = document.getElementById('filterNiveau').value;
+            const assuranceValue = document.getElementById('filterAssurance').value;
+            
+            const table = document.getElementById('elevesTable');
+            const rows = table.querySelectorAll('tbody tr');
+            let visibleCount = 0;
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                const secteur = row.getAttribute('data-secteur');
+                const section = row.getAttribute('data-section');
+                const niveau = row.getAttribute('data-niveau');
+                const assurance = row.getAttribute('data-assurance');
+                
+                const matchSearch = !searchValue || text.includes(searchValue);
+                const matchSecteur = !secteurValue || secteur === secteurValue;
+                const matchSection = !sectionValue || section === sectionValue;
+                const matchNiveau = !niveauValue || niveau === niveauValue;
+                const matchAssurance = !assuranceValue || assurance === assuranceValue;
+                
+                if (matchSearch && matchSecteur && matchSection && matchNiveau && matchAssurance) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            
+            document.getElementById('recordCount').textContent = visibleCount + ' élève' + (visibleCount > 1 ? 's' : '');
+            document.getElementById('paginationInfo').textContent = '1-' + visibleCount + ' sur ' + visibleCount;
+        }
+
+        // Réinitialiser les filtres
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('filterSecteur').value = '';
+            document.getElementById('filterSection').value = '';
+            document.getElementById('filterNiveau').value = '';
+            document.getElementById('filterAssurance').value = '';
+            applyFilters();
+        }
+
+        // Export PDF
+        function exportToPDF() {
+            const table = document.getElementById('elevesTable');
+            const rows = table.querySelectorAll('tbody tr');
+            const visibleRows = Array.from(rows).filter(row => row.style.display !== 'none');
+            
+            if (visibleRows.length === 0) {
+                alert('Aucune donnée à exporter');
+                return;
+            }
+
+            // Get active filters for title
+            const secteur = document.getElementById('filterSecteur').value;
+            const section = document.getElementById('filterSection').value;
+            const niveau = document.getElementById('filterNiveau').value;
+            const assurance = document.getElementById('filterAssurance').value;
+            
+            let filterTitle = 'Liste des Élèves';
+            let filters = [];
+            if (secteur) filters.push('Secteur: ' + secteur);
+            if (section) filters.push('Section: ' + section);
+            if (niveau) filters.push('Niveau: ' + niveau);
+            if (assurance) filters.push('Assurance: ' + assurance);
+            
+            // Create printable content
+            let printContent = `
+                <html>
+                <head>
+                    <title>Export Élèves - Tily</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; }
+                        h1 { color: #0B1739; font-size: 24px; margin-bottom: 5px; }
+                        .filters { color: #666; font-size: 12px; margin-bottom: 20px; }
+                        .date { color: #666; font-size: 11px; margin-bottom: 20px; }
+                        table { width: 100%; border-collapse: collapse; font-size: 11px; }
+                        th { background: #0B1739; color: white; padding: 10px 8px; text-align: left; }
+                        td { padding: 8px; border-bottom: 1px solid #ddd; }
+                        tr:nth-child(even) { background: #f9f9f9; }
+                        .footer { margin-top: 30px; text-align: center; color: #666; font-size: 10px; }
+                    </style>
+                </head>
+                <body>
+                    <h1>${filterTitle}</h1>
+                    ${filters.length > 0 ? '<p class="filters">Filtres: ' + filters.join(' | ') + '</p>' : ''}
+                    <p class="date">Exporté le: ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Prénom</th>
+                                <th>Totem</th>
+                                <th>Date Naissance</th>
+                                <th>Nom Père</th>
+                                <th>Nom Mère</th>
+                                <th>Secteur</th>
+                                <th>Section</th>
+                                <th>Niveau</th>
+                                <th>Assurance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            visibleRows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                printContent += `
+                    <tr>
+                        <td>${cells[1].textContent}</td>
+                        <td>${cells[2].textContent}</td>
+                        <td>${cells[3].textContent}</td>
+                        <td>${cells[4].textContent}</td>
+                        <td>${cells[5].textContent}</td>
+                        <td>${cells[6].textContent}</td>
+                        <td>${cells[7].textContent}</td>
+                        <td>${cells[8].textContent}</td>
+                        <td>${cells[9].textContent}</td>
+                        <td>${cells[11].textContent}</td>
+                    </tr>
+                `;
+            });
+            
+            printContent += `
+                        </tbody>
+                    </table>
+                    <div class="footer">
+                        <p>Total: ${visibleRows.length} élève(s) - Tily © ${new Date().getFullYear()}</p>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            printWindow.focus();
+            setTimeout(() => {
+                printWindow.print();
+            }, 250);
+        }
+
+        function openAddModal() {
+            alert('Formulaire d\'ajout à implémenter');
+        }
+    </script>
+</body>
+</html>

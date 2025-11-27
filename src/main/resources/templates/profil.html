@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Profil - Tily</title>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <link rel="stylesheet" th:href="@{/css/profil.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div th:replace="~{fragments/sidebar :: sidebar('profil')}"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Topbar -->
+        <div th:replace="~{fragments/topbar :: topbar('Mon Profil', 'User')}"></div>
+
+        <!-- Page Content -->
+        <div class="dashboard-content">
+            <div class="profil-container">
+                <!-- Section Photo et Infos principales -->
+                <div class="profil-header-card">
+                    <div class="profil-photo-section">
+                        <div class="photo-wrapper">
+                            <img id="profileImage" src="https://ui-avatars.com/api/?name=User&background=8951FF&color=fff&size=200" alt="Photo de profil">
+                            <label for="photoInput" class="photo-upload-btn">
+                                <i class="fas fa-camera"></i>
+                            </label>
+                            <input type="file" id="photoInput" accept="image/*" onchange="previewPhoto(this)" hidden>
+                        </div>
+                        <h2 class="profil-name">Jean RAKOTO</h2>
+                        <p class="profil-totem">Totem: <strong>Akanga</strong></p>
+                        <span class="profil-badge chef">Chef</span>
+                    </div>
+                    <div class="profil-quick-info">
+                        <div class="quick-info-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                <span class="label">Secteur</span>
+                                <span class="value">Antananarivo</span>
+                            </div>
+                        </div>
+                        <div class="quick-info-item">
+                            <i class="fas fa-users"></i>
+                            <div>
+                                <span class="label">Section</span>
+                                <span class="value">Analamanga</span>
+                            </div>
+                        </div>
+                        <div class="quick-info-item">
+                            <i class="fas fa-phone"></i>
+                            <div>
+                                <span class="label">Téléphone</span>
+                                <span class="value">034 12 345 67</span>
+                            </div>
+                        </div>
+                        <div class="quick-info-item">
+                            <i class="fas fa-calendar"></i>
+                            <div>
+                                <span class="label">Date Fanekena</span>
+                                <span class="value">12/01/2020</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section FAFI - Mise en avant -->
+                <div class="fafi-section">
+                    <div class="fafi-card">
+                        <div class="fafi-header">
+                            <div class="fafi-icon">
+                                <i class="fas fa-hand-holding-usd"></i>
+                            </div>
+                            <div class="fafi-title">
+                                <h3>FAFI - Cotisation</h3>
+                                <p>Gérez votre cotisation annuelle</p>
+                            </div>
+                            <div class="fafi-status paid">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Payé</span>
+                            </div>
+                        </div>
+                        <div class="fafi-body">
+                            <div class="fafi-amount">
+                                <span class="amount-label">Montant</span>
+                                <span class="amount-value">10 000 Ar</span>
+                            </div>
+                            <div class="fafi-date">
+                                <span class="date-label">Date de paiement</span>
+                                <span class="date-value">15/01/2024</span>
+                            </div>
+                        </div>
+                        <div class="fafi-form">
+                            <h4><i class="fas fa-edit"></i> Modifier le FAFI</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Montant (Ar)</label>
+                                    <input type="number" id="fafiMontant" value="10000" placeholder="Montant en Ariary">
+                                </div>
+                                <div class="form-group">
+                                    <label>Date de paiement</label>
+                                    <input type="date" id="fafiDate" value="2024-01-15">
+                                </div>
+                                <div class="form-group">
+                                    <label>État</label>
+                                    <select id="fafiEtat">
+                                        <option value="paye" selected>Payé</option>
+                                        <option value="non_paye">Non payé</option>
+                                        <option value="partiel">Partiel</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button class="btn-save-fafi" onclick="saveFafi()">
+                                <i class="fas fa-save"></i> Enregistrer FAFI
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section Assurance -->
+                <div class="assurance-section">
+                    <div class="assurance-card">
+                        <div class="assurance-header">
+                            <div class="assurance-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="assurance-title">
+                                <h3>Assurance</h3>
+                                <p>Informations sur votre assurance</p>
+                            </div>
+                            <div class="assurance-status active">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Active</span>
+                            </div>
+                        </div>
+                        <div class="assurance-body">
+                            <div class="assurance-info-grid">
+                                <div class="assurance-info-item">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <div>
+                                        <span class="label">Date de souscription</span>
+                                        <span class="value">01/01/2024</span>
+                                    </div>
+                                </div>
+                                <div class="assurance-info-item">
+                                    <i class="fas fa-calendar-check"></i>
+                                    <div>
+                                        <span class="label">Date d'expiration</span>
+                                        <span class="value">31/12/2024</span>
+                                    </div>
+                                </div>
+                                <div class="assurance-info-item">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                    <div>
+                                        <span class="label">Montant</span>
+                                        <span class="value">25 000 Ar</span>
+                                    </div>
+                                </div>
+                                <div class="assurance-info-item">
+                                    <i class="fas fa-building"></i>
+                                    <div>
+                                        <span class="label">Assureur</span>
+                                        <span class="value">ARO Madagascar</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="assurance-form">
+                            <h4><i class="fas fa-edit"></i> Modifier l'assurance</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Date de souscription</label>
+                                    <input type="date" id="assuranceDateDebut" value="2024-01-01">
+                                </div>
+                                <div class="form-group">
+                                    <label>Date d'expiration</label>
+                                    <input type="date" id="assuranceDateFin" value="2024-12-31">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Montant (Ar)</label>
+                                    <input type="number" id="assuranceMontant" value="25000" placeholder="Montant">
+                                </div>
+                                <div class="form-group">
+                                    <label>État</label>
+                                    <select id="assuranceEtat">
+                                        <option value="active" selected>Active</option>
+                                        <option value="expiree">Expirée</option>
+                                        <option value="en_attente">En attente</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button class="btn-save-assurance" onclick="saveAssurance()">
+                                <i class="fas fa-save"></i> Enregistrer Assurance
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section Informations personnelles -->
+                <div class="info-section">
+                    <div class="info-card">
+                        <div class="info-header">
+                            <h3><i class="fas fa-user"></i> Informations personnelles</h3>
+                            <button class="btn-edit" onclick="toggleEditMode('personal')">
+                                <i class="fas fa-pen"></i> Modifier
+                            </button>
+                        </div>
+                        <div class="info-grid" id="personalInfo">
+                            <div class="info-item">
+                                <label>Nom</label>
+                                <input type="text" value="RAKOTO" disabled>
+                            </div>
+                            <div class="info-item">
+                                <label>Prénom</label>
+                                <input type="text" value="Jean" disabled>
+                            </div>
+                            <div class="info-item">
+                                <label>Totem</label>
+                                <input type="text" value="Akanga" disabled>
+                            </div>
+                            <div class="info-item">
+                                <label>Date de naissance</label>
+                                <input type="date" value="1990-03-15" disabled>
+                            </div>
+                            <div class="info-item">
+                                <label>Numéro CIN</label>
+                                <input type="text" value="101 251 456 789" disabled>
+                            </div>
+                            <div class="info-item">
+                                <label>Téléphone</label>
+                                <input type="tel" value="034 12 345 67" disabled>
+                            </div>
+                            <div class="info-item">
+                                <label>Nom du père</label>
+                                <input type="text" value="Pierre Rakoto" disabled>
+                            </div>
+                            <div class="info-item">
+                                <label>Nom de la mère</label>
+                                <input type="text" value="Marie Rasoa" disabled>
+                            </div>
+                        </div>
+                        <div class="info-actions" id="personalActions" style="display: none;">
+                            <button class="btn-cancel" onclick="cancelEdit('personal')">Annuler</button>
+                            <button class="btn-save" onclick="savePersonal()">
+                                <i class="fas fa-save"></i> Enregistrer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section Informations scout -->
+                <div class="info-section">
+                    <div class="info-card">
+                        <div class="info-header">
+                            <h3><i class="fas fa-campground"></i> Informations Scout</h3>
+                            <button class="btn-edit" onclick="toggleEditMode('scout')">
+                                <i class="fas fa-pen"></i> Modifier
+                            </button>
+                        </div>
+                        <div class="info-grid" id="scoutInfo">
+                            <div class="info-item">
+                                <label>Secteur</label>
+                                <select disabled>
+                                    <option value="Antananarivo" selected>Antananarivo</option>
+                                    <option value="Fianarantsoa">Fianarantsoa</option>
+                                    <option value="Toamasina">Toamasina</option>
+                                    <option value="Mahajanga">Mahajanga</option>
+                                </select>
+                            </div>
+                            <div class="info-item">
+                                <label>Section</label>
+                                <select disabled>
+                                    <option value="Analamanga" selected>Analamanga</option>
+                                    <option value="Itasy">Itasy</option>
+                                    <option value="Vakinankaratra">Vakinankaratra</option>
+                                </select>
+                            </div>
+                            <div class="info-item">
+                                <label>Type</label>
+                                <select disabled>
+                                    <option value="Chef" selected>Chef</option>
+                                    <option value="Assistant">Assistant</option>
+                                    <option value="Membre">Membre</option>
+                                </select>
+                            </div>
+                            <div class="info-item">
+                                <label>Niveau</label>
+                                <select disabled>
+                                    <option value="Chef" selected>Chef</option>
+                                    <option value="Louveteau">Louveteau</option>
+                                    <option value="Eclaireur">Éclaireur</option>
+                                    <option value="Routier">Routier</option>
+                                </select>
+                            </div>
+                            <div class="info-item">
+                                <label>Date Fanekena</label>
+                                <input type="date" value="2020-01-12" disabled>
+                            </div>
+                        </div>
+                        <div class="info-actions" id="scoutActions" style="display: none;">
+                            <button class="btn-cancel" onclick="cancelEdit('scout')">Annuler</button>
+                            <button class="btn-save" onclick="saveScout()">
+                                <i class="fas fa-save"></i> Enregistrer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div th:replace="~{fragments/footer :: footer}"></div>
+    </div>
+
+    <script>
+        // Toggle sidebar mobile
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        // Toggle sidebar collapse/expand
+        function toggleSidebarCollapse() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.querySelector('.main-content');
+            const toggleIcon = sidebar.querySelector('.sidebar-toggle i');
+            
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('sidebar-collapsed');
+            
+            if (sidebar.classList.contains('collapsed')) {
+                toggleIcon.classList.remove('fa-chevron-left');
+                toggleIcon.classList.add('fa-chevron-right');
+                localStorage.setItem('sidebarCollapsed', 'true');
+            } else {
+                toggleIcon.classList.remove('fa-chevron-right');
+                toggleIcon.classList.add('fa-chevron-left');
+                localStorage.setItem('sidebarCollapsed', 'false');
+            }
+        }
+        
+        // Restore sidebar state
+        document.addEventListener('DOMContentLoaded', function() {
+            const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            if (isCollapsed) {
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.querySelector('.main-content');
+                const toggleIcon = sidebar.querySelector('.sidebar-toggle i');
+                
+                sidebar.classList.add('collapsed');
+                mainContent.classList.add('sidebar-collapsed');
+                toggleIcon.classList.remove('fa-chevron-left');
+                toggleIcon.classList.add('fa-chevron-right');
+            }
+        });
+
+        // Preview photo
+        function previewPhoto(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('profileImage').src = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Toggle edit mode
+        function toggleEditMode(section) {
+            const infoSection = document.getElementById(section + 'Info');
+            const actionsSection = document.getElementById(section + 'Actions');
+            const inputs = infoSection.querySelectorAll('input, select');
+            
+            inputs.forEach(input => {
+                input.disabled = !input.disabled;
+            });
+            
+            actionsSection.style.display = actionsSection.style.display === 'none' ? 'flex' : 'none';
+        }
+
+        // Cancel edit
+        function cancelEdit(section) {
+            toggleEditMode(section);
+            // Reset values here if needed
+        }
+
+        // Save functions
+        function savePersonal() {
+            toggleEditMode('personal');
+            showNotification('Informations personnelles enregistrées !');
+        }
+
+        function saveScout() {
+            toggleEditMode('scout');
+            showNotification('Informations scout enregistrées !');
+        }
+
+        function saveFafi() {
+            const montant = document.getElementById('fafiMontant').value;
+            const date = document.getElementById('fafiDate').value;
+            const etat = document.getElementById('fafiEtat').value;
+            
+            // Update display
+            document.querySelector('.fafi-amount .amount-value').textContent = parseInt(montant).toLocaleString('fr-FR') + ' Ar';
+            document.querySelector('.fafi-date .date-value').textContent = new Date(date).toLocaleDateString('fr-FR');
+            
+            const statusEl = document.querySelector('.fafi-status');
+            statusEl.className = 'fafi-status ' + (etat === 'paye' ? 'paid' : etat === 'partiel' ? 'partial' : 'unpaid');
+            statusEl.querySelector('span').textContent = etat === 'paye' ? 'Payé' : etat === 'partiel' ? 'Partiel' : 'Non payé';
+            
+            showNotification('FAFI enregistré avec succès !');
+        }
+
+        function saveAssurance() {
+            const dateDebut = document.getElementById('assuranceDateDebut').value;
+            const dateFin = document.getElementById('assuranceDateFin').value;
+            const montant = document.getElementById('assuranceMontant').value;
+            const etat = document.getElementById('assuranceEtat').value;
+            
+            showNotification('Assurance enregistrée avec succès !');
+        }
+
+        // Notification
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification success';
+            notification.innerHTML = '<i class="fas fa-check-circle"></i> ' + message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
+
