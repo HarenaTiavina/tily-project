@@ -144,6 +144,30 @@ INSERT INTO personne (nom, prenom, totem, datenaissance, niveau, numerotelephone
 VALUES ('RAMANA', 'Tojo', 'Fosa', '2010-12-03', 'Louveteau', NULL, NULL, NULL, 'Hery Ramana', 'Lala Rasoana', '2023-07-20', 2, NULL, 5, 12);
 
 -- =====================================
+-- INSERTION DES UTILISATEURS
+-- =====================================
+-- Mot de passe pour tous: "123456" (hashé avec BCrypt)
+-- Hash BCrypt pour "123456": $2a$10$N9qo8uLOickgx2ZMRZoMy.MQDzX9c5OqmECU9VjzJq8n/eK7g8KQO
+
+-- Admin (responsable Jean Rakoto)
+INSERT INTO utilisateur (email, motdepasse, role, actif, datecreation, idpersonne)
+VALUES ('admin@tily.mg', '$2a$10$N9qo8uLOickgx2ZMRZoMy.MQDzX9c5OqmECU9VjzJq8n/eK7g8KQO', 'ADMIN', TRUE, NOW(), 1);
+
+-- Utilisateurs responsables
+INSERT INTO utilisateur (email, motdepasse, role, actif, datecreation, idpersonne)
+VALUES ('jean.rakoto@tily.mg', '$2a$10$N9qo8uLOickgx2ZMRZoMy.MQDzX9c5OqmECU9VjzJq8n/eK7g8KQO', 'USER', TRUE, NOW(), 1);
+
+INSERT INTO utilisateur (email, motdepasse, role, actif, datecreation, idpersonne)
+VALUES ('marie.rabe@tily.mg', '$2a$10$N9qo8uLOickgx2ZMRZoMy.MQDzX9c5OqmECU9VjzJq8n/eK7g8KQO', 'USER', TRUE, NOW(), 2);
+
+-- Utilisateurs élèves
+INSERT INTO utilisateur (email, motdepasse, role, actif, datecreation, idpersonne)
+VALUES ('aina.rakoto@tily.mg', '$2a$10$N9qo8uLOickgx2ZMRZoMy.MQDzX9c5OqmECU9VjzJq8n/eK7g8KQO', 'USER', TRUE, NOW(), 11);
+
+INSERT INTO utilisateur (email, motdepasse, role, actif, datecreation, idpersonne)
+VALUES ('feno.rabe@tily.mg', '$2a$10$N9qo8uLOickgx2ZMRZoMy.MQDzX9c5OqmECU9VjzJq8n/eK7g8KQO', 'USER', TRUE, NOW(), 12);
+
+-- =====================================
 -- VÉRIFICATION DES DONNÉES
 -- =====================================
 -- Nombre de responsables: 10
@@ -151,4 +175,9 @@ VALUES ('RAMANA', 'Tojo', 'Fosa', '2010-12-03', 'Louveteau', NULL, NULL, NULL, '
 -- Total personnes: 25
 -- Responsables avec assurance active: 8
 -- Élèves avec assurance active: 10
+-- 
+-- Comptes de test:
+-- Email: admin@tily.mg / Mot de passe: 123456 (Admin)
+-- Email: jean.rakoto@tily.mg / Mot de passe: 123456 (Responsable)
+-- Email: aina.rakoto@tily.mg / Mot de passe: 123456 (Élève)
 

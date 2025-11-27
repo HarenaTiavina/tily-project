@@ -2,6 +2,8 @@ package tily.mg.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,6 +11,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import tily.mg.entity.Personne;
+import tily.mg.entity.Utilisateur;
+import tily.mg.service.AuthService;
 import tily.mg.service.DashboardService;
 import tily.mg.service.PersonneService;
 
@@ -26,9 +30,23 @@ public class WebController {
     @Autowired
     private PersonneService personneService;
 
+    @Autowired
+    private AuthService authService;
+
+    private String getCurrentUserName() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated()) {
+            String email = auth.getName();
+            return authService.findByEmail(email)
+                    .map(Utilisateur::getNomComplet)
+                    .orElse("Utilisateur");
+        }
+        return "Utilisateur";
+    }
+
     @GetMapping({"/", "/dashboard"})
     public String dashboard(Model model) {
-        model.addAttribute("userName", "User");
+        model.addAttribute("userName", getCurrentUserName());
         model.addAttribute("pageTitle", "Dashboard Overview");
 
         // Responsables stats
@@ -70,7 +88,7 @@ public class WebController {
             @RequestParam(required = false) String niveau,
             @RequestParam(required = false) Boolean hasAssurance
     ) {
-        model.addAttribute("userName", "User");
+        model.addAttribute("userName", getCurrentUserName());
         model.addAttribute("pageTitle", "Responsables");
 
         // Get filtered or all responsables
@@ -153,7 +171,7 @@ public class WebController {
             @RequestParam(required = false) String niveau,
             @RequestParam(required = false) Boolean hasAssurance
     ) {
-        model.addAttribute("userName", "User");
+        model.addAttribute("userName", getCurrentUserName());
         model.addAttribute("pageTitle", "Élèves");
 
         // Get filtered or all eleves
@@ -226,8 +244,82 @@ public class WebController {
 
     @GetMapping("/profil")
     public String profil(Model model) {
-        model.addAttribute("userName", "User");
+        model.addAttribute("userName", getCurrentUserName());
         model.addAttribute("pageTitle", "Mon Profil");
+
+        // Récupérer l'utilisateur connecté avec ses détails
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated()) {
+            String email = auth.getName();
+            authService.findByEmail(email).ifPresent(utilisateur -> {
+                model.addAttribute("utilisateur", utilisateur);
+                model.addAttribute("personne", utilisateur.getPersonne());
+            });
+        }
+
+        // Reference data pour les selects
+        model.addAttribute("secteurs", personneService.findAllSecteurs());
+        model.addAttribute("sections", personneService.findAllSections());
+
         return "profil";
+    }
+
+    @PostMapping("/profil/modifier")
+    public String modifierProfil(
+            @RequestParam String nom,
+            @RequestParam String prenom,
+            @RequestParam(required = false) String totem,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateNaissance,
+            @RequestParam(required = false) String niveau,
+            @RequestParam(required = false) String numeroTelephone,
+            @RequestParam(required = false) String numeroCin,
+            @RequestParam(required = false) String nomPere,
+            @RequestParam(required = false) String nomMere,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFanekena,
+            @RequestParam(required = false) Integer secteurId,
+            @RequestParam(required = false) Integer sectionId,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.isAuthenticated()) {
+                String email = auth.getName();
+                authService.findByEmail(email).ifPresent(utilisateur -> {
+                    Personne personne = utilisateur.getPersonne();
+                    if (personne != null) {
+                        personne.setNom(nom);
+                        personne.setPrenom(prenom);
+                        personne.setTotem(totem);
+                        personne.setDateNaissance(dateNaissance);
+                        personne.setNiveau(niveau);
+                        personne.setNumeroTelephone(numeroTelephone);
+                        personne.setNumeroCin(numeroCin);
+                        personne.setNomPere(nomPere);
+                        personne.setNomMere(nomMere);
+                        personne.setDateFanekena(dateFanekena);
+
+                        // Update secteur and section
+                        if (secteurId != null) {
+                            personneService.findSecteurById(secteurId).ifPresent(personne::setSecteur);
+                        } else {
+                            personne.setSecteur(null);
+                        }
+
+                        if (sectionId != null) {
+                            personneService.findSectionById(sectionId).ifPresent(personne::setSection);
+                        } else {
+                            personne.setSection(null);
+                        }
+
+                        personneService.save(personne);
+                    }
+                });
+            }
+            redirectAttributes.addFlashAttribute("successMessage", "Profil mis à jour avec succès !");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Erreur lors de la mise à jour : " + e.getMessage());
+        }
+
+        return "redirect:/profil";
     }
 }

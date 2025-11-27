@@ -5,8 +5,240 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mon Profil - Tily</title>
     <link rel="stylesheet" th:href="@{/css/dashboard.css}">
-    <link rel="stylesheet" th:href="@{/css/profil.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .profile-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .profile-header-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            padding: 40px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .profile-header-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 400px;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+        
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            object-fit: cover;
+            z-index: 1;
+        }
+        
+        .profile-info {
+            z-index: 1;
+        }
+        
+        .profile-info h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .profile-info .profile-type {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+        
+        .profile-info .profile-email {
+            opacity: 0.9;
+            font-size: 15px;
+        }
+        
+        .profile-info .profile-email i {
+            margin-right: 8px;
+        }
+        
+        .profile-form-card {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        .form-section {
+            padding: 30px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .form-section:last-child {
+            border-bottom: none;
+        }
+        
+        .form-section-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 24px;
+        }
+        
+        .form-section-title i {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+        
+        .profile-form .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .profile-form .form-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .profile-form .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .profile-form label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        
+        .profile-form input,
+        .profile-form select {
+            padding: 14px 16px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 14px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+        
+        .profile-form input:focus,
+        .profile-form select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(137, 81, 255, 0.1);
+            background: white;
+        }
+        
+        .profile-form input::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.6;
+        }
+        
+        .profile-form input:read-only {
+            background: var(--border);
+            cursor: not-allowed;
+        }
+        
+        .form-actions {
+            padding: 24px 30px;
+            background: var(--bg-primary);
+            display: flex;
+            justify-content: flex-end;
+            gap: 16px;
+        }
+        
+        .btn-save {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-reset {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 28px;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-reset:hover {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        
+        @media (max-width: 768px) {
+            .profile-header-card {
+                flex-direction: column;
+                text-align: center;
+                padding: 30px 20px;
+            }
+            
+            .profile-form .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-section {
+                padding: 20px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+                padding: 20px;
+            }
+            
+            .form-actions button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- Sidebar -->
@@ -15,299 +247,197 @@
     <!-- Main Content -->
     <div class="main-content">
         <!-- Topbar -->
-        <div th:replace="~{fragments/topbar :: topbar('Mon Profil', 'User')}"></div>
+        <div th:replace="~{fragments/topbar :: topbar(${pageTitle}, ${userName})}"></div>
 
         <!-- Page Content -->
         <div class="dashboard-content">
-            <div class="profil-container">
-                <!-- Section Photo et Infos principales -->
-                <div class="profil-header-card">
-                    <div class="profil-photo-section">
-                        <div class="photo-wrapper">
-                            <img id="profileImage" src="https://ui-avatars.com/api/?name=User&background=8951FF&color=fff&size=200" alt="Photo de profil">
-                            <label for="photoInput" class="photo-upload-btn">
-                                <i class="fas fa-camera"></i>
-                            </label>
-                            <input type="file" id="photoInput" accept="image/*" onchange="previewPhoto(this)" hidden>
+            <!-- Messages de notification -->
+            <div th:if="${successMessage}" class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                <span th:text="${successMessage}"></span>
+                <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span th:text="${errorMessage}"></span>
+                <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+            </div>
+
+            <div class="profile-container">
+                <!-- Profile Header -->
+                <div class="profile-header-card">
+                    <img th:if="${personne != null and personne.image != null and !personne.image.isEmpty()}" 
+                         th:src="${personne.image}" class="profile-avatar" alt="Photo de profil">
+                    <img th:unless="${personne != null and personne.image != null and !personne.image.isEmpty()}" 
+                         th:src="${personne != null ? 'https://ui-avatars.com/api/?name=' + personne.prenom + '+' + personne.nom + '&background=8951FF&color=fff&size=120' : 'https://ui-avatars.com/api/?name=User&background=8951FF&color=fff&size=120'}" 
+                         class="profile-avatar" alt="Photo de profil">
+                    <div class="profile-info">
+                        <h2 th:text="${personne != null ? personne.prenom + ' ' + personne.nom : 'Utilisateur'}">Nom Prénom</h2>
+                        <div class="profile-type" th:if="${personne != null and personne.typePersonne != null}">
+                            <i th:class="${personne.typePersonne.nom == 'Responsable' ? 'fas fa-user-tie' : 'fas fa-user-graduate'}"></i>
+                            <span th:text="${personne.typePersonne.nom}">Type</span>
                         </div>
-                        <h2 class="profil-name">Jean RAKOTO</h2>
-                        <p class="profil-totem">Totem: <strong>Akanga</strong></p>
-                        <span class="profil-badge chef">Chef</span>
-                    </div>
-                    <div class="profil-quick-info">
-                        <div class="quick-info-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <div>
-                                <span class="label">Secteur</span>
-                                <span class="value">Antananarivo</span>
-                            </div>
-                        </div>
-                        <div class="quick-info-item">
-                            <i class="fas fa-users"></i>
-                            <div>
-                                <span class="label">Section</span>
-                                <span class="value">Analamanga</span>
-                            </div>
-                        </div>
-                        <div class="quick-info-item">
-                            <i class="fas fa-phone"></i>
-                            <div>
-                                <span class="label">Téléphone</span>
-                                <span class="value">034 12 345 67</span>
-                            </div>
-                        </div>
-                        <div class="quick-info-item">
-                            <i class="fas fa-calendar"></i>
-                            <div>
-                                <span class="label">Date Fanekena</span>
-                                <span class="value">12/01/2020</span>
-                            </div>
+                        <div class="profile-email" th:if="${utilisateur != null}">
+                            <i class="fas fa-envelope"></i>
+                            <span th:text="${utilisateur.email}">email@example.com</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Section FAFI - Mise en avant -->
-                <div class="fafi-section">
-                    <div class="fafi-card">
-                        <div class="fafi-header">
-                            <div class="fafi-icon">
-                                <i class="fas fa-hand-holding-usd"></i>
+                <!-- Profile Form -->
+                <div class="profile-form-card">
+                    <form th:action="@{/profil/modifier}" method="post" class="profile-form">
+                        <!-- Informations personnelles -->
+                        <div class="form-section">
+                            <div class="form-section-title">
+                                <i class="fas fa-user"></i>
+                                <span>Informations personnelles</span>
                             </div>
-                            <div class="fafi-title">
-                                <h3>FAFI - Cotisation</h3>
-                                <p>Gérez votre cotisation annuelle</p>
-                            </div>
-                            <div class="fafi-status paid">
-                                <i class="fas fa-check-circle"></i>
-                                <span>Payé</span>
-                            </div>
-                        </div>
-                        <div class="fafi-body">
-                            <div class="fafi-amount">
-                                <span class="amount-label">Montant</span>
-                                <span class="amount-value">10 000 Ar</span>
-                            </div>
-                            <div class="fafi-date">
-                                <span class="date-label">Date de paiement</span>
-                                <span class="date-value">15/01/2024</span>
-                            </div>
-                        </div>
-                        <div class="fafi-form">
-                            <h4><i class="fas fa-edit"></i> Modifier le FAFI</h4>
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label>Montant (Ar)</label>
-                                    <input type="number" id="fafiMontant" value="10000" placeholder="Montant en Ariary">
+                                    <label for="nom">Nom</label>
+                                    <input type="text" id="nom" name="nom" 
+                                           th:value="${personne != null ? personne.nom : ''}" 
+                                           placeholder="Votre nom" required>
                                 </div>
                                 <div class="form-group">
-                                    <label>Date de paiement</label>
-                                    <input type="date" id="fafiDate" value="2024-01-15">
+                                    <label for="prenom">Prénom</label>
+                                    <input type="text" id="prenom" name="prenom" 
+                                           th:value="${personne != null ? personne.prenom : ''}" 
+                                           placeholder="Votre prénom" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="totem">Totem</label>
+                                    <input type="text" id="totem" name="totem" 
+                                           th:value="${personne != null ? personne.totem : ''}" 
+                                           placeholder="Votre totem">
                                 </div>
                                 <div class="form-group">
-                                    <label>État</label>
-                                    <select id="fafiEtat">
-                                        <option value="paye" selected>Payé</option>
-                                        <option value="non_paye">Non payé</option>
-                                        <option value="partiel">Partiel</option>
+                                    <label for="dateNaissance">Date de naissance</label>
+                                    <input type="date" id="dateNaissance" name="dateNaissance" 
+                                           th:value="${personne != null and personne.dateNaissance != null ? personne.dateNaissance : ''}">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="numeroCin">Numéro CIN</label>
+                                    <input type="text" id="numeroCin" name="numeroCin" 
+                                           th:value="${personne != null ? personne.numeroCin : ''}" 
+                                           placeholder="Ex: 101 251 456 789">
+                                </div>
+                                <div class="form-group">
+                                    <label for="numeroTelephone">Téléphone</label>
+                                    <input type="text" id="numeroTelephone" name="numeroTelephone" 
+                                           th:value="${personne != null ? personne.numeroTelephone : ''}" 
+                                           placeholder="Ex: 034 12 345 67">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Informations familiales -->
+                        <div class="form-section">
+                            <div class="form-section-title">
+                                <i class="fas fa-users"></i>
+                                <span>Informations familiales</span>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="nomPere">Nom du père</label>
+                                    <input type="text" id="nomPere" name="nomPere" 
+                                           th:value="${personne != null ? personne.nomPere : ''}" 
+                                           placeholder="Nom complet du père">
+                                </div>
+                                <div class="form-group">
+                                    <label for="nomMere">Nom de la mère</label>
+                                    <input type="text" id="nomMere" name="nomMere" 
+                                           th:value="${personne != null ? personne.nomMere : ''}" 
+                                           placeholder="Nom complet de la mère">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Informations scout -->
+                        <div class="form-section">
+                            <div class="form-section-title">
+                                <i class="fas fa-campground"></i>
+                                <span>Informations scout</span>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="secteurId">Secteur</label>
+                                    <select id="secteurId" name="secteurId">
+                                        <option value="">-- Sélectionner --</option>
+                                        <option th:each="secteur : ${secteurs}" 
+                                                th:value="${secteur.id}" 
+                                                th:text="${secteur.nom}"
+                                                th:selected="${personne != null and personne.secteur != null and personne.secteur.id == secteur.id}"></option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="sectionId">Section</label>
+                                    <select id="sectionId" name="sectionId">
+                                        <option value="">-- Sélectionner --</option>
+                                        <option th:each="section : ${sections}" 
+                                                th:value="${section.id}" 
+                                                th:text="${section.nom}"
+                                                th:selected="${personne != null and personne.section != null and personne.section.id == section.id}"></option>
                                     </select>
                                 </div>
                             </div>
-                            <button class="btn-save-fafi" onclick="saveFafi()">
-                                <i class="fas fa-save"></i> Enregistrer FAFI
-                            </button>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="niveau">Niveau</label>
+                                    <select id="niveau" name="niveau">
+                                        <option value="">-- Sélectionner --</option>
+                                        <option value="Louveteau" th:selected="${personne != null and personne.niveau == 'Louveteau'}">Louveteau</option>
+                                        <option value="Éclaireur" th:selected="${personne != null and personne.niveau == 'Éclaireur'}">Éclaireur</option>
+                                        <option value="Routier" th:selected="${personne != null and personne.niveau == 'Routier'}">Routier</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="dateFanekena">Date Fanekena</label>
+                                    <input type="date" id="dateFanekena" name="dateFanekena" 
+                                           th:value="${personne != null and personne.dateFanekena != null ? personne.dateFanekena : ''}">
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Section Assurance -->
-                <div class="assurance-section">
-                    <div class="assurance-card">
-                        <div class="assurance-header">
-                            <div class="assurance-icon">
+                        <!-- Compte utilisateur (lecture seule) -->
+                        <div class="form-section">
+                            <div class="form-section-title">
                                 <i class="fas fa-shield-alt"></i>
-                            </div>
-                            <div class="assurance-title">
-                                <h3>Assurance</h3>
-                                <p>Informations sur votre assurance</p>
-                            </div>
-                            <div class="assurance-status active">
-                                <i class="fas fa-check-circle"></i>
-                                <span>Active</span>
-                            </div>
-                        </div>
-                        <div class="assurance-body">
-                            <div class="assurance-info-grid">
-                                <div class="assurance-info-item">
-                                    <i class="fas fa-calendar-alt"></i>
-                                    <div>
-                                        <span class="label">Date de souscription</span>
-                                        <span class="value">01/01/2024</span>
-                                    </div>
-                                </div>
-                                <div class="assurance-info-item">
-                                    <i class="fas fa-calendar-check"></i>
-                                    <div>
-                                        <span class="label">Date d'expiration</span>
-                                        <span class="value">31/12/2024</span>
-                                    </div>
-                                </div>
-                                <div class="assurance-info-item">
-                                    <i class="fas fa-money-bill-wave"></i>
-                                    <div>
-                                        <span class="label">Montant</span>
-                                        <span class="value">25 000 Ar</span>
-                                    </div>
-                                </div>
-                                <div class="assurance-info-item">
-                                    <i class="fas fa-building"></i>
-                                    <div>
-                                        <span class="label">Assureur</span>
-                                        <span class="value">ARO Madagascar</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="assurance-form">
-                            <h4><i class="fas fa-edit"></i> Modifier l'assurance</h4>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label>Date de souscription</label>
-                                    <input type="date" id="assuranceDateDebut" value="2024-01-01">
-                                </div>
-                                <div class="form-group">
-                                    <label>Date d'expiration</label>
-                                    <input type="date" id="assuranceDateFin" value="2024-12-31">
-                                </div>
+                                <span>Compte utilisateur</span>
                             </div>
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label>Montant (Ar)</label>
-                                    <input type="number" id="assuranceMontant" value="25000" placeholder="Montant">
+                                    <label for="email">Email</label>
+                                    <input type="email" id="email" 
+                                           th:value="${utilisateur != null ? utilisateur.email : ''}" 
+                                           readonly>
                                 </div>
                                 <div class="form-group">
-                                    <label>État</label>
-                                    <select id="assuranceEtat">
-                                        <option value="active" selected>Active</option>
-                                        <option value="expiree">Expirée</option>
-                                        <option value="en_attente">En attente</option>
-                                    </select>
+                                    <label for="dateCreation">Membre depuis</label>
+                                    <input type="text" id="dateCreation" 
+                                           th:value="${utilisateur != null and utilisateur.dateCreation != null ? #temporals.format(utilisateur.dateCreation, 'dd/MM/yyyy') : ''}" 
+                                           readonly>
                                 </div>
                             </div>
-                            <button class="btn-save-assurance" onclick="saveAssurance()">
-                                <i class="fas fa-save"></i> Enregistrer Assurance
-                            </button>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Section Informations personnelles -->
-                <div class="info-section">
-                    <div class="info-card">
-                        <div class="info-header">
-                            <h3><i class="fas fa-user"></i> Informations personnelles</h3>
-                            <button class="btn-edit" onclick="toggleEditMode('personal')">
-                                <i class="fas fa-pen"></i> Modifier
+                        <!-- Actions -->
+                        <div class="form-actions">
+                            <button type="reset" class="btn-reset">
+                                <i class="fas fa-undo"></i>
+                                Réinitialiser
+                            </button>
+                            <button type="submit" class="btn-save">
+                                <i class="fas fa-save"></i>
+                                Enregistrer les modifications
                             </button>
                         </div>
-                        <div class="info-grid" id="personalInfo">
-                            <div class="info-item">
-                                <label>Nom</label>
-                                <input type="text" value="RAKOTO" disabled>
-                            </div>
-                            <div class="info-item">
-                                <label>Prénom</label>
-                                <input type="text" value="Jean" disabled>
-                            </div>
-                            <div class="info-item">
-                                <label>Totem</label>
-                                <input type="text" value="Akanga" disabled>
-                            </div>
-                            <div class="info-item">
-                                <label>Date de naissance</label>
-                                <input type="date" value="1990-03-15" disabled>
-                            </div>
-                            <div class="info-item">
-                                <label>Numéro CIN</label>
-                                <input type="text" value="101 251 456 789" disabled>
-                            </div>
-                            <div class="info-item">
-                                <label>Téléphone</label>
-                                <input type="tel" value="034 12 345 67" disabled>
-                            </div>
-                            <div class="info-item">
-                                <label>Nom du père</label>
-                                <input type="text" value="Pierre Rakoto" disabled>
-                            </div>
-                            <div class="info-item">
-                                <label>Nom de la mère</label>
-                                <input type="text" value="Marie Rasoa" disabled>
-                            </div>
-                        </div>
-                        <div class="info-actions" id="personalActions" style="display: none;">
-                            <button class="btn-cancel" onclick="cancelEdit('personal')">Annuler</button>
-                            <button class="btn-save" onclick="savePersonal()">
-                                <i class="fas fa-save"></i> Enregistrer
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Section Informations scout -->
-                <div class="info-section">
-                    <div class="info-card">
-                        <div class="info-header">
-                            <h3><i class="fas fa-campground"></i> Informations Scout</h3>
-                            <button class="btn-edit" onclick="toggleEditMode('scout')">
-                                <i class="fas fa-pen"></i> Modifier
-                            </button>
-                        </div>
-                        <div class="info-grid" id="scoutInfo">
-                            <div class="info-item">
-                                <label>Secteur</label>
-                                <select disabled>
-                                    <option value="Antananarivo" selected>Antananarivo</option>
-                                    <option value="Fianarantsoa">Fianarantsoa</option>
-                                    <option value="Toamasina">Toamasina</option>
-                                    <option value="Mahajanga">Mahajanga</option>
-                                </select>
-                            </div>
-                            <div class="info-item">
-                                <label>Section</label>
-                                <select disabled>
-                                    <option value="Analamanga" selected>Analamanga</option>
-                                    <option value="Itasy">Itasy</option>
-                                    <option value="Vakinankaratra">Vakinankaratra</option>
-                                </select>
-                            </div>
-                            <div class="info-item">
-                                <label>Type</label>
-                                <select disabled>
-                                    <option value="Chef" selected>Chef</option>
-                                    <option value="Assistant">Assistant</option>
-                                    <option value="Membre">Membre</option>
-                                </select>
-                            </div>
-                            <div class="info-item">
-                                <label>Niveau</label>
-                                <select disabled>
-                                    <option value="Chef" selected>Chef</option>
-                                    <option value="Louveteau">Louveteau</option>
-                                    <option value="Eclaireur">Éclaireur</option>
-                                    <option value="Routier">Routier</option>
-                                </select>
-                            </div>
-                            <div class="info-item">
-                                <label>Date Fanekena</label>
-                                <input type="date" value="2020-01-12" disabled>
-                            </div>
-                        </div>
-                        <div class="info-actions" id="scoutActions" style="display: none;">
-                            <button class="btn-cancel" onclick="cancelEdit('scout')">Annuler</button>
-                            <button class="btn-save" onclick="saveScout()">
-                                <i class="fas fa-save"></i> Enregistrer
-                            </button>
-                        </div>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -356,91 +486,16 @@
                 toggleIcon.classList.remove('fa-chevron-left');
                 toggleIcon.classList.add('fa-chevron-right');
             }
+            
+            // Auto-hide alerts after 5 seconds
+            setTimeout(() => {
+                document.querySelectorAll('.alert').forEach(alert => {
+                    alert.style.opacity = '0';
+                    setTimeout(() => alert.remove(), 300);
+                });
+            }, 5000);
         });
 
-        // Preview photo
-        function previewPhoto(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('profileImage').src = e.target.result;
-                }
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        // Toggle edit mode
-        function toggleEditMode(section) {
-            const infoSection = document.getElementById(section + 'Info');
-            const actionsSection = document.getElementById(section + 'Actions');
-            const inputs = infoSection.querySelectorAll('input, select');
-            
-            inputs.forEach(input => {
-                input.disabled = !input.disabled;
-            });
-            
-            actionsSection.style.display = actionsSection.style.display === 'none' ? 'flex' : 'none';
-        }
-
-        // Cancel edit
-        function cancelEdit(section) {
-            toggleEditMode(section);
-            // Reset values here if needed
-        }
-
-        // Save functions
-        function savePersonal() {
-            toggleEditMode('personal');
-            showNotification('Informations personnelles enregistrées !');
-        }
-
-        function saveScout() {
-            toggleEditMode('scout');
-            showNotification('Informations scout enregistrées !');
-        }
-
-        function saveFafi() {
-            const montant = document.getElementById('fafiMontant').value;
-            const date = document.getElementById('fafiDate').value;
-            const etat = document.getElementById('fafiEtat').value;
-            
-            // Update display
-            document.querySelector('.fafi-amount .amount-value').textContent = parseInt(montant).toLocaleString('fr-FR') + ' Ar';
-            document.querySelector('.fafi-date .date-value').textContent = new Date(date).toLocaleDateString('fr-FR');
-            
-            const statusEl = document.querySelector('.fafi-status');
-            statusEl.className = 'fafi-status ' + (etat === 'paye' ? 'paid' : etat === 'partiel' ? 'partial' : 'unpaid');
-            statusEl.querySelector('span').textContent = etat === 'paye' ? 'Payé' : etat === 'partiel' ? 'Partiel' : 'Non payé';
-            
-            showNotification('FAFI enregistré avec succès !');
-        }
-
-        function saveAssurance() {
-            const dateDebut = document.getElementById('assuranceDateDebut').value;
-            const dateFin = document.getElementById('assuranceDateFin').value;
-            const montant = document.getElementById('assuranceMontant').value;
-            const etat = document.getElementById('assuranceEtat').value;
-            
-            showNotification('Assurance enregistrée avec succès !');
-        }
-
-        // Notification
-        function showNotification(message) {
-            const notification = document.createElement('div');
-            notification.className = 'notification success';
-            notification.innerHTML = '<i class="fas fa-check-circle"></i> ' + message;
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.classList.add('show');
-            }, 100);
-            
-            setTimeout(() => {
-                notification.classList.remove('show');
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
-        }
     </script>
 </body>
 </html>
-

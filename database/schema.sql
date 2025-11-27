@@ -72,9 +72,27 @@ CREATE TABLE IF NOT EXISTS personne (
         REFERENCES section(idSection)
 );
 
+-- =====================================
+-- TABLE : utilisateur
+-- =====================================
+CREATE TABLE IF NOT EXISTS utilisateur (
+    idUtilisateur SERIAL PRIMARY KEY,
+    email VARCHAR(150) NOT NULL UNIQUE,
+    motDePasse VARCHAR(255) NOT NULL,
+    role VARCHAR(20) DEFAULT 'USER',
+    actif BOOLEAN DEFAULT TRUE,
+    dateCreation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    derniereConnexion TIMESTAMP,
+    idPersonne INTEGER,
+    CONSTRAINT fk_utilisateur_personne FOREIGN KEY (idPersonne)
+        REFERENCES personne(idPersonne) ON DELETE SET NULL
+);
+
 -- Index pour améliorer les performances
 CREATE INDEX IF NOT EXISTS idx_personne_type ON personne(idTypePersonne);
 CREATE INDEX IF NOT EXISTS idx_personne_secteur ON personne(idSecteur);
 CREATE INDEX IF NOT EXISTS idx_personne_section ON personne(idSection);
 CREATE INDEX IF NOT EXISTS idx_personne_assurance ON personne(idAssurance);
+CREATE INDEX IF NOT EXISTS idx_utilisateur_email ON utilisateur(email);
+CREATE INDEX IF NOT EXISTS idx_utilisateur_personne ON utilisateur(idPersonne);
 

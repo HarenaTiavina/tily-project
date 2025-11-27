@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <!-- Fragment: Topbar du dashboard -->
 <header th:fragment="topbar(pageTitle, userName)" class="topbar">
@@ -10,10 +10,17 @@
         <h1 th:text="${pageTitle}">Dashboard Overview</h1>
     </div>
     <div class="topbar-right">
-        <a th:href="@{/profil}" class="profile-menu">
+        <!-- Pour USER: lien vers profil -->
+        <a sec:authorize="hasRole('USER')" th:href="@{/profil}" class="profile-link">
             <img th:src="'https://ui-avatars.com/api/?name=' + ${userName} + '&background=8951FF&color=fff'" alt="Profile">
             <span th:text="${userName}">User</span>
         </a>
+        <!-- Pour ADMIN: juste affichage sans lien -->
+        <div sec:authorize="hasRole('ADMIN')" class="profile-display">
+            <img th:src="'https://ui-avatars.com/api/?name=' + ${userName} + '&background=667eea&color=fff'" alt="Admin">
+            <span th:text="${userName}">Admin</span>
+            <span class="admin-badge">Admin</span>
+        </div>
     </div>
 </header>
 

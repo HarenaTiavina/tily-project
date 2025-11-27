@@ -316,6 +316,93 @@ body {
     transform: scale(1.05);
 }
 
+/* Profile Link (simple version) */
+.profile-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--text-primary);
+    padding: 8px 12px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.profile-link:hover {
+    background: var(--bg-primary);
+}
+
+.profile-link img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+}
+
+.profile-link:hover img {
+    transform: scale(1.05);
+}
+
+.profile-link span {
+    font-weight: 500;
+}
+
+/* Profile Display (for Admin - no link) */
+.profile-display {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: var(--bg-primary);
+}
+
+.profile-display img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.profile-display span {
+    font-weight: 500;
+}
+
+.admin-badge {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    padding: 4px 10px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Sidebar Logout */
+.logout-form {
+    margin: 0;
+    padding: 0;
+}
+
+.logout-btn {
+    width: 100%;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: inherit;
+}
+
+.logout-btn:hover {
+    background: rgba(255, 90, 101, 0.15) !important;
+    color: #FF5A65 !important;
+}
+
+.logout-btn i {
+    color: inherit;
+}
+
 /* Dashboard Content */
 .dashboard-content {
     padding: 32px;
