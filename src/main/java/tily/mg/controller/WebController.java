@@ -148,6 +148,59 @@ public class WebController {
         return "redirect:/responsables";
     }
 
+    @PostMapping("/responsables/modifier")
+    public String modifierResponsable(
+            @RequestParam Integer id,
+            @RequestParam String nom,
+            @RequestParam String prenom,
+            @RequestParam(required = false) String totem,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateNaissance,
+            @RequestParam(required = false) String niveau,
+            @RequestParam(required = false) String numeroTelephone,
+            @RequestParam(required = false) String numeroCin,
+            @RequestParam(required = false) String nomPere,
+            @RequestParam(required = false) String nomMere,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFanekena,
+            @RequestParam(required = false) Integer secteurId,
+            @RequestParam(required = false) Integer sectionId,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            personneService.findById(id).ifPresent(personne -> {
+                personne.setNom(nom);
+                personne.setPrenom(prenom);
+                personne.setTotem(totem);
+                personne.setDateNaissance(dateNaissance);
+                personne.setNiveau(niveau);
+                personne.setNumeroTelephone(numeroTelephone);
+                personne.setNumeroCin(numeroCin);
+                personne.setNomPere(nomPere);
+                personne.setNomMere(nomMere);
+                personne.setDateFanekena(dateFanekena);
+
+                if (secteurId != null) {
+                    personneService.findSecteurById(secteurId).ifPresent(personne::setSecteur);
+                } else {
+                    personne.setSecteur(null);
+                }
+
+                if (sectionId != null) {
+                    personneService.findSectionById(sectionId).ifPresent(personne::setSection);
+                } else {
+                    personne.setSection(null);
+                }
+
+                personneService.save(personne);
+            });
+            
+            redirectAttributes.addFlashAttribute("successMessage", "Responsable modifié avec succès !");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Erreur lors de la modification : " + e.getMessage());
+        }
+        
+        return "redirect:/responsables";
+    }
+
     @PostMapping("/responsables/supprimer")
     public String supprimerResponsable(
             @RequestParam Integer id,
@@ -222,6 +275,55 @@ public class WebController {
             redirectAttributes.addFlashAttribute("successMessage", "Élève ajouté avec succès !");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Erreur lors de l'ajout : " + e.getMessage());
+        }
+        
+        return "redirect:/eleves";
+    }
+
+    @PostMapping("/eleves/modifier")
+    public String modifierEleve(
+            @RequestParam Integer id,
+            @RequestParam String nom,
+            @RequestParam String prenom,
+            @RequestParam(required = false) String totem,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateNaissance,
+            @RequestParam(required = false) String niveau,
+            @RequestParam(required = false) String nomPere,
+            @RequestParam(required = false) String nomMere,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFanekena,
+            @RequestParam(required = false) Integer secteurId,
+            @RequestParam(required = false) Integer sectionId,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            personneService.findById(id).ifPresent(personne -> {
+                personne.setNom(nom);
+                personne.setPrenom(prenom);
+                personne.setTotem(totem);
+                personne.setDateNaissance(dateNaissance);
+                personne.setNiveau(niveau);
+                personne.setNomPere(nomPere);
+                personne.setNomMere(nomMere);
+                personne.setDateFanekena(dateFanekena);
+
+                if (secteurId != null) {
+                    personneService.findSecteurById(secteurId).ifPresent(personne::setSecteur);
+                } else {
+                    personne.setSecteur(null);
+                }
+
+                if (sectionId != null) {
+                    personneService.findSectionById(sectionId).ifPresent(personne::setSection);
+                } else {
+                    personne.setSection(null);
+                }
+
+                personneService.save(personne);
+            });
+            
+            redirectAttributes.addFlashAttribute("successMessage", "Élève modifié avec succès !");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Erreur lors de la modification : " + e.getMessage());
         }
         
         return "redirect:/eleves";

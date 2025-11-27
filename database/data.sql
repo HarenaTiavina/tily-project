@@ -147,25 +147,25 @@ VALUES ('RAMANA', 'Tojo', 'Fosa', '2010-12-03', 'Louveteau', NULL, NULL, NULL, '
 -- INSERTION DES UTILISATEURS
 -- =====================================
 -- Mot de passe pour tous: "123456" (hashé avec BCrypt)
--- Hash BCrypt pour "123456": $2a$10$N9qo8uLOickgx2ZMRZoMy.MQDzX9c5OqmECU9VjzJq8n/eK7g8KQO
+-- Hash BCrypt pour "123456": $2a$10$z89dW1lU6u6Dc6m280iVxuuQ7S/.xHcWSzJcqYa8JONDrOEHXMm0.
 
 -- Admin (responsable Jean Rakoto)
 INSERT INTO utilisateur (email, motdepasse, role, actif, datecreation, idpersonne)
-VALUES ('admin@tily.mg', '$2a$10$N9qo8uLOickgx2ZMRZoMy.MQDzX9c5OqmECU9VjzJq8n/eK7g8KQO', 'ADMIN', TRUE, NOW(), 1);
+VALUES ('admin@tily.mg', '$2a$10$z89dW1lU6u6Dc6m280iVxuuQ7S/.xHcWSzJcqYa8JONDrOEHXMm0.', 'ADMIN', TRUE, NOW(), 1);
 
 -- Utilisateurs responsables
 INSERT INTO utilisateur (email, motdepasse, role, actif, datecreation, idpersonne)
-VALUES ('jean.rakoto@tily.mg', '$2a$10$N9qo8uLOickgx2ZMRZoMy.MQDzX9c5OqmECU9VjzJq8n/eK7g8KQO', 'USER', TRUE, NOW(), 1);
+VALUES ('jean.rakoto@tily.mg', '$2a$10$z89dW1lU6u6Dc6m280iVxuuQ7S/.xHcWSzJcqYa8JONDrOEHXMm0.', 'USER', TRUE, NOW(), 1);
 
 INSERT INTO utilisateur (email, motdepasse, role, actif, datecreation, idpersonne)
-VALUES ('marie.rabe@tily.mg', '$2a$10$N9qo8uLOickgx2ZMRZoMy.MQDzX9c5OqmECU9VjzJq8n/eK7g8KQO', 'USER', TRUE, NOW(), 2);
+VALUES ('marie.rabe@tily.mg', '$2a$10$z89dW1lU6u6Dc6m280iVxuuQ7S/.xHcWSzJcqYa8JONDrOEHXMm0.', 'USER', TRUE, NOW(), 2);
 
 -- Utilisateurs élèves
 INSERT INTO utilisateur (email, motdepasse, role, actif, datecreation, idpersonne)
-VALUES ('aina.rakoto@tily.mg', '$2a$10$N9qo8uLOickgx2ZMRZoMy.MQDzX9c5OqmECU9VjzJq8n/eK7g8KQO', 'USER', TRUE, NOW(), 11);
+VALUES ('aina.rakoto@tily.mg', '$2a$10$z89dW1lU6u6Dc6m280iVxuuQ7S/.xHcWSzJcqYa8JONDrOEHXMm0.', 'USER', TRUE, NOW(), 11);
 
 INSERT INTO utilisateur (email, motdepasse, role, actif, datecreation, idpersonne)
-VALUES ('feno.rabe@tily.mg', '$2a$10$N9qo8uLOickgx2ZMRZoMy.MQDzX9c5OqmECU9VjzJq8n/eK7g8KQO', 'USER', TRUE, NOW(), 12);
+VALUES ('feno.rabe@tily.mg', '$2a$10$z89dW1lU6u6Dc6m280iVxuuQ7S/.xHcWSzJcqYa8JONDrOEHXMm0.', 'USER', TRUE, NOW(), 12);
 
 -- =====================================
 -- VÉRIFICATION DES DONNÉES
