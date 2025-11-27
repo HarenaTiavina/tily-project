@@ -27,15 +27,15 @@
                     </div>
                     <div class="card-content">
                         <h3>Responsable</h3>
-                        <div class="card-value">10</div>
+                        <div class="card-value" th:text="${totalResponsables}">0</div>
                         <div class="card-stats">
                             <div class="stat-item success">
                                 <i class="fas fa-check-circle"></i>
-                                <span>FAFI: <strong>7</strong></span>
+                                <span>FAFI: <strong th:text="${responsablesWithFafi}">0</strong></span>
                             </div>
                             <div class="stat-item warning">
                                 <i class="fas fa-clock"></i>
-                                <span>Reste: <strong>3</strong></span>
+                                <span>Reste: <strong th:text="${responsablesWithoutFafi}">0</strong></span>
                             </div>
                         </div>
                     </div>
@@ -48,15 +48,15 @@
                     </div>
                     <div class="card-content">
                         <h3>Élèves</h3>
-                        <div class="card-value">150</div>
+                        <div class="card-value" th:text="${totalEleves}">0</div>
                         <div class="card-stats">
                             <div class="stat-item success">
                                 <i class="fas fa-check-circle"></i>
-                                <span>FAFI: <strong>120</strong></span>
+                                <span>FAFI: <strong th:text="${elevesWithFafi}">0</strong></span>
                             </div>
                             <div class="stat-item warning">
                                 <i class="fas fa-clock"></i>
-                                <span>Reste: <strong>30</strong></span>
+                                <span>Reste: <strong th:text="${elevesWithoutFafi}">0</strong></span>
                             </div>
                         </div>
                     </div>
@@ -69,15 +69,15 @@
                     </div>
                     <div class="card-content">
                         <h3>FAFI Total</h3>
-                        <div class="card-value">1 270 000 Ar</div>
+                        <div class="card-value" th:text="${totalFafi}">0 Ar</div>
                         <div class="card-stats">
                             <div class="stat-item success">
                                 <i class="fas fa-user-check"></i>
-                                <span>Payé: <strong>127</strong></span>
+                                <span>Payé: <strong th:text="${paidFafi}">0</strong></span>
                             </div>
                             <div class="stat-item warning">
                                 <i class="fas fa-user-clock"></i>
-                                <span>Non payé: <strong>33</strong></span>
+                                <span>Non payé: <strong th:text="${unpaidFafi}">0</strong></span>
                             </div>
                         </div>
                     </div>

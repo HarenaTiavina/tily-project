@@ -14,15 +14,27 @@
     <!-- Main Content -->
     <div class="main-content">
         <!-- Topbar -->
-        <div th:replace="~{fragments/topbar :: topbar('Responsables', 'User')}"></div>
+        <div th:replace="~{fragments/topbar :: topbar(${pageTitle}, ${userName})}"></div>
 
         <!-- Page Content -->
         <div class="dashboard-content">
+            <!-- Messages de notification -->
+            <div th:if="${successMessage}" class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                <span th:text="${successMessage}"></span>
+                <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span th:text="${errorMessage}"></span>
+                <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+            </div>
+
             <!-- Header avec actions -->
             <div class="page-header">
                 <div class="header-left">
                     <h2>Liste des Responsables</h2>
-                    <span class="record-count" id="recordCount">5 responsables</span>
+                    <span class="record-count" id="recordCount" th:text="${totalCount} + ' responsable' + (${totalCount} > 1 ? 's' : '')">0 responsable</span>
                 </div>
                 <div class="header-actions">
                     <button class="btn-primary" onclick="openAddModal()">
@@ -46,30 +58,23 @@
                         <label>Secteur</label>
                         <select id="filterSecteur" onchange="applyFilters()">
                             <option value="">Tous les secteurs</option>
-                            <option value="Antananarivo">Antananarivo</option>
-                            <option value="Fianarantsoa">Fianarantsoa</option>
-                            <option value="Toamasina">Toamasina</option>
-                            <option value="Mahajanga">Mahajanga</option>
+                            <option th:each="secteur : ${secteurs}" th:value="${secteur.nom}" th:text="${secteur.nom}"></option>
                         </select>
                     </div>
                     <div class="filter-group">
                         <label>Section</label>
                         <select id="filterSection" onchange="applyFilters()">
                             <option value="">Toutes les sections</option>
-                            <option value="Analamanga">Analamanga</option>
-                            <option value="Itasy">Itasy</option>
-                            <option value="Haute Matsiatra">Haute Matsiatra</option>
-                            <option value="Atsinanana">Atsinanana</option>
-                            <option value="Boeny">Boeny</option>
+                            <option th:each="section : ${sections}" th:value="${section.nom}" th:text="${section.nom}"></option>
                         </select>
                     </div>
                     <div class="filter-group">
-                        <label>Type</label>
-                        <select id="filterType" onchange="applyFilters()">
-                            <option value="">Tous les types</option>
-                            <option value="Chef">Chef</option>
-                            <option value="Assistant">Assistant</option>
-                            <option value="Membre">Membre</option>
+                        <label>Niveau</label>
+                        <select id="filterNiveau" onchange="applyFilters()">
+                            <option value="">Tous les niveaux</option>
+                            <option value="Louveteau">Louveteau</option>
+                            <option value="Éclaireur">Éclaireur</option>
+                            <option value="Routier">Routier</option>
                         </select>
                     </div>
                     <div class="filter-group">
@@ -108,106 +113,58 @@
                                 <th class="sortable" onclick="sortTable(6)">Téléphone <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(7)">Secteur <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(8)">Section <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(9)">Type <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(9)">Niveau <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(10)">Fanekena <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(11)">Assurance <i class="fas fa-sort"></i></th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr data-secteur="Antananarivo" data-section="Analamanga" data-type="Chef" data-assurance="Oui">
-                                <td><img src="https://ui-avatars.com/api/?name=Jean+Rakoto&background=667eea&color=fff" class="avatar" alt="Photo"></td>
-                                <td>RAKOTO</td>
-                                <td>Jean</td>
-                                <td>Akanga</td>
-                                <td>15/03/1990</td>
-                                <td>101 251 456 789</td>
-                                <td>034 12 345 67</td>
-                                <td>Antananarivo</td>
-                                <td>Analamanga</td>
-                                <td><span class="badge-type chef">Chef</span></td>
-                                <td>12/01/2020</td>
-                                <td><span class="status-badge delivered">Oui</span></td>
-                                <td class="actions-cell">
-                                    <button class="btn-icon" title="Voir"><i class="fas fa-eye"></i></button>
-                                    <button class="btn-icon" title="Modifier"><i class="fas fa-edit"></i></button>
-                                    <button class="btn-icon danger" title="Supprimer"><i class="fas fa-trash"></i></button>
+                            <!-- Message si aucune donnée -->
+                            <tr th:if="${#lists.isEmpty(responsables)}">
+                                <td colspan="13" class="empty-message">
+                                    <i class="fas fa-inbox"></i>
+                                    <p>Aucun responsable trouvé</p>
                                 </td>
                             </tr>
-                            <tr data-secteur="Antananarivo" data-section="Itasy" data-type="Assistant" data-assurance="Oui">
-                                <td><img src="https://ui-avatars.com/api/?name=Marie+Rabe&background=4facfe&color=fff" class="avatar" alt="Photo"></td>
-                                <td>RABE</td>
-                                <td>Marie</td>
-                                <td>Vorona</td>
-                                <td>22/07/1988</td>
-                                <td>101 352 789 123</td>
-                                <td>033 45 678 90</td>
-                                <td>Antananarivo</td>
-                                <td>Itasy</td>
-                                <td><span class="badge-type assistant">Assistant</span></td>
-                                <td>05/03/2019</td>
-                                <td><span class="status-badge delivered">Oui</span></td>
-                                <td class="actions-cell">
-                                    <button class="btn-icon" title="Voir"><i class="fas fa-eye"></i></button>
-                                    <button class="btn-icon" title="Modifier"><i class="fas fa-edit"></i></button>
-                                    <button class="btn-icon danger" title="Supprimer"><i class="fas fa-trash"></i></button>
+                            <!-- Données dynamiques -->
+                            <tr th:each="resp : ${responsables}" 
+                                th:data-secteur="${resp.secteur != null ? resp.secteur.nom : ''}"
+                                th:data-section="${resp.section != null ? resp.section.nom : ''}"
+                                th:data-niveau="${resp.niveau}"
+                                th:data-assurance="${resp.assurance != null && resp.assurance.statut == 'Active' ? 'Oui' : 'Non'}">
+                                <td>
+                                    <img th:if="${resp.image != null and !resp.image.isEmpty()}" th:src="${resp.image}" class="avatar" alt="Photo">
+                                    <img th:unless="${resp.image != null and !resp.image.isEmpty()}" 
+                                         th:src="'https://ui-avatars.com/api/?name=' + ${resp.prenom} + '+' + ${resp.nom} + '&background=667eea&color=fff'" 
+                                         class="avatar" alt="Photo">
                                 </td>
-                            </tr>
-                            <tr data-secteur="Fianarantsoa" data-section="Haute Matsiatra" data-type="Membre" data-assurance="Non">
-                                <td><img src="https://ui-avatars.com/api/?name=Paul+Andria&background=43e97b&color=fff" class="avatar" alt="Photo"></td>
-                                <td>ANDRIA</td>
-                                <td>Paul</td>
-                                <td>Saka</td>
-                                <td>10/11/1995</td>
-                                <td>101 456 123 456</td>
-                                <td>032 98 765 43</td>
-                                <td>Fianarantsoa</td>
-                                <td>Haute Matsiatra</td>
-                                <td><span class="badge-type membre">Membre</span></td>
-                                <td>20/06/2021</td>
-                                <td><span class="status-badge pending">Non</span></td>
-                                <td class="actions-cell">
-                                    <button class="btn-icon" title="Voir"><i class="fas fa-eye"></i></button>
-                                    <button class="btn-icon" title="Modifier"><i class="fas fa-edit"></i></button>
-                                    <button class="btn-icon danger" title="Supprimer"><i class="fas fa-trash"></i></button>
+                                <td th:text="${resp.nom}">-</td>
+                                <td th:text="${resp.prenom}">-</td>
+                                <td th:text="${resp.totem}">-</td>
+                                <td th:text="${resp.dateNaissance != null ? #temporals.format(resp.dateNaissance, 'dd/MM/yyyy') : '-'}">-</td>
+                                <td th:text="${resp.numeroCin}">-</td>
+                                <td th:text="${resp.numeroTelephone}">-</td>
+                                <td th:text="${resp.secteur != null ? resp.secteur.nom : '-'}">-</td>
+                                <td th:text="${resp.section != null ? resp.section.nom : '-'}">-</td>
+                                <td>
+                                    <span th:if="${resp.niveau == 'Louveteau'}" class="badge-niveau louveteau">Louveteau</span>
+                                    <span th:if="${resp.niveau == 'Éclaireur'}" class="badge-niveau eclaireur">Éclaireur</span>
+                                    <span th:if="${resp.niveau == 'Routier'}" class="badge-niveau routier">Routier</span>
+                                    <span th:if="${resp.niveau == null}">-</span>
                                 </td>
-                            </tr>
-                            <tr data-secteur="Toamasina" data-section="Atsinanana" data-type="Chef" data-assurance="Oui">
-                                <td><img src="https://ui-avatars.com/api/?name=Sophie+Razaf&background=f093fb&color=fff" class="avatar" alt="Photo"></td>
-                                <td>RAZAF</td>
-                                <td>Sophie</td>
-                                <td>Tsingy</td>
-                                <td>05/09/1992</td>
-                                <td>101 789 456 789</td>
-                                <td>034 56 789 12</td>
-                                <td>Toamasina</td>
-                                <td>Atsinanana</td>
-                                <td><span class="badge-type chef">Chef</span></td>
-                                <td>15/02/2018</td>
-                                <td><span class="status-badge delivered">Oui</span></td>
-                                <td class="actions-cell">
-                                    <button class="btn-icon" title="Voir"><i class="fas fa-eye"></i></button>
-                                    <button class="btn-icon" title="Modifier"><i class="fas fa-edit"></i></button>
-                                    <button class="btn-icon danger" title="Supprimer"><i class="fas fa-trash"></i></button>
+                                <td th:text="${resp.dateFanekena != null ? #temporals.format(resp.dateFanekena, 'dd/MM/yyyy') : '-'}">-</td>
+                                <td>
+                                    <span th:if="${resp.assurance != null && resp.assurance.statut == 'Active'}" class="status-badge delivered">Oui</span>
+                                    <span th:unless="${resp.assurance != null && resp.assurance.statut == 'Active'}" class="status-badge pending">Non</span>
                                 </td>
-                            </tr>
-                            <tr data-secteur="Mahajanga" data-section="Boeny" data-type="Assistant" data-assurance="Oui">
-                                <td><img src="https://ui-avatars.com/api/?name=Luc+Hari&background=fdb52a&color=fff" class="avatar" alt="Photo"></td>
-                                <td>HARI</td>
-                                <td>Luc</td>
-                                <td>Hazo</td>
-                                <td>28/12/1985</td>
-                                <td>101 321 654 987</td>
-                                <td>033 12 345 67</td>
-                                <td>Mahajanga</td>
-                                <td>Boeny</td>
-                                <td><span class="badge-type assistant">Assistant</span></td>
-                                <td>08/11/2017</td>
-                                <td><span class="status-badge delivered">Oui</span></td>
                                 <td class="actions-cell">
-                                    <button class="btn-icon" title="Voir"><i class="fas fa-eye"></i></button>
-                                    <button class="btn-icon" title="Modifier"><i class="fas fa-edit"></i></button>
-                                    <button class="btn-icon danger" title="Supprimer"><i class="fas fa-trash"></i></button>
+                                    <button class="btn-icon" title="Voir" th:onclick="'viewPerson(' + ${resp.id} + ')'"><i class="fas fa-eye"></i></button>
+                                    <button class="btn-icon" title="Modifier" th:onclick="'editPerson(' + ${resp.id} + ')'"><i class="fas fa-edit"></i></button>
+                                    <form th:action="@{/responsables/supprimer}" method="post" style="display: inline;">
+                                        <input type="hidden" name="id" th:value="${resp.id}">
+                                        <button type="submit" class="btn-icon danger" title="Supprimer" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce responsable ?')"><i class="fas fa-trash"></i></button>
+                                    </form>
                                 </td>
                             </tr>
                         </tbody>
@@ -225,7 +182,7 @@
                         </select>
                     </div>
                     <div class="pagination">
-                        <span id="paginationInfo">1-5 sur 5</span>
+                        <span id="paginationInfo" th:text="'1-' + ${totalCount} + ' sur ' + ${totalCount}">1-0 sur 0</span>
                         <button class="btn-icon" disabled><i class="fas fa-chevron-left"></i></button>
                         <button class="btn-icon"><i class="fas fa-chevron-right"></i></button>
                     </div>
@@ -235,6 +192,99 @@
 
         <!-- Footer -->
         <div th:replace="~{fragments/footer :: footer}"></div>
+    </div>
+
+    <!-- Modal Ajouter Responsable -->
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-user-plus"></i> Ajouter un Responsable</h2>
+                <button class="modal-close" onclick="closeAddModal()">&times;</button>
+            </div>
+            <form th:action="@{/responsables/ajouter}" method="post">
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nom">Nom <span class="required">*</span></label>
+                            <input type="text" id="nom" name="nom" required placeholder="Ex: RAKOTO">
+                        </div>
+                        <div class="form-group">
+                            <label for="prenom">Prénom <span class="required">*</span></label>
+                            <input type="text" id="prenom" name="prenom" required placeholder="Ex: Jean">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="totem">Totem</label>
+                            <input type="text" id="totem" name="totem" placeholder="Ex: Akanga">
+                        </div>
+                        <div class="form-group">
+                            <label for="dateNaissance">Date de Naissance</label>
+                            <input type="date" id="dateNaissance" name="dateNaissance">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="numeroCin">Numéro CIN</label>
+                            <input type="text" id="numeroCin" name="numeroCin" placeholder="Ex: 101 251 456 789">
+                        </div>
+                        <div class="form-group">
+                            <label for="numeroTelephone">Téléphone</label>
+                            <input type="text" id="numeroTelephone" name="numeroTelephone" placeholder="Ex: 034 12 345 67">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nomPere">Nom du Père</label>
+                            <input type="text" id="nomPere" name="nomPere" placeholder="Ex: Pierre Rakoto">
+                        </div>
+                        <div class="form-group">
+                            <label for="nomMere">Nom de la Mère</label>
+                            <input type="text" id="nomMere" name="nomMere" placeholder="Ex: Marie Rasoa">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="secteurId">Secteur</label>
+                            <select id="secteurId" name="secteurId">
+                                <option value="">-- Sélectionner --</option>
+                                <option th:each="secteur : ${secteurs}" th:value="${secteur.id}" th:text="${secteur.nom}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="sectionId">Section</label>
+                            <select id="sectionId" name="sectionId">
+                                <option value="">-- Sélectionner --</option>
+                                <option th:each="section : ${sections}" th:value="${section.id}" th:text="${section.nom}"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="niveau">Niveau</label>
+                            <select id="niveau" name="niveau">
+                                <option value="">-- Sélectionner --</option>
+                                <option value="Louveteau">Louveteau</option>
+                                <option value="Éclaireur">Éclaireur</option>
+                                <option value="Routier">Routier</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="dateFanekena">Date Fanekena</label>
+                            <input type="date" id="dateFanekena" name="dateFanekena">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeAddModal()">
+                        <i class="fas fa-times"></i> Annuler
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i> Enregistrer
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <script>
@@ -277,6 +327,14 @@
                 toggleIcon.classList.remove('fa-chevron-left');
                 toggleIcon.classList.add('fa-chevron-right');
             }
+            
+            // Auto-hide alerts after 5 seconds
+            setTimeout(() => {
+                document.querySelectorAll('.alert').forEach(alert => {
+                    alert.style.opacity = '0';
+                    setTimeout(() => alert.remove(), 300);
+                });
+            }, 5000);
         });
 
         // Tri du tableau
@@ -285,7 +343,7 @@
         function sortTable(columnIndex) {
             const table = document.getElementById('responsablesTable');
             const tbody = table.querySelector('tbody');
-            const rows = Array.from(tbody.querySelectorAll('tr'));
+            const rows = Array.from(tbody.querySelectorAll('tr:not(.empty-message)'));
             
             sortDirection[columnIndex] = !sortDirection[columnIndex];
             const direction = sortDirection[columnIndex] ? 1 : -1;
@@ -320,27 +378,27 @@
             const searchValue = document.getElementById('searchInput').value.toLowerCase();
             const secteurValue = document.getElementById('filterSecteur').value;
             const sectionValue = document.getElementById('filterSection').value;
-            const typeValue = document.getElementById('filterType').value;
+            const niveauValue = document.getElementById('filterNiveau').value;
             const assuranceValue = document.getElementById('filterAssurance').value;
             
             const table = document.getElementById('responsablesTable');
-            const rows = table.querySelectorAll('tbody tr');
+            const rows = table.querySelectorAll('tbody tr:not(.empty-message)');
             let visibleCount = 0;
             
             rows.forEach(row => {
                 const text = row.textContent.toLowerCase();
-                const secteur = row.getAttribute('data-secteur');
-                const section = row.getAttribute('data-section');
-                const type = row.getAttribute('data-type');
-                const assurance = row.getAttribute('data-assurance');
+                const secteur = row.getAttribute('data-secteur') || '';
+                const section = row.getAttribute('data-section') || '';
+                const niveau = row.getAttribute('data-niveau') || '';
+                const assurance = row.getAttribute('data-assurance') || '';
                 
                 const matchSearch = !searchValue || text.includes(searchValue);
                 const matchSecteur = !secteurValue || secteur === secteurValue;
                 const matchSection = !sectionValue || section === sectionValue;
-                const matchType = !typeValue || type === typeValue;
+                const matchNiveau = !niveauValue || niveau === niveauValue;
                 const matchAssurance = !assuranceValue || assurance === assuranceValue;
                 
-                if (matchSearch && matchSecteur && matchSection && matchType && matchAssurance) {
+                if (matchSearch && matchSecteur && matchSection && matchNiveau && matchAssurance) {
                     row.style.display = '';
                     visibleCount++;
                 } else {
@@ -357,15 +415,40 @@
             document.getElementById('searchInput').value = '';
             document.getElementById('filterSecteur').value = '';
             document.getElementById('filterSection').value = '';
-            document.getElementById('filterType').value = '';
+            document.getElementById('filterNiveau').value = '';
             document.getElementById('filterAssurance').value = '';
             applyFilters();
         }
 
+        // Modal functions
+        function openAddModal() {
+            document.getElementById('addModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeAddModal() {
+            document.getElementById('addModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Close modal on outside click
+        document.getElementById('addModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAddModal();
+            }
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeAddModal();
+            }
+        });
+
         // Export PDF
         function exportToPDF() {
             const table = document.getElementById('responsablesTable');
-            const rows = table.querySelectorAll('tbody tr');
+            const rows = table.querySelectorAll('tbody tr:not(.empty-message)');
             const visibleRows = Array.from(rows).filter(row => row.style.display !== 'none');
             
             if (visibleRows.length === 0) {
@@ -376,14 +459,14 @@
             // Get active filters for title
             const secteur = document.getElementById('filterSecteur').value;
             const section = document.getElementById('filterSection').value;
-            const type = document.getElementById('filterType').value;
+            const niveau = document.getElementById('filterNiveau').value;
             const assurance = document.getElementById('filterAssurance').value;
             
             let filterTitle = 'Liste des Responsables';
             let filters = [];
             if (secteur) filters.push('Secteur: ' + secteur);
             if (section) filters.push('Section: ' + section);
-            if (type) filters.push('Type: ' + type);
+            if (niveau) filters.push('Niveau: ' + niveau);
             if (assurance) filters.push('Assurance: ' + assurance);
             
             // Create printable content
@@ -417,7 +500,7 @@
                                 <th>Téléphone</th>
                                 <th>Secteur</th>
                                 <th>Section</th>
-                                <th>Type</th>
+                                <th>Niveau</th>
                                 <th>Assurance</th>
                             </tr>
                         </thead>
@@ -460,8 +543,12 @@
             }, 250);
         }
 
-        function openAddModal() {
-            alert('Formulaire d\'ajout à implémenter');
+        function viewPerson(id) {
+            alert('Voir détails du responsable ID: ' + id);
+        }
+
+        function editPerson(id) {
+            alert('Modifier responsable ID: ' + id);
         }
     </script>
 </body>
