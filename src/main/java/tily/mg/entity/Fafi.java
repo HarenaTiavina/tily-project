@@ -5,12 +5,12 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "assurance")
-public class Assurance {
+@Table(name = "fafi") // FAFI en malgache - remplace assurance
+public class Fafi {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idassurance")
+    @Column(name = "idfafi")
     private Integer id;
 
     @Column(name = "datepaiement")
@@ -22,13 +22,13 @@ public class Assurance {
     @Column(name = "statut", length = 20)
     private String statut;
 
-    @OneToOne(mappedBy = "assurance")
+    @OneToOne(mappedBy = "fafi")
     private Personne personne;
 
     // Constructors
-    public Assurance() {}
+    public Fafi() {}
 
-    public Assurance(LocalDate datePaiement, BigDecimal montant, String statut) {
+    public Fafi(LocalDate datePaiement, BigDecimal montant, String statut) {
         this.datePaiement = datePaiement;
         this.montant = montant;
         this.statut = statut;
@@ -75,4 +75,3 @@ public class Assurance {
         this.personne = personne;
     }
 }
-

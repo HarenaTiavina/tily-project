@@ -2,7 +2,7 @@ package tily.mg.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import tily.mg.repository.AssuranceRepository;
+import tily.mg.repository.FafiRepository;
 import tily.mg.repository.PersonneRepository;
 
 import java.math.BigDecimal;
@@ -14,7 +14,7 @@ public class DashboardService {
     private PersonneRepository personneRepository;
 
     @Autowired
-    private AssuranceRepository assuranceRepository;
+    private FafiRepository fafiRepository;
 
     // Responsables stats
     public Long getTotalResponsables() {
@@ -23,7 +23,7 @@ public class DashboardService {
     }
 
     public Long getResponsablesWithFafi() {
-        return personneRepository.countResponsablesWithAssurance();
+        return personneRepository.countResponsablesWithFafi();
     }
 
     public Long getResponsablesWithoutFafi() {
@@ -39,7 +39,7 @@ public class DashboardService {
     }
 
     public Long getElevesWithFafi() {
-        return personneRepository.countElevesWithAssurance();
+        return personneRepository.countElevesWithFafi();
     }
 
     public Long getElevesWithoutFafi() {
@@ -50,12 +50,12 @@ public class DashboardService {
 
     // FAFI Total stats
     public BigDecimal getTotalFafiMontant() {
-        BigDecimal total = assuranceRepository.getTotalMontantActive();
+        BigDecimal total = fafiRepository.getTotalMontantActive();
         return total != null ? total : BigDecimal.ZERO;
     }
 
     public Long getTotalPaidFafi() {
-        Long count = assuranceRepository.countActive();
+        Long count = fafiRepository.countActive();
         return count != null ? count : 0L;
     }
 

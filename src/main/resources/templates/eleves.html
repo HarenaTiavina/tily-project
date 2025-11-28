@@ -69,17 +69,8 @@
                         </select>
                     </div>
                     <div class="filter-group">
-                        <label>Ambaratonga</label>
-                        <select id="filterAmbaratonga" onchange="applyFilters()">
-                            <option value="">Ny ambaratonga rehetra</option>
-                            <option value="Louveteau">Louveteau</option>
-                            <option value="Éclaireur">Éclaireur</option>
-                            <option value="Routier">Routier</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label>Fiantohana</label>
-                        <select id="filterAssurance" onchange="applyFilters()">
+                        <label>FAFI</label>
+                        <select id="filterFafi" onchange="applyFilters()">
                             <option value="">Ny rehetra</option>
                             <option value="Oui">Eny</option>
                             <option value="Non">Tsia</option>
@@ -115,7 +106,7 @@
                                 <th class="sortable" onclick="sortTable(8)">Fizarana <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(9)">Ambaratonga <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(10)">Fanekena <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(11)">Fiantohana <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(11)">FAFI <i class="fas fa-sort"></i></th>
                                 <th>Asa</th>
                             </tr>
                         </thead>
@@ -142,7 +133,7 @@
                                 th:data-fizarana="${eleve.fizarana != null ? eleve.fizarana.nom : ''}"
                                 th:data-fizaranaid="${eleve.fizarana != null ? eleve.fizarana.id : ''}"
                                 th:data-ambaratonga="${eleve.ambaratonga}"
-                                th:data-assurance="${eleve.assurance != null && eleve.assurance.statut == 'Active' ? 'Oui' : 'Non'}">
+                                th:data-fafi="${eleve.fafi != null && eleve.fafi.statut == 'Active' ? 'Oui' : 'Non'}">
                                 <td>
                                     <img th:if="${eleve.image != null and !eleve.image.isEmpty()}" th:src="${eleve.image}" class="avatar" alt="Photo">
                                     <img th:unless="${eleve.image != null and !eleve.image.isEmpty()}" 
@@ -157,16 +148,11 @@
                                 <td th:text="${eleve.nomMere}">-</td>
                                 <td th:text="${eleve.secteur != null ? eleve.secteur.nom : '-'}">-</td>
                                 <td th:text="${eleve.fizarana != null ? eleve.fizarana.nom : '-'}">-</td>
-                                <td>
-                                    <span th:if="${eleve.ambaratonga == 'Louveteau'}" class="badge-niveau louveteau">Louveteau</span>
-                                    <span th:if="${eleve.ambaratonga == 'Éclaireur'}" class="badge-niveau eclaireur">Éclaireur</span>
-                                    <span th:if="${eleve.ambaratonga == 'Routier'}" class="badge-niveau routier">Routier</span>
-                                    <span th:if="${eleve.ambaratonga == null}">-</span>
-                                </td>
+                                <td th:text="${eleve.ambaratonga != null ? eleve.ambaratonga : '-'}">-</td>
                                 <td th:text="${eleve.dateFanekena != null ? #temporals.format(eleve.dateFanekena, 'dd/MM/yyyy') : '-'}">-</td>
                                 <td>
-                                    <span th:if="${eleve.assurance != null && eleve.assurance.statut == 'Active'}" class="status-badge delivered">Eny</span>
-                                    <span th:unless="${eleve.assurance != null && eleve.assurance.statut == 'Active'}" class="status-badge pending">Tsia</span>
+                                    <span th:if="${eleve.fafi != null && eleve.fafi.statut == 'Active'}" class="status-badge delivered">Eny</span>
+                                    <span th:unless="${eleve.fafi != null && eleve.fafi.statut == 'Active'}" class="status-badge pending">Tsia</span>
                                 </td>
                                 <td class="actions-cell">
                                     <button class="btn-icon edit-btn" title="Hanova" th:data-id="${eleve.id}"><i class="fas fa-edit"></i></button>
@@ -470,7 +456,7 @@
             const secteurValue = document.getElementById('filterSecteur').value;
             const fizaranaValue = document.getElementById('filterFizarana').value;
             const ambaratongaValue = document.getElementById('filterAmbaratonga').value;
-            const assuranceValue = document.getElementById('filterAssurance').value;
+            const fafiValue = document.getElementById('filterFafi').value;
             
             const table = document.getElementById('elevesTable');
             const rows = table.querySelectorAll('tbody tr:not(.empty-message)');
@@ -481,15 +467,15 @@
                 const secteur = row.getAttribute('data-secteur') || '';
                 const fizarana = row.getAttribute('data-fizarana') || '';
                 const ambaratonga = row.getAttribute('data-ambaratonga') || '';
-                const assurance = row.getAttribute('data-assurance') || '';
+                const fafi = row.getAttribute('data-fafi') || '';
                 
                 const matchSearch = !searchValue || text.includes(searchValue);
                 const matchSecteur = !secteurValue || secteur === secteurValue;
                 const matchFizarana = !fizaranaValue || fizarana === fizaranaValue;
-                const matchAmbaratonga = !ambaratongaValue || ambaratonga === ambaratongaValue;
-                const matchAssurance = !assuranceValue || assurance === assuranceValue;
+                const matchAmbaratonga = !ambaratongaValue || ambaratonga.toLowerCase().includes(ambaratongaValue.toLowerCase());
+                const matchFafi = !fafiValue || fafi === fafiValue;
                 
-                if (matchSearch && matchSecteur && matchFizarana && matchAmbaratonga && matchAssurance) {
+                if (matchSearch && matchSecteur && matchFizarana && matchAmbaratonga && matchFafi) {
                     row.style.display = '';
                     visibleCount++;
                 } else {
@@ -507,7 +493,7 @@
             document.getElementById('filterSecteur').value = '';
             document.getElementById('filterFizarana').value = '';
             document.getElementById('filterAmbaratonga').value = '';
-            document.getElementById('filterAssurance').value = '';
+            document.getElementById('filterFafi').value = '';
             applyFilters();
         }
 
@@ -594,15 +580,13 @@
 
             const secteur = document.getElementById('filterSecteur').value;
             const fizarana = document.getElementById('filterFizarana').value;
-            const ambaratonga = document.getElementById('filterAmbaratonga').value;
-            const assurance = document.getElementById('filterAssurance').value;
+            const fafi = document.getElementById('filterFafi').value;
             
             let filterTitle = 'Lisitry ny Beazina';
             let filters = [];
             if (secteur) filters.push('Sektora: ' + secteur);
             if (fizarana) filters.push('Fizarana: ' + fizarana);
-            if (ambaratonga) filters.push('Ambaratonga: ' + ambaratonga);
-            if (assurance) filters.push('Fiantohana: ' + assurance);
+            if (fafi) filters.push('FAFI: ' + fafi);
             
             // Charger l'image et la convertir en base64
             const imageUrl = window.location.origin + '/images/top-tily.jpg';
@@ -641,7 +625,7 @@
                                 <th>Sektora</th>
                                 <th>Fizarana</th>
                                 <th>Ambaratonga</th>
-                                <th>Fiantohana</th>
+                                <th>FAFI</th>
                             </tr>
                         </thead>
                         <tbody>

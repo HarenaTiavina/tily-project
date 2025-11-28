@@ -399,15 +399,12 @@
                                 </div>
                             </div>
                             <div class="form-row">
-                                <!-- Pour les Beazina : Ambaratonga (Niveau) -->
+                                <!-- Pour les Beazina : Ambaratonga (Niveau) - champ texte libre -->
                                 <div class="form-group" th:if="${personne != null and personne.typePersonne != null and personne.typePersonne.nom == 'Eleve'}">
                                     <label for="ambaratonga">Ambaratonga</label>
-                                    <select id="ambaratonga" name="ambaratonga">
-                                        <option value="">-- Mifidy --</option>
-                                        <option value="Louveteau" th:selected="${personne != null and personne.ambaratonga == 'Louveteau'}">Louveteau</option>
-                                        <option value="Éclaireur" th:selected="${personne != null and personne.ambaratonga == 'Éclaireur'}">Éclaireur</option>
-                                        <option value="Routier" th:selected="${personne != null and personne.ambaratonga == 'Routier'}">Routier</option>
-                                    </select>
+                                    <input type="text" id="ambaratonga" name="ambaratonga" 
+                                           th:value="${personne != null ? personne.ambaratonga : ''}"
+                                           placeholder="Ohatra: Louveteau, Éclaireur, Routier...">
                                 </div>
                                 <div class="form-group">
                                     <label for="dateFanekena">Daty Fanekena</label>

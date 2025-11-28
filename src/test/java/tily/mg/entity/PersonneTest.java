@@ -12,7 +12,7 @@ class PersonneTest {
     private Personne personne;
     private TypePersonne typeResponsable;
     private TypePersonne typeEleve;
-    private Assurance assurance;
+    private Fafi fafi;
     private Secteur secteur;
     private Fizarana fizarana;
     private Andraikitra andraikitra;
@@ -40,9 +40,9 @@ class PersonneTest {
         typeEleve.setId(2);
         typeEleve.setNom("Eleve");
 
-        assurance = new Assurance();
-        assurance.setId(1);
-        assurance.setStatut("Active");
+        fafi = new Fafi();
+        fafi.setId(1);
+        fafi.setStatut("Active");
 
         secteur = new Secteur();
         secteur.setId(1);
@@ -139,40 +139,40 @@ class PersonneTest {
     }
 
     @Test
-    void testHasAssurance() {
+    void testHasFafi() {
         // Given
-        personne.setAssurance(assurance);
+        personne.setFafi(fafi);
 
         // When
-        boolean hasAssurance = personne.hasAssurance();
+        boolean hasFafi = personne.hasFafi();
 
         // Then
-        assertTrue(hasAssurance);
+        assertTrue(hasFafi);
     }
 
     @Test
-    void testHasNoAssurance() {
+    void testHasNoFafi() {
         // Given
-        personne.setAssurance(null);
+        personne.setFafi(null);
 
         // When
-        boolean hasAssurance = personne.hasAssurance();
+        boolean hasFafi = personne.hasFafi();
 
         // Then
-        assertFalse(hasAssurance);
+        assertFalse(hasFafi);
     }
 
     @Test
-    void testHasAssuranceInactive() {
+    void testHasFafiInactive() {
         // Given
-        assurance.setStatut("Inactive");
-        personne.setAssurance(assurance);
+        fafi.setStatut("Inactive");
+        personne.setFafi(fafi);
 
         // When
-        boolean hasAssurance = personne.hasAssurance();
+        boolean hasFafi = personne.hasFafi();
 
         // Then
-        assertFalse(hasAssurance);
+        assertFalse(hasFafi);
     }
 
     @Test
@@ -228,12 +228,12 @@ class PersonneTest {
     }
 
     @Test
-    void testSetAssurance() {
+    void testSetFafi() {
         // When
-        personne.setAssurance(assurance);
+        personne.setFafi(fafi);
 
         // Then
-        assertEquals(assurance, personne.getAssurance());
+        assertEquals(fafi, personne.getFafi());
     }
 
     @Test

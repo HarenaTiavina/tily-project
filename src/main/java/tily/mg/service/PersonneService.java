@@ -30,7 +30,7 @@ public class PersonneService {
     private AndraikitraRepository andraikitraRepository;
 
     @Autowired
-    private AssuranceRepository assuranceRepository;
+    private FafiRepository fafiRepository;
 
     // CRUD Operations
     public List<Personne> findAll() {
@@ -58,12 +58,12 @@ public class PersonneService {
         return personneRepository.countByTypePersonneNom("Responsable");
     }
 
-    public Long countResponsablesWithAssurance() {
-        return personneRepository.countResponsablesWithAssurance();
+    public Long countResponsablesWithFafi() {
+        return personneRepository.countResponsablesWithFafi();
     }
 
-    public List<Personne> filterResponsables(Integer secteurId, Integer andraikitraId, Boolean hasAssurance) {
-        return personneRepository.filterResponsables(secteurId, andraikitraId, hasAssurance);
+    public List<Personne> filterResponsables(Integer secteurId, Integer andraikitraId, Boolean hasFafi) {
+        return personneRepository.filterResponsables(secteurId, andraikitraId, hasFafi);
     }
 
     // Eleves
@@ -75,12 +75,12 @@ public class PersonneService {
         return personneRepository.countByTypePersonneNom("Eleve");
     }
 
-    public Long countElevesWithAssurance() {
-        return personneRepository.countElevesWithAssurance();
+    public Long countElevesWithFafi() {
+        return personneRepository.countElevesWithFafi();
     }
 
-    public List<Personne> filterEleves(Integer secteurId, Integer fizaranaId, String ambaratonga, Boolean hasAssurance) {
-        return personneRepository.filterEleves(secteurId, fizaranaId, ambaratonga, hasAssurance);
+    public List<Personne> filterEleves(Integer secteurId, Integer fizaranaId, String ambaratonga, Boolean hasFafi) {
+        return personneRepository.filterEleves(secteurId, fizaranaId, ambaratonga, hasFafi);
     }
 
     // Reference data
@@ -101,13 +101,13 @@ public class PersonneService {
     }
 
     // Statistics
-    public BigDecimal getTotalAssuranceMontant() {
-        BigDecimal total = assuranceRepository.getTotalMontantActive();
+    public BigDecimal getTotalFafiMontant() {
+        BigDecimal total = fafiRepository.getTotalMontantActive();
         return total != null ? total : BigDecimal.ZERO;
     }
 
-    public Long countWithAssurance() {
-        Long count = assuranceRepository.countActive();
+    public Long countWithFafi() {
+        Long count = fafiRepository.countActive();
         return count != null ? count : 0L;
     }
 

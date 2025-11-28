@@ -50,8 +50,8 @@ public class Personne {
     private TypePersonne typePersonne;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "idassurance")
-    private Assurance assurance;
+    @JoinColumn(name = "idfafi")
+    private Fafi fafi; // FAFI en malgache - remplace assurance
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idsecteur")
@@ -173,12 +173,12 @@ public class Personne {
         this.typePersonne = typePersonne;
     }
 
-    public Assurance getAssurance() {
-        return assurance;
+    public Fafi getFafi() {
+        return fafi;
     }
 
-    public void setAssurance(Assurance assurance) {
-        this.assurance = assurance;
+    public void setFafi(Fafi fafi) {
+        this.fafi = fafi;
     }
 
     public Secteur getSecteur() {
@@ -229,8 +229,8 @@ public class Personne {
         return isBeazina();
     }
 
-    public boolean hasAssurance() {
-        return assurance != null && "Active".equalsIgnoreCase(assurance.getStatut());
+    public boolean hasFafi() {
+        return fafi != null && "Active".equalsIgnoreCase(fafi.getStatut());
     }
 }
 

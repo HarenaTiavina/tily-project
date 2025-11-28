@@ -36,13 +36,13 @@ public interface PersonneRepository extends JpaRepository<Personne, Integer> {
     @Query("SELECT COUNT(p) FROM Personne p WHERE p.typePersonne.nom = :typeName")
     Long countByTypePersonneNom(@Param("typeName") String typeName);
     
-    // Count responsables with assurance
-    @Query("SELECT COUNT(p) FROM Personne p WHERE p.typePersonne.nom = 'Responsable' AND p.assurance IS NOT NULL AND p.assurance.statut = 'Active'")
-    Long countResponsablesWithAssurance();
+    // Count responsables with fafi
+    @Query("SELECT COUNT(p) FROM Personne p WHERE p.typePersonne.nom = 'Responsable' AND p.fafi IS NOT NULL AND p.fafi.statut = 'Active'")
+    Long countResponsablesWithFafi();
     
-    // Count eleves with assurance
-    @Query("SELECT COUNT(p) FROM Personne p WHERE p.typePersonne.nom = 'Eleve' AND p.assurance IS NOT NULL AND p.assurance.statut = 'Active'")
-    Long countElevesWithAssurance();
+    // Count eleves with fafi
+    @Query("SELECT COUNT(p) FROM Personne p WHERE p.typePersonne.nom = 'Eleve' AND p.fafi IS NOT NULL AND p.fafi.statut = 'Active'")
+    Long countElevesWithFafi();
     
     // Search
     @Query("SELECT p FROM Personne p WHERE " +
@@ -55,13 +55,13 @@ public interface PersonneRepository extends JpaRepository<Personne, Integer> {
     @Query("SELECT p FROM Personne p WHERE p.typePersonne.nom = 'Responsable' " +
            "AND (:secteurId IS NULL OR p.secteur.id = :secteurId) " +
            "AND (:andraikitraId IS NULL OR p.andraikitra.id = :andraikitraId) " +
-           "AND (:hasAssurance IS NULL OR " +
-           "(:hasAssurance = true AND p.assurance IS NOT NULL AND p.assurance.statut = 'Active') OR " +
-           "(:hasAssurance = false AND (p.assurance IS NULL OR p.assurance.statut != 'Active')))")
+           "AND (:hasFafi IS NULL OR " +
+           "(:hasFafi = true AND p.fafi IS NOT NULL AND p.fafi.statut = 'Active') OR " +
+           "(:hasFafi = false AND (p.fafi IS NULL OR p.fafi.statut != 'Active')))")
     List<Personne> filterResponsables(
         @Param("secteurId") Integer secteurId,
         @Param("andraikitraId") Integer andraikitraId,
-        @Param("hasAssurance") Boolean hasAssurance
+        @Param("hasFafi") Boolean hasFafi
     );
     
     // Filter eleves (Beazina)
@@ -69,14 +69,14 @@ public interface PersonneRepository extends JpaRepository<Personne, Integer> {
            "AND (:secteurId IS NULL OR p.secteur.id = :secteurId) " +
            "AND (:fizaranaId IS NULL OR p.fizarana.id = :fizaranaId) " +
            "AND (:ambaratonga IS NULL OR p.ambaratonga = :ambaratonga) " +
-           "AND (:hasAssurance IS NULL OR " +
-           "(:hasAssurance = true AND p.assurance IS NOT NULL AND p.assurance.statut = 'Active') OR " +
-           "(:hasAssurance = false AND (p.assurance IS NULL OR p.assurance.statut != 'Active')))")
+           "AND (:hasFafi IS NULL OR " +
+           "(:hasFafi = true AND p.fafi IS NOT NULL AND p.fafi.statut = 'Active') OR " +
+           "(:hasFafi = false AND (p.fafi IS NULL OR p.fafi.statut != 'Active')))")
     List<Personne> filterEleves(
         @Param("secteurId") Integer secteurId,
         @Param("fizaranaId") Integer fizaranaId,
         @Param("ambaratonga") String ambaratonga,
-        @Param("hasAssurance") Boolean hasAssurance
+        @Param("hasFafi") Boolean hasFafi
     );
 }
 

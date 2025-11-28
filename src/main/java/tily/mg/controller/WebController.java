@@ -85,15 +85,15 @@ public class WebController {
             Model model,
             @RequestParam(required = false) Integer secteurId,
             @RequestParam(required = false) Integer andraikitraId,
-            @RequestParam(required = false) Boolean hasAssurance
+            @RequestParam(required = false) Boolean hasFafi
     ) {
         model.addAttribute("userName", getCurrentUserName());
         model.addAttribute("pageTitle", "Responsables");
 
         // Get filtered or all responsables
         List<Personne> responsables;
-        if (secteurId != null || andraikitraId != null || hasAssurance != null) {
-            responsables = personneService.filterResponsables(secteurId, andraikitraId, hasAssurance);
+        if (secteurId != null || andraikitraId != null || hasFafi != null) {
+            responsables = personneService.filterResponsables(secteurId, andraikitraId, hasFafi);
         } else {
             responsables = personneService.findAllResponsables();
         }
@@ -220,15 +220,15 @@ public class WebController {
             @RequestParam(required = false) Integer secteurId,
             @RequestParam(required = false) Integer fizaranaId,
             @RequestParam(required = false) String ambaratonga,
-            @RequestParam(required = false) Boolean hasAssurance
+            @RequestParam(required = false) Boolean hasFafi
     ) {
         model.addAttribute("userName", getCurrentUserName());
         model.addAttribute("pageTitle", "Élèves");
 
         // Get filtered or all eleves
         List<Personne> eleves;
-        if (secteurId != null || fizaranaId != null || ambaratonga != null || hasAssurance != null) {
-            eleves = personneService.filterEleves(secteurId, fizaranaId, ambaratonga, hasAssurance);
+        if (secteurId != null || fizaranaId != null || ambaratonga != null || hasFafi != null) {
+            eleves = personneService.filterEleves(secteurId, fizaranaId, ambaratonga, hasFafi);
         } else {
             eleves = personneService.findAllEleves();
         }
