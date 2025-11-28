@@ -26,11 +26,11 @@ public interface PersonneRepository extends JpaRepository<Personne, Integer> {
     // Find by secteur
     List<Personne> findBySecteurId(Integer secteurId);
     
-    // Find by section
-    List<Personne> findBySectionId(Integer sectionId);
+    // Find by fizarana
+    List<Personne> findByFizaranaId(Integer fizaranaId);
     
-    // Find by niveau
-    List<Personne> findByNiveau(String niveau);
+    // Find by ambaratonga
+    List<Personne> findByAmbaratonga(String ambaratonga);
     
     // Count by type
     @Query("SELECT COUNT(p) FROM Personne p WHERE p.typePersonne.nom = :typeName")
@@ -51,33 +51,31 @@ public interface PersonneRepository extends JpaRepository<Personne, Integer> {
            "LOWER(p.totem) LIKE LOWER(CONCAT('%', :search, '%'))")
     List<Personne> search(@Param("search") String search);
     
-    // Filter responsables
+    // Filter responsables (pas de niveau, utilise andraikitra au lieu de section)
     @Query("SELECT p FROM Personne p WHERE p.typePersonne.nom = 'Responsable' " +
            "AND (:secteurId IS NULL OR p.secteur.id = :secteurId) " +
-           "AND (:sectionId IS NULL OR p.section.id = :sectionId) " +
-           "AND (:niveau IS NULL OR p.niveau = :niveau) " +
+           "AND (:andraikitraId IS NULL OR p.andraikitra.id = :andraikitraId) " +
            "AND (:hasAssurance IS NULL OR " +
            "(:hasAssurance = true AND p.assurance IS NOT NULL AND p.assurance.statut = 'Active') OR " +
            "(:hasAssurance = false AND (p.assurance IS NULL OR p.assurance.statut != 'Active')))")
     List<Personne> filterResponsables(
         @Param("secteurId") Integer secteurId,
-        @Param("sectionId") Integer sectionId,
-        @Param("niveau") String niveau,
+        @Param("andraikitraId") Integer andraikitraId,
         @Param("hasAssurance") Boolean hasAssurance
     );
     
-    // Filter eleves
+    // Filter eleves (Beazina)
     @Query("SELECT p FROM Personne p WHERE p.typePersonne.nom = 'Eleve' " +
            "AND (:secteurId IS NULL OR p.secteur.id = :secteurId) " +
-           "AND (:sectionId IS NULL OR p.section.id = :sectionId) " +
-           "AND (:niveau IS NULL OR p.niveau = :niveau) " +
+           "AND (:fizaranaId IS NULL OR p.fizarana.id = :fizaranaId) " +
+           "AND (:ambaratonga IS NULL OR p.ambaratonga = :ambaratonga) " +
            "AND (:hasAssurance IS NULL OR " +
            "(:hasAssurance = true AND p.assurance IS NOT NULL AND p.assurance.statut = 'Active') OR " +
            "(:hasAssurance = false AND (p.assurance IS NULL OR p.assurance.statut != 'Active')))")
     List<Personne> filterEleves(
         @Param("secteurId") Integer secteurId,
-        @Param("sectionId") Integer sectionId,
-        @Param("niveau") String niveau,
+        @Param("fizaranaId") Integer fizaranaId,
+        @Param("ambaratonga") String ambaratonga,
         @Param("hasAssurance") Boolean hasAssurance
     );
 }

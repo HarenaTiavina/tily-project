@@ -24,7 +24,10 @@ public class PersonneService {
     private SecteurRepository secteurRepository;
 
     @Autowired
-    private SectionRepository sectionRepository;
+    private FizaranaRepository fizaranaRepository;
+
+    @Autowired
+    private AndraikitraRepository andraikitraRepository;
 
     @Autowired
     private AssuranceRepository assuranceRepository;
@@ -59,8 +62,8 @@ public class PersonneService {
         return personneRepository.countResponsablesWithAssurance();
     }
 
-    public List<Personne> filterResponsables(Integer secteurId, Integer sectionId, String niveau, Boolean hasAssurance) {
-        return personneRepository.filterResponsables(secteurId, sectionId, niveau, hasAssurance);
+    public List<Personne> filterResponsables(Integer secteurId, Integer andraikitraId, Boolean hasAssurance) {
+        return personneRepository.filterResponsables(secteurId, andraikitraId, hasAssurance);
     }
 
     // Eleves
@@ -76,8 +79,8 @@ public class PersonneService {
         return personneRepository.countElevesWithAssurance();
     }
 
-    public List<Personne> filterEleves(Integer secteurId, Integer sectionId, String niveau, Boolean hasAssurance) {
-        return personneRepository.filterEleves(secteurId, sectionId, niveau, hasAssurance);
+    public List<Personne> filterEleves(Integer secteurId, Integer fizaranaId, String ambaratonga, Boolean hasAssurance) {
+        return personneRepository.filterEleves(secteurId, fizaranaId, ambaratonga, hasAssurance);
     }
 
     // Reference data
@@ -89,8 +92,12 @@ public class PersonneService {
         return secteurRepository.findAll();
     }
 
-    public List<Section> findAllSections() {
-        return sectionRepository.findAll();
+    public List<Fizarana> findAllFizarana() {
+        return fizaranaRepository.findAll();
+    }
+
+    public List<Andraikitra> findAllAndraikitra() {
+        return andraikitraRepository.findAll();
     }
 
     // Statistics
@@ -122,12 +129,16 @@ public class PersonneService {
         return secteurRepository.findById(id);
     }
 
-    public Optional<Section> findSectionById(Integer id) {
-        return sectionRepository.findById(id);
+    public Optional<Fizarana> findFizaranaById(Integer id) {
+        return fizaranaRepository.findById(id);
     }
 
-    // Create new Responsable
-    public Personne createResponsable(Personne personne, Integer secteurId, Integer sectionId) {
+    public Optional<Andraikitra> findAndraikitraById(Integer id) {
+        return andraikitraRepository.findById(id);
+    }
+
+    // Create new Responsable (pas de niveau, utilise andraikitra au lieu de section)
+    public Personne createResponsable(Personne personne, Integer secteurId, Integer andraikitraId) {
         // Set type to Responsable
         typePersonneRepository.findByNom("Responsable").ifPresent(personne::setTypePersonne);
         
@@ -136,16 +147,19 @@ public class PersonneService {
             secteurRepository.findById(secteurId).ifPresent(personne::setSecteur);
         }
         
-        // Set section if provided
-        if (sectionId != null) {
-            sectionRepository.findById(sectionId).ifPresent(personne::setSection);
+        // Set andraikitra if provided (pas de niveau pour les responsables)
+        if (andraikitraId != null) {
+            andraikitraRepository.findById(andraikitraId).ifPresent(personne::setAndraikitra);
         }
+        
+        // Ne pas définir ambaratonga pour les responsables
+        personne.setAmbaratonga(null);
         
         return personneRepository.save(personne);
     }
 
-    // Create new Eleve
-    public Personne createEleve(Personne personne, Integer secteurId, Integer sectionId) {
+    // Create new Eleve (Beazina)
+    public Personne createEleve(Personne personne, Integer secteurId, Integer fizaranaId) {
         // Set type to Eleve
         typePersonneRepository.findByNom("Eleve").ifPresent(personne::setTypePersonne);
         
@@ -154,38 +168,13 @@ public class PersonneService {
             secteurRepository.findById(secteurId).ifPresent(personne::setSecteur);
         }
         
-        // Set section if provided
-        if (sectionId != null) {
-            sectionRepository.findById(sectionId).ifPresent(personne::setSection);
+        // Set fizarana if provided
+        if (fizaranaId != null) {
+            fizaranaRepository.findById(fizaranaId).ifPresent(personne::setFizarana);
         }
         
         return personneRepository.save(personne);
     }
 
-    // Update existing person
-    public Personne updatePersonne(Integer id, Personne personneDetails, Integer secteurId, Integer sectionId) {
-        return personneRepository.findById(id).map(personne -> {
-            personne.setNom(personneDetails.getNom());
-            personne.setPrenom(personneDetails.getPrenom());
-            personne.setTotem(personneDetails.getTotem());
-            personne.setDateNaissance(personneDetails.getDateNaissance());
-            personne.setNiveau(personneDetails.getNiveau());
-            personne.setNumeroTelephone(personneDetails.getNumeroTelephone());
-            personne.setNumeroCin(personneDetails.getNumeroCin());
-            personne.setNomPere(personneDetails.getNomPere());
-            personne.setNomMere(personneDetails.getNomMere());
-            personne.setDateFanekena(personneDetails.getDateFanekena());
-            
-            if (secteurId != null) {
-                secteurRepository.findById(secteurId).ifPresent(personne::setSecteur);
-            }
-            
-            if (sectionId != null) {
-                sectionRepository.findById(sectionId).ifPresent(personne::setSection);
-            }
-            
-            return personneRepository.save(personne);
-        }).orElse(null);
-    }
 }
 

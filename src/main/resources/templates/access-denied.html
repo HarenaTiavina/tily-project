@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<html lang="mg" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Accès Refusé - Tily</title>
+    <title>Fidirana voarara - Tily</title>
     <link rel="stylesheet" th:href="@{/css/dashboard.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -109,20 +109,20 @@
             <i class="fas fa-ban"></i>
         </div>
         <div class="error-code">403</div>
-        <h1 class="error-title">Accès Refusé</h1>
+        <h1 class="error-title">Fidirana voarara</h1>
         <p class="error-message">
-            Vous n'avez pas les permissions nécessaires pour accéder à cette page.
-            <br>Veuillez contacter l'administrateur si vous pensez qu'il s'agit d'une erreur.
+            Tsy manana alalana ianao hiditra amin'ity pejy ity.
+            <br>Mifandraisa amin'ny mpitantana raha heverinao fa diso izany.
         </p>
         <div class="error-actions">
             <a href="javascript:history.back()" class="btn-back">
                 <i class="fas fa-arrow-left"></i>
-                Retour
+                Miverina
             </a>
             <form th:action="@{/logout}" method="post" style="display: inline;">
                 <button type="submit" class="btn-logout">
                     <i class="fas fa-sign-out-alt"></i>
-                    Se déconnecter
+                    Miala
                 </button>
             </form>
         </div>

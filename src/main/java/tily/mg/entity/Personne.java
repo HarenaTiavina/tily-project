@@ -25,7 +25,7 @@ public class Personne {
     private LocalDate dateNaissance;
 
     @Column(name = "niveau", length = 50)
-    private String niveau;
+    private String ambaratonga; // Ambaratonga = Niveau en malgache
 
     @Column(name = "numerotelephone", length = 20)
     private String numeroTelephone;
@@ -59,7 +59,11 @@ public class Personne {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idsection")
-    private Section section;
+    private Fizarana fizarana; // Fizarana = Section en malgache - utilisé pour les Beazina
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idandraikitra")
+    private Andraikitra andraikitra; // Andraikitra en malgache - postes pour les Mpiandraikitra
 
     // Constructors
     public Personne() {}
@@ -105,12 +109,12 @@ public class Personne {
         this.dateNaissance = dateNaissance;
     }
 
-    public String getNiveau() {
-        return niveau;
+    public String getAmbaratonga() {
+        return ambaratonga;
     }
 
-    public void setNiveau(String niveau) {
-        this.niveau = niveau;
+    public void setAmbaratonga(String ambaratonga) {
+        this.ambaratonga = ambaratonga;
     }
 
     public String getNumeroTelephone() {
@@ -185,12 +189,20 @@ public class Personne {
         this.secteur = secteur;
     }
 
-    public Section getSection() {
-        return section;
+    public Fizarana getFizarana() {
+        return fizarana;
     }
 
-    public void setSection(Section section) {
-        this.section = section;
+    public void setFizarana(Fizarana fizarana) {
+        this.fizarana = fizarana;
+    }
+
+    public Andraikitra getAndraikitra() {
+        return andraikitra;
+    }
+
+    public void setAndraikitra(Andraikitra andraikitra) {
+        this.andraikitra = andraikitra;
     }
 
     // Helper methods
@@ -198,12 +210,23 @@ public class Personne {
         return prenom + " " + nom;
     }
 
-    public boolean isResponsable() {
-        return typePersonne != null && "Responsable".equalsIgnoreCase(typePersonne.getNom());
+    public boolean isMpiandraikitra() {
+        return typePersonne != null && "Responsable".equalsIgnoreCase(typePersonne.getNom()); // Mpiandraikitra = Responsable en malgache
     }
 
+    public boolean isBeazina() {
+        return typePersonne != null && "Eleve".equalsIgnoreCase(typePersonne.getNom()); // Beazina = Élève en malgache
+    }
+    
+    // Méthodes de compatibilité (deprecated)
+    @Deprecated
+    public boolean isResponsable() {
+        return isMpiandraikitra();
+    }
+
+    @Deprecated
     public boolean isEleve() {
-        return typePersonne != null && "Eleve".equalsIgnoreCase(typePersonne.getNom());
+        return isBeazina();
     }
 
     public boolean hasAssurance() {

@@ -3,25 +3,28 @@ package tily.mg.entity;
 import jakarta.persistence.*;
 import java.util.List;
 
+/**
+ * Entité Andraikitra (postes/responsabilités en scout pour les Mpiandraikitra)
+ */
 @Entity
-@Table(name = "section")
-public class Section {
+@Table(name = "andraikitra")
+public class Andraikitra {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idsection")
+    @Column(name = "idandraikitra")
     private Integer id;
 
     @Column(name = "nom", nullable = false, length = 100)
     private String nom;
 
-    @OneToMany(mappedBy = "section")
+    @OneToMany(mappedBy = "andraikitra")
     private List<Personne> personnes;
 
     // Constructors
-    public Section() {}
+    public Andraikitra() {}
 
-    public Section(String nom) {
+    public Andraikitra(String nom) {
         this.nom = nom;
     }
 

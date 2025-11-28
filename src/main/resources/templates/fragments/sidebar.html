@@ -4,8 +4,7 @@
 <!-- Fragment: Sidebar du dashboard -->
 <aside th:fragment="sidebar(activePage)" class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <h2 class="sidebar-logo">Tily</h2>
-        <button class="sidebar-toggle" onclick="toggleSidebarCollapse()" title="Réduire/Agrandir">
+        <button class="sidebar-toggle" onclick="toggleSidebarCollapse()" title="Ahena/Ampitombo">
             <i class="fas fa-chevron-left"></i>
         </button>
     </div>
@@ -16,29 +15,29 @@
                 <i class="fas fa-home"></i>
                 <span class="nav-text">Dashboard</span>
             </a>
-            <a th:href="@{/responsables}" class="nav-item" th:classappend="${activePage == 'responsables'} ? 'active'" data-tooltip="Responsable">
+            <a th:href="@{/responsables}" class="nav-item" th:classappend="${activePage == 'responsables'} ? 'active'" data-tooltip="Mpiandraikitra">
                 <i class="fas fa-user-tie"></i>
-                <span class="nav-text">Responsable</span>
+                <span class="nav-text">Mpiandraikitra</span>
             </a>
-            <a th:href="@{/eleves}" class="nav-item" th:classappend="${activePage == 'eleves'} ? 'active'" data-tooltip="Élèves">
+            <a th:href="@{/eleves}" class="nav-item" th:classappend="${activePage == 'eleves'} ? 'active'" data-tooltip="Beazina">
                 <i class="fas fa-user-graduate"></i>
-                <span class="nav-text">Élèves</span>
+                <span class="nav-text">Beazina</span>
             </a>
         </div>
         
         <!-- Menu USER uniquement -->
         <div sec:authorize="hasRole('USER')">
-            <a th:href="@{/profil}" class="nav-item" th:classappend="${activePage == 'profil'} ? 'active'" data-tooltip="Mon Profil">
+            <a th:href="@{/profil}" class="nav-item" th:classappend="${activePage == 'profil'} ? 'active'" data-tooltip="Ny mombamomba ahy">
                 <i class="fas fa-user-circle"></i>
-                <span class="nav-text">Mon Profil</span>
+                <span class="nav-text">Ny mombamomba ahy</span>
             </a>
         </div>
     </nav>
     <div class="sidebar-footer">
         <form th:action="@{/logout}" method="post" class="logout-form">
-            <button type="submit" class="nav-item logout-btn" data-tooltip="Déconnexion">
+            <button type="submit" class="nav-item logout-btn" data-tooltip="Fialana">
                 <i class="fas fa-sign-out-alt"></i>
-                <span class="nav-text">Déconnexion</span>
+                <span class="nav-text">Fialana</span>
             </button>
         </form>
     </div>

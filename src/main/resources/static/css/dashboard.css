@@ -222,6 +222,12 @@ body {
     font-weight: 600;
 }
 
+.topbar-logo {
+    max-height: 100px;
+    max-width: 1000px;
+    object-fit: contain;
+}
+
 .menu-toggle {
     display: none;
     background: none;
