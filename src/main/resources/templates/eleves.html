@@ -561,6 +561,26 @@
             }
         });
 
+        // Fonction helper pour convertir une image en base64
+        function imageToBase64(url, callback) {
+            fetch(url)
+                .then(response => response.blob())
+                .then(blob => {
+                    const reader = new FileReader();
+                    reader.onloadend = function() {
+                        callback(reader.result);
+                    };
+                    reader.onerror = function() {
+                        callback(null);
+                    };
+                    reader.readAsDataURL(blob);
+                })
+                .catch(error => {
+                    console.error('Erreur lors du chargement de l\'image:', error);
+                    callback(null);
+                });
+        }
+
         // Export PDF
         function exportToPDF() {
             const table = document.getElementById('elevesTable');
@@ -584,26 +604,31 @@
             if (niveau) filters.push('Niveau: ' + niveau);
             if (assurance) filters.push('Assurance: ' + assurance);
             
-            let printContent = `
-                <html>
-                <head>
-                    <title>Export Élèves - Tily</title>
-                    <style>
-                        body { font-family: Arial, sans-serif; padding: 20px; }
-                        h1 { color: #0B1739; font-size: 24px; margin-bottom: 5px; }
-                        .filters { color: #666; font-size: 12px; margin-bottom: 20px; }
-                        .date { color: #666; font-size: 11px; margin-bottom: 20px; }
-                        table { width: 100%; border-collapse: collapse; font-size: 11px; }
-                        th { background: #0B1739; color: white; padding: 10px 8px; text-align: left; }
-                        td { padding: 8px; border-bottom: 1px solid #ddd; }
-                        tr:nth-child(even) { background: #f9f9f9; }
-                        .footer { margin-top: 30px; text-align: center; color: #666; font-size: 10px; }
-                    </style>
-                </head>
-                <body>
-                    <h1>${filterTitle}</h1>
-                    ${filters.length > 0 ? '<p class="filters">Filtres: ' + filters.join(' | ') + '</p>' : ''}
-                    <p class="date">Exporté le: ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}</p>
+            // Charger l'image et la convertir en base64
+            const imageUrl = window.location.origin + '/images/top-tily.jpg';
+            imageToBase64(imageUrl, function(imageBase64) {
+                let printContent = `
+                    <html>
+                    <head>
+                        <title>Export Élèves - Tily</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; padding: 20px; }
+                            .header-image { width: 100%; max-width: 800px; margin: 0 auto 20px; display: block; }
+                            h1 { color: #0B1739; font-size: 24px; margin-bottom: 5px; }
+                            .filters { color: #666; font-size: 12px; margin-bottom: 20px; }
+                            .date { color: #666; font-size: 11px; margin-bottom: 20px; }
+                            table { width: 100%; border-collapse: collapse; font-size: 11px; }
+                            th { background: #0B1739; color: white; padding: 10px 8px; text-align: left; }
+                            td { padding: 8px; border-bottom: 1px solid #ddd; }
+                            tr:nth-child(even) { background: #f9f9f9; }
+                            .footer { margin-top: 30px; text-align: center; color: #666; font-size: 10px; }
+                        </style>
+                    </head>
+                    <body>
+                        ${imageBase64 ? '<img src="' + imageBase64 + '" alt="Tily" class="header-image">' : ''}
+                        <h1>${filterTitle}</h1>
+                        ${filters.length > 0 ? '<p class="filters">Filtres: ' + filters.join(' | ') + '</p>' : ''}
+                        <p class="date">Exporté le: ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}</p>
                     <table>
                         <thead>
                             <tr>
@@ -640,21 +665,22 @@
                 `;
             });
             
-            printContent += `
-                        </tbody>
-                    </table>
-                    <div class="footer">
-                        <p>Total: ${visibleRows.length} élève(s) - Tily © ${new Date().getFullYear()}</p>
-                    </div>
-                </body>
-                </html>
-            `;
-            
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(printContent);
-            printWindow.document.close();
-            printWindow.focus();
-            setTimeout(() => printWindow.print(), 250);
+                printContent += `
+                            </tbody>
+                        </table>
+                        <div class="footer">
+                            <p>Total: ${visibleRows.length} élève(s) - Tily © ${new Date().getFullYear()}</p>
+                        </div>
+                    </body>
+                    </html>
+                `;
+                
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(printContent);
+                printWindow.document.close();
+                printWindow.focus();
+                setTimeout(() => printWindow.print(), 250);
+            });
         }
     </script>
 </body>
