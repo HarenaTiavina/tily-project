@@ -84,8 +84,7 @@ public class WebController {
     public String responsables(
             Model model,
             @RequestParam(required = false) Integer secteurId,
-            @RequestParam(required = false) Integer sectionId,
-            @RequestParam(required = false) String niveau,
+            @RequestParam(required = false) Integer andraikitraId,
             @RequestParam(required = false) Boolean hasAssurance
     ) {
         model.addAttribute("userName", getCurrentUserName());
@@ -93,8 +92,8 @@ public class WebController {
 
         // Get filtered or all responsables
         List<Personne> responsables;
-        if (secteurId != null || sectionId != null || niveau != null || hasAssurance != null) {
-            responsables = personneService.filterResponsables(secteurId, sectionId, niveau, hasAssurance);
+        if (secteurId != null || andraikitraId != null || hasAssurance != null) {
+            responsables = personneService.filterResponsables(secteurId, andraikitraId, hasAssurance);
         } else {
             responsables = personneService.findAllResponsables();
         }
@@ -104,7 +103,7 @@ public class WebController {
 
         // Reference data for filters and form
         model.addAttribute("secteurs", personneService.findAllSecteurs());
-        model.addAttribute("sections", personneService.findAllSections());
+        model.addAttribute("andraikitra", personneService.findAllAndraikitra());
 
         return "responsables";
     }
@@ -115,14 +114,13 @@ public class WebController {
             @RequestParam String prenom,
             @RequestParam(required = false) String totem,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateNaissance,
-            @RequestParam(required = false) String niveau,
             @RequestParam(required = false) String numeroTelephone,
             @RequestParam(required = false) String numeroCin,
             @RequestParam(required = false) String nomPere,
             @RequestParam(required = false) String nomMere,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFanekena,
             @RequestParam(required = false) Integer secteurId,
-            @RequestParam(required = false) Integer sectionId,
+            @RequestParam(required = false) Integer andraikitraId,
             RedirectAttributes redirectAttributes
     ) {
         try {
@@ -131,14 +129,14 @@ public class WebController {
             personne.setPrenom(prenom);
             personne.setTotem(totem);
             personne.setDateNaissance(dateNaissance);
-            personne.setNiveau(niveau);
+            // Pas de niveau pour les responsables
             personne.setNumeroTelephone(numeroTelephone);
             personne.setNumeroCin(numeroCin);
             personne.setNomPere(nomPere);
             personne.setNomMere(nomMere);
             personne.setDateFanekena(dateFanekena);
 
-            personneService.createResponsable(personne, secteurId, sectionId);
+            personneService.createResponsable(personne, secteurId, andraikitraId);
             
             redirectAttributes.addFlashAttribute("successMessage", "Responsable ajouté avec succès !");
         } catch (Exception e) {
@@ -155,14 +153,13 @@ public class WebController {
             @RequestParam String prenom,
             @RequestParam(required = false) String totem,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateNaissance,
-            @RequestParam(required = false) String niveau,
             @RequestParam(required = false) String numeroTelephone,
             @RequestParam(required = false) String numeroCin,
             @RequestParam(required = false) String nomPere,
             @RequestParam(required = false) String nomMere,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFanekena,
             @RequestParam(required = false) Integer secteurId,
-            @RequestParam(required = false) Integer sectionId,
+            @RequestParam(required = false) Integer andraikitraId,
             RedirectAttributes redirectAttributes
     ) {
         try {
@@ -171,7 +168,8 @@ public class WebController {
                 personne.setPrenom(prenom);
                 personne.setTotem(totem);
                 personne.setDateNaissance(dateNaissance);
-                personne.setNiveau(niveau);
+                // Pas d'ambaratonga pour les responsables
+                personne.setAmbaratonga(null);
                 personne.setNumeroTelephone(numeroTelephone);
                 personne.setNumeroCin(numeroCin);
                 personne.setNomPere(nomPere);
@@ -184,10 +182,10 @@ public class WebController {
                     personne.setSecteur(null);
                 }
 
-                if (sectionId != null) {
-                    personneService.findSectionById(sectionId).ifPresent(personne::setSection);
+                if (andraikitraId != null) {
+                    personneService.findAndraikitraById(andraikitraId).ifPresent(personne::setAndraikitra);
                 } else {
-                    personne.setSection(null);
+                    personne.setAndraikitra(null);
                 }
 
                 personneService.save(personne);
@@ -220,8 +218,8 @@ public class WebController {
     public String eleves(
             Model model,
             @RequestParam(required = false) Integer secteurId,
-            @RequestParam(required = false) Integer sectionId,
-            @RequestParam(required = false) String niveau,
+            @RequestParam(required = false) Integer fizaranaId,
+            @RequestParam(required = false) String ambaratonga,
             @RequestParam(required = false) Boolean hasAssurance
     ) {
         model.addAttribute("userName", getCurrentUserName());
@@ -229,8 +227,8 @@ public class WebController {
 
         // Get filtered or all eleves
         List<Personne> eleves;
-        if (secteurId != null || sectionId != null || niveau != null || hasAssurance != null) {
-            eleves = personneService.filterEleves(secteurId, sectionId, niveau, hasAssurance);
+        if (secteurId != null || fizaranaId != null || ambaratonga != null || hasAssurance != null) {
+            eleves = personneService.filterEleves(secteurId, fizaranaId, ambaratonga, hasAssurance);
         } else {
             eleves = personneService.findAllEleves();
         }
@@ -240,7 +238,7 @@ public class WebController {
 
         // Reference data for filters and form
         model.addAttribute("secteurs", personneService.findAllSecteurs());
-        model.addAttribute("sections", personneService.findAllSections());
+        model.addAttribute("fizarana", personneService.findAllFizarana());
 
         return "eleves";
     }
@@ -251,12 +249,12 @@ public class WebController {
             @RequestParam String prenom,
             @RequestParam(required = false) String totem,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateNaissance,
-            @RequestParam(required = false) String niveau,
+            @RequestParam(required = false) String ambaratonga,
             @RequestParam(required = false) String nomPere,
             @RequestParam(required = false) String nomMere,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFanekena,
             @RequestParam(required = false) Integer secteurId,
-            @RequestParam(required = false) Integer sectionId,
+            @RequestParam(required = false) Integer fizaranaId,
             RedirectAttributes redirectAttributes
     ) {
         try {
@@ -265,12 +263,12 @@ public class WebController {
             personne.setPrenom(prenom);
             personne.setTotem(totem);
             personne.setDateNaissance(dateNaissance);
-            personne.setNiveau(niveau);
+            personne.setAmbaratonga(ambaratonga);
             personne.setNomPere(nomPere);
             personne.setNomMere(nomMere);
             personne.setDateFanekena(dateFanekena);
 
-            personneService.createEleve(personne, secteurId, sectionId);
+            personneService.createEleve(personne, secteurId, fizaranaId);
             
             redirectAttributes.addFlashAttribute("successMessage", "Élève ajouté avec succès !");
         } catch (Exception e) {
@@ -287,12 +285,12 @@ public class WebController {
             @RequestParam String prenom,
             @RequestParam(required = false) String totem,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateNaissance,
-            @RequestParam(required = false) String niveau,
+            @RequestParam(required = false) String ambaratonga,
             @RequestParam(required = false) String nomPere,
             @RequestParam(required = false) String nomMere,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFanekena,
             @RequestParam(required = false) Integer secteurId,
-            @RequestParam(required = false) Integer sectionId,
+            @RequestParam(required = false) Integer fizaranaId,
             RedirectAttributes redirectAttributes
     ) {
         try {
@@ -301,7 +299,7 @@ public class WebController {
                 personne.setPrenom(prenom);
                 personne.setTotem(totem);
                 personne.setDateNaissance(dateNaissance);
-                personne.setNiveau(niveau);
+                personne.setAmbaratonga(ambaratonga);
                 personne.setNomPere(nomPere);
                 personne.setNomMere(nomMere);
                 personne.setDateFanekena(dateFanekena);
@@ -312,10 +310,10 @@ public class WebController {
                     personne.setSecteur(null);
                 }
 
-                if (sectionId != null) {
-                    personneService.findSectionById(sectionId).ifPresent(personne::setSection);
+                if (fizaranaId != null) {
+                    personneService.findFizaranaById(fizaranaId).ifPresent(personne::setFizarana);
                 } else {
-                    personne.setSection(null);
+                    personne.setFizarana(null);
                 }
 
                 personneService.save(personne);
@@ -361,7 +359,8 @@ public class WebController {
 
         // Reference data pour les selects
         model.addAttribute("secteurs", personneService.findAllSecteurs());
-        model.addAttribute("sections", personneService.findAllSections());
+        model.addAttribute("fizarana", personneService.findAllFizarana());
+        model.addAttribute("andraikitra", personneService.findAllAndraikitra());
 
         return "profil";
     }
@@ -372,14 +371,15 @@ public class WebController {
             @RequestParam String prenom,
             @RequestParam(required = false) String totem,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateNaissance,
-            @RequestParam(required = false) String niveau,
+            @RequestParam(required = false) String ambaratonga,
             @RequestParam(required = false) String numeroTelephone,
             @RequestParam(required = false) String numeroCin,
             @RequestParam(required = false) String nomPere,
             @RequestParam(required = false) String nomMere,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFanekena,
             @RequestParam(required = false) Integer secteurId,
-            @RequestParam(required = false) Integer sectionId,
+            @RequestParam(required = false) Integer fizaranaId,
+            @RequestParam(required = false) Integer andraikitraId,
             RedirectAttributes redirectAttributes
     ) {
         try {
@@ -393,24 +393,45 @@ public class WebController {
                         personne.setPrenom(prenom);
                         personne.setTotem(totem);
                         personne.setDateNaissance(dateNaissance);
-                        personne.setNiveau(niveau);
                         personne.setNumeroTelephone(numeroTelephone);
                         personne.setNumeroCin(numeroCin);
                         personne.setNomPere(nomPere);
                         personne.setNomMere(nomMere);
                         personne.setDateFanekena(dateFanekena);
 
-                        // Update secteur and section
+                        // Si c'est un Beazina, utiliser ambaratonga et fizarana
+                        // Si c'est un Mpiandraikitra, utiliser andraikitra (pas d'ambaratonga)
+                        if (personne.isBeazina()) {
+                            personne.setAmbaratonga(ambaratonga);
+                        } else if (personne.isMpiandraikitra()) {
+                            personne.setAmbaratonga(null);
+                        }
+
+                        // Update secteur
                         if (secteurId != null) {
                             personneService.findSecteurById(secteurId).ifPresent(personne::setSecteur);
                         } else {
                             personne.setSecteur(null);
                         }
 
-                        if (sectionId != null) {
-                            personneService.findSectionById(sectionId).ifPresent(personne::setSection);
-                        } else {
-                            personne.setSection(null);
+                        // Update fizarana pour Beazina
+                        if (personne.isBeazina()) {
+                            if (fizaranaId != null) {
+                                personneService.findFizaranaById(fizaranaId).ifPresent(personne::setFizarana);
+                            } else {
+                                personne.setFizarana(null);
+                            }
+                            personne.setAndraikitra(null);
+                        }
+
+                        // Update andraikitra pour Mpiandraikitra
+                        if (personne.isMpiandraikitra()) {
+                            if (andraikitraId != null) {
+                                personneService.findAndraikitraById(andraikitraId).ifPresent(personne::setAndraikitra);
+                            } else {
+                                personne.setAndraikitra(null);
+                            }
+                            personne.setFizarana(null);
                         }
 
                         personneService.save(personne);

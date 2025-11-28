@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<html lang="mg" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inscription - Tily</title>
+    <title>Fisoratana anarana - Tily</title>
     <link rel="stylesheet" th:href="@{/css/dashboard.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -353,8 +353,8 @@
                 <div class="auth-logo">
                     <i class="fas fa-user-plus"></i>
                 </div>
-                <h1>Créer un compte</h1>
-                <p>Rejoignez la communauté Tily</p>
+                <h1>Mamorona kaonty</h1>
+                <p>Miaraha amin'ny fiarahamonina Tily</p>
             </div>
             
             <div class="auth-body">
@@ -368,20 +368,20 @@
                     <!-- Type de compte -->
                     <div class="form-row">
                         <div class="form-group full-width">
-                            <label>Type de compte <span class="required">*</span></label>
+                            <label>Karazana kaonty <span class="required">*</span></label>
                             <div class="type-selector">
                                 <div class="type-option">
                                     <input type="radio" id="typeEleve" name="typePersonne" value="Eleve" required checked>
                                     <label for="typeEleve">
                                         <i class="fas fa-user-graduate"></i>
-                                        <span>Élève</span>
+                                        <span>Beazina</span>
                                     </label>
                                 </div>
                                 <div class="type-option responsable">
                                     <input type="radio" id="typeResponsable" name="typePersonne" value="Responsable">
                                     <label for="typeResponsable">
                                         <i class="fas fa-user-tie"></i>
-                                        <span>Responsable</span>
+                                        <span>Mpiandraikitra</span>
                                     </label>
                                 </div>
                             </div>
@@ -391,14 +391,14 @@
                     <!-- Nom et Prénom -->
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="nom">Nom <span class="required">*</span></label>
+                            <label for="nom">Anarana <span class="required">*</span></label>
                             <div class="input-icon-wrapper">
                                 <i class="fas fa-user input-icon"></i>
                                 <input type="text" id="nom" name="nom" placeholder="RAKOTO" required>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="prenom">Prénom <span class="required">*</span></label>
+                            <label for="prenom">Fanampin'anarana <span class="required">*</span></label>
                             <div class="input-icon-wrapper">
                                 <i class="fas fa-user input-icon"></i>
                                 <input type="text" id="prenom" name="prenom" placeholder="Jean" required>
@@ -409,7 +409,7 @@
                     <!-- Date de naissance -->
                     <div class="form-row">
                         <div class="form-group full-width">
-                            <label for="dateNaissance">Date de naissance</label>
+                            <label for="dateNaissance">Daty nahaterahana</label>
                             <div class="input-icon-wrapper">
                                 <i class="fas fa-calendar input-icon"></i>
                                 <input type="date" id="dateNaissance" name="dateNaissance">
@@ -420,7 +420,7 @@
                     <!-- Email -->
                     <div class="form-row">
                         <div class="form-group full-width">
-                            <label for="email">Adresse Email <span class="required">*</span></label>
+                            <label for="email">Adiresy Mailaka <span class="required">*</span></label>
                             <div class="input-icon-wrapper">
                                 <i class="fas fa-envelope input-icon"></i>
                                 <input type="email" id="email" name="email" placeholder="votre@email.com" required>
@@ -431,7 +431,7 @@
                     <!-- Mots de passe -->
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="motDePasse">Mot de passe <span class="required">*</span></label>
+                            <label for="motDePasse">Tenimiafina <span class="required">*</span></label>
                             <div class="input-icon-wrapper">
                                 <i class="fas fa-lock input-icon"></i>
                                 <input type="password" id="motDePasse" name="motDePasse" placeholder="••••••••" required minlength="6" oninput="checkPasswordStrength(this.value)">
@@ -440,12 +440,12 @@
                                 </button>
                             </div>
                             <div class="password-strength" id="passwordStrength">
-                                <span id="strengthText">6 caractères minimum</span>
+                                <span id="strengthText">Farafahakeliny 6 tarehin-tsoratra</span>
                                 <div class="bar"><div class="bar-fill"></div></div>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="confirmMotDePasse">Confirmer <span class="required">*</span></label>
+                            <label for="confirmMotDePasse">Fanamafisana <span class="required">*</span></label>
                             <div class="input-icon-wrapper">
                                 <i class="fas fa-lock input-icon"></i>
                                 <input type="password" id="confirmMotDePasse" name="confirmMotDePasse" placeholder="••••••••" required minlength="6">
@@ -458,18 +458,18 @@
                     
                     <button type="submit" class="btn-submit">
                         <i class="fas fa-user-plus"></i>
-                        Créer mon compte
+                        Mamorona ny kaontiko
                     </button>
                 </form>
                 
                 <div class="auth-footer">
-                    <p>Déjà inscrit ? <a th:href="@{/login}">Se connecter</a></p>
+                    <p>Efa voasoratra anarana ? <a th:href="@{/login}">Hiditra</a></p>
                 </div>
             </div>
         </div>
         
         <div class="brand-footer">
-            <p>© 2024 <strong>Tily</strong> - Développé par Harena ANDRIAMAHATONY</p>
+            <p>© 2024 <strong>Tily</strong> - Namboarin'i Harena ANDRIAMAHATONY</p>
         </div>
     </div>
 
@@ -496,7 +496,7 @@
             strength.classList.remove('weak', 'medium', 'strong');
             
             if (password.length < 6) {
-                text.textContent = '6 caractères minimum';
+                text.textContent = 'Farafahakeliny 6 tarehin-tsoratra';
                 return;
             }
             
@@ -509,13 +509,13 @@
             
             if (score <= 2) {
                 strength.classList.add('weak');
-                text.textContent = 'Faible';
+                text.textContent = 'Malemy';
             } else if (score <= 3) {
                 strength.classList.add('medium');
-                text.textContent = 'Moyen';
+                text.textContent = 'Antony';
             } else {
                 strength.classList.add('strong');
-                text.textContent = 'Fort';
+                text.textContent = 'Matanjaka';
             }
         }
         
@@ -526,7 +526,7 @@
             
             if (password !== confirm) {
                 e.preventDefault();
-                alert('Les mots de passe ne correspondent pas');
+                alert('Tsy mitovy ny tenimiafina');
             }
         });
     </script>

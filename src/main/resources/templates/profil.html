@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<html lang="mg" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mon Profil - Tily</title>
+    <title>Ny mombamomba ahy - Tily</title>
     <link rel="stylesheet" th:href="@{/css/dashboard.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -272,7 +272,7 @@
                          th:src="${personne != null ? 'https://ui-avatars.com/api/?name=' + personne.prenom + '+' + personne.nom + '&background=8951FF&color=fff&size=120' : 'https://ui-avatars.com/api/?name=User&background=8951FF&color=fff&size=120'}" 
                          class="profile-avatar" alt="Photo de profil">
                     <div class="profile-info">
-                        <h2 th:text="${personne != null ? personne.prenom + ' ' + personne.nom : 'Utilisateur'}">Nom Prénom</h2>
+                        <h2 th:text="${personne != null ? personne.prenom + ' ' + personne.nom : 'Mpampiasa'}">Anarana Fanampin'anarana</h2>
                         <div class="profile-type" th:if="${personne != null and personne.typePersonne != null}">
                             <i th:class="${personne.typePersonne.nom == 'Responsable' ? 'fas fa-user-tie' : 'fas fa-user-graduate'}"></i>
                             <span th:text="${personne.typePersonne.nom}">Type</span>
@@ -291,20 +291,20 @@
                         <div class="form-section">
                             <div class="form-section-title">
                                 <i class="fas fa-user"></i>
-                                <span>Informations personnelles</span>
+                                <span>Fampahalalana manokana</span>
                             </div>
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label for="nom">Nom</label>
+                                    <label for="nom">Anarana</label>
                                     <input type="text" id="nom" name="nom" 
                                            th:value="${personne != null ? personne.nom : ''}" 
-                                           placeholder="Votre nom" required>
+                                           placeholder="Ny anaranao" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="prenom">Prénom</label>
+                                    <label for="prenom">Fanampin'anarana</label>
                                     <input type="text" id="prenom" name="prenom" 
                                            th:value="${personne != null ? personne.prenom : ''}" 
-                                           placeholder="Votre prénom" required>
+                                           placeholder="Ny fanampin'anaranao" required>
                                 </div>
                             </div>
                             <div class="form-row">
@@ -312,26 +312,26 @@
                                     <label for="totem">Totem</label>
                                     <input type="text" id="totem" name="totem" 
                                            th:value="${personne != null ? personne.totem : ''}" 
-                                           placeholder="Votre totem">
+                                           placeholder="Ny totemanao">
                                 </div>
                                 <div class="form-group">
-                                    <label for="dateNaissance">Date de naissance</label>
+                                    <label for="dateNaissance">Daty nahaterahana</label>
                                     <input type="date" id="dateNaissance" name="dateNaissance" 
                                            th:value="${personne != null and personne.dateNaissance != null ? personne.dateNaissance : ''}">
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label for="numeroCin">Numéro CIN</label>
+                                    <label for="numeroCin">Laharana CIN</label>
                                     <input type="text" id="numeroCin" name="numeroCin" 
                                            th:value="${personne != null ? personne.numeroCin : ''}" 
-                                           placeholder="Ex: 101 251 456 789">
+                                           placeholder="Ohatra: 101 251 456 789">
                                 </div>
                                 <div class="form-group">
-                                    <label for="numeroTelephone">Téléphone</label>
+                                    <label for="numeroTelephone">Finday</label>
                                     <input type="text" id="numeroTelephone" name="numeroTelephone" 
                                            th:value="${personne != null ? personne.numeroTelephone : ''}" 
-                                           placeholder="Ex: 034 12 345 67">
+                                           placeholder="Ohatra: 034 12 345 67">
                                 </div>
                             </div>
                         </div>
@@ -340,20 +340,20 @@
                         <div class="form-section">
                             <div class="form-section-title">
                                 <i class="fas fa-users"></i>
-                                <span>Informations familiales</span>
+                                <span>Fampahalalana momba ny fianakaviana</span>
                             </div>
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label for="nomPere">Nom du père</label>
+                                    <label for="nomPere">Anaran'ny Ray</label>
                                     <input type="text" id="nomPere" name="nomPere" 
                                            th:value="${personne != null ? personne.nomPere : ''}" 
-                                           placeholder="Nom complet du père">
+                                           placeholder="Anarana feno ny ray">
                                 </div>
                                 <div class="form-group">
-                                    <label for="nomMere">Nom de la mère</label>
+                                    <label for="nomMere">Anaran'ny Reny</label>
                                     <input type="text" id="nomMere" name="nomMere" 
                                            th:value="${personne != null ? personne.nomMere : ''}" 
-                                           placeholder="Nom complet de la mère">
+                                           placeholder="Anarana feno ny reny">
                                 </div>
                             </div>
                         </div>
@@ -362,42 +362,55 @@
                         <div class="form-section">
                             <div class="form-section-title">
                                 <i class="fas fa-campground"></i>
-                                <span>Informations scout</span>
+                                <span>Fampahalalana momba ny skotisma</span>
                             </div>
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label for="secteurId">Secteur</label>
+                                    <label for="secteurId">Sektora</label>
                                     <select id="secteurId" name="secteurId">
-                                        <option value="">-- Sélectionner --</option>
+                                        <option value="">-- Mifidy --</option>
                                         <option th:each="secteur : ${secteurs}" 
                                                 th:value="${secteur.id}" 
                                                 th:text="${secteur.nom}"
                                                 th:selected="${personne != null and personne.secteur != null and personne.secteur.id == secteur.id}"></option>
                                     </select>
                                 </div>
-                                <div class="form-group">
-                                    <label for="sectionId">Section</label>
-                                    <select id="sectionId" name="sectionId">
-                                        <option value="">-- Sélectionner --</option>
-                                        <option th:each="section : ${sections}" 
-                                                th:value="${section.id}" 
-                                                th:text="${section.nom}"
-                                                th:selected="${personne != null and personne.section != null and personne.section.id == section.id}"></option>
+                                <!-- Pour les Beazina : Fizarana (Section) -->
+                                <div class="form-group" th:if="${personne != null and personne.typePersonne != null and personne.typePersonne.nom == 'Eleve'}">
+                                    <label for="fizaranaId">Fizarana</label>
+                                    <select id="fizaranaId" name="fizaranaId">
+                                        <option value="">-- Mifidy --</option>
+                                        <option th:each="fizarana : ${fizarana}" 
+                                                th:value="${fizarana.id}" 
+                                                th:text="${fizarana.nom}"
+                                                th:selected="${personne != null and personne.fizarana != null and personne.fizarana.id == fizarana.id}"></option>
+                                    </select>
+                                </div>
+                                <!-- Pour les Mpiandraikitra : Andraikitra -->
+                                <div class="form-group" th:if="${personne != null and personne.typePersonne != null and personne.typePersonne.nom == 'Responsable'}">
+                                    <label for="andraikitraId">Andraikitra</label> <!-- Andraikitra = postes/responsabilités en malgache -->
+                                    <select id="andraikitraId" name="andraikitraId">
+                                        <option value="">-- Mifidy --</option>
+                                        <option th:each="andraikitra : ${andraikitra}" 
+                                                th:value="${andraikitra.id}" 
+                                                th:text="${andraikitra.nom}"
+                                                th:selected="${personne != null and personne.andraikitra != null and personne.andraikitra.id == andraikitra.id}"></option>
                                     </select>
                                 </div>
                             </div>
                             <div class="form-row">
-                                <div class="form-group">
-                                    <label for="niveau">Niveau</label>
-                                    <select id="niveau" name="niveau">
-                                        <option value="">-- Sélectionner --</option>
-                                        <option value="Louveteau" th:selected="${personne != null and personne.niveau == 'Louveteau'}">Louveteau</option>
-                                        <option value="Éclaireur" th:selected="${personne != null and personne.niveau == 'Éclaireur'}">Éclaireur</option>
-                                        <option value="Routier" th:selected="${personne != null and personne.niveau == 'Routier'}">Routier</option>
+                                <!-- Pour les Beazina : Ambaratonga (Niveau) -->
+                                <div class="form-group" th:if="${personne != null and personne.typePersonne != null and personne.typePersonne.nom == 'Eleve'}">
+                                    <label for="ambaratonga">Ambaratonga</label>
+                                    <select id="ambaratonga" name="ambaratonga">
+                                        <option value="">-- Mifidy --</option>
+                                        <option value="Louveteau" th:selected="${personne != null and personne.ambaratonga == 'Louveteau'}">Louveteau</option>
+                                        <option value="Éclaireur" th:selected="${personne != null and personne.ambaratonga == 'Éclaireur'}">Éclaireur</option>
+                                        <option value="Routier" th:selected="${personne != null and personne.ambaratonga == 'Routier'}">Routier</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label for="dateFanekena">Date Fanekena</label>
+                                    <label for="dateFanekena">Daty Fanekena</label>
                                     <input type="date" id="dateFanekena" name="dateFanekena" 
                                            th:value="${personne != null and personne.dateFanekena != null ? personne.dateFanekena : ''}">
                                 </div>
@@ -408,17 +421,17 @@
                         <div class="form-section">
                             <div class="form-section-title">
                                 <i class="fas fa-shield-alt"></i>
-                                <span>Compte utilisateur</span>
+                                <span>Kaonty mpampiasa</span>
                             </div>
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label for="email">Email</label>
+                                    <label for="email">Mailaka</label>
                                     <input type="email" id="email" 
                                            th:value="${utilisateur != null ? utilisateur.email : ''}" 
                                            readonly>
                                 </div>
                                 <div class="form-group">
-                                    <label for="dateCreation">Membre depuis</label>
+                                    <label for="dateCreation">Mpikambana hatramin'ny</label>
                                     <input type="text" id="dateCreation" 
                                            th:value="${utilisateur != null and utilisateur.dateCreation != null ? #temporals.format(utilisateur.dateCreation, 'dd/MM/yyyy') : ''}" 
                                            readonly>
@@ -430,11 +443,11 @@
                         <div class="form-actions">
                             <button type="reset" class="btn-reset">
                                 <i class="fas fa-undo"></i>
-                                Réinitialiser
+                                Averina
                             </button>
                             <button type="submit" class="btn-save">
                                 <i class="fas fa-save"></i>
-                                Enregistrer les modifications
+                                Tehirizina ny fanovana
                             </button>
                         </div>
                     </form>

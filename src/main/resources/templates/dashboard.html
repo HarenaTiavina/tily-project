@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<html lang="mg" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,7 +26,7 @@
                         <i class="fas fa-user-tie"></i>
                     </div>
                     <div class="card-content">
-                        <h3>Responsable</h3>
+                        <h3>Mpiandraikitra</h3>
                         <div class="card-value" th:text="${totalResponsables}">0</div>
                         <div class="card-stats">
                             <div class="stat-item success">
@@ -35,7 +35,7 @@
                             </div>
                             <div class="stat-item warning">
                                 <i class="fas fa-clock"></i>
-                                <span>Reste: <strong th:text="${responsablesWithoutFafi}">0</strong></span>
+                                <span>Mbola tsy: <strong th:text="${responsablesWithoutFafi}">0</strong></span>
                             </div>
                         </div>
                     </div>
@@ -47,7 +47,7 @@
                         <i class="fas fa-user-graduate"></i>
                     </div>
                     <div class="card-content">
-                        <h3>Élèves</h3>
+                        <h3>Beazina</h3>
                         <div class="card-value" th:text="${totalEleves}">0</div>
                         <div class="card-stats">
                             <div class="stat-item success">
@@ -56,7 +56,7 @@
                             </div>
                             <div class="stat-item warning">
                                 <i class="fas fa-clock"></i>
-                                <span>Reste: <strong th:text="${elevesWithoutFafi}">0</strong></span>
+                                <span>Mbola tsy: <strong th:text="${elevesWithoutFafi}">0</strong></span>
                             </div>
                         </div>
                     </div>
@@ -73,11 +73,11 @@
                         <div class="card-stats">
                             <div class="stat-item success">
                                 <i class="fas fa-user-check"></i>
-                                <span>Payé: <strong th:text="${paidFafi}">0</strong></span>
+                                <span>Voaloa: <strong th:text="${paidFafi}">0</strong></span>
                             </div>
                             <div class="stat-item warning">
                                 <i class="fas fa-user-clock"></i>
-                                <span>Non payé: <strong th:text="${unpaidFafi}">0</strong></span>
+                                <span>Tsy voaloa: <strong th:text="${unpaidFafi}">0</strong></span>
                             </div>
                         </div>
                     </div>

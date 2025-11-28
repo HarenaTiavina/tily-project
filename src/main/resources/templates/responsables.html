@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<html lang="mg" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Responsables - Tily</title>
+    <title>Mpiandraikitra - Tily</title>
     <link rel="stylesheet" th:href="@{/css/dashboard.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -33,13 +33,13 @@
             <!-- Header avec actions -->
             <div class="page-header">
                 <div class="header-left">
-                    <h2>Liste des Responsables</h2>
-                    <span class="record-count" id="recordCount" th:text="${totalCount} + ' responsable' + (${totalCount} > 1 ? 's' : '')">0 responsable</span>
+                    <h2>Lisitry ny Mpiandraikitra</h2>
+                    <span class="record-count" id="recordCount" th:text="${totalCount} + ' Mpiandraikitra'">0 Mpiandraikitra</span>
                 </div>
                 <div class="header-actions">
                     <button class="btn-primary" onclick="openAddModal()">
                         <i class="fas fa-plus"></i>
-                        Ajouter
+                        Hanampy
                     </button>
                 </div>
             </div>
@@ -48,52 +48,43 @@
             <div class="filters-section">
                 <div class="filters-row">
                     <div class="filter-group">
-                        <label>Recherche</label>
+                        <label>Fikarohana</label>
                         <div class="search-filter">
                             <i class="fas fa-search"></i>
-                            <input type="text" id="searchInput" placeholder="Nom, prénom, totem..." onkeyup="applyFilters()">
+                            <input type="text" id="searchInput" placeholder="Anarana, fanampin'anarana, totem..." onkeyup="applyFilters()">
                         </div>
                     </div>
                     <div class="filter-group">
-                        <label>Secteur</label>
+                        <label>Sektora</label>
                         <select id="filterSecteur" onchange="applyFilters()">
-                            <option value="">Tous les secteurs</option>
+                            <option value="">Ny sektora rehetra</option>
                             <option th:each="secteur : ${secteurs}" th:value="${secteur.nom}" th:text="${secteur.nom}"></option>
                         </select>
                     </div>
                     <div class="filter-group">
-                        <label>Section</label>
-                        <select id="filterSection" onchange="applyFilters()">
-                            <option value="">Toutes les sections</option>
-                            <option th:each="section : ${sections}" th:value="${section.nom}" th:text="${section.nom}"></option>
+                        <label>Andraikitra</label> <!-- Andraikitra = postes/responsabilités en scout -->
+                        <select id="filterAndraikitra" onchange="applyFilters()">
+                            <option value="">Ny andraikitra rehetra</option>
+                            <option th:each="andraikitra : ${andraikitra}" th:value="${andraikitra.nom}" th:text="${andraikitra.nom}"></option>
                         </select>
                     </div>
                     <div class="filter-group">
-                        <label>Niveau</label>
-                        <select id="filterNiveau" onchange="applyFilters()">
-                            <option value="">Tous les niveaux</option>
-                            <option value="Louveteau">Louveteau</option>
-                            <option value="Éclaireur">Éclaireur</option>
-                            <option value="Routier">Routier</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label>Assurance</label>
+                        <label>Fiantohana</label>
                         <select id="filterAssurance" onchange="applyFilters()">
-                            <option value="">Toutes</option>
-                            <option value="Oui">Oui</option>
-                            <option value="Non">Non</option>
+                            <option value="">Ny rehetra</option>
+                            <option value="Oui">Eny</option>
+                            <option value="Non">Tsia</option>
                         </select>
                     </div>
                 </div>
                 <div class="filters-actions">
                     <button class="btn-secondary" onclick="resetFilters()">
                         <i class="fas fa-undo"></i>
-                        Réinitialiser
+                        Averina
                     </button>
                     <button class="btn-pdf" onclick="exportToPDF()">
                         <i class="fas fa-file-pdf"></i>
-                        Exporter PDF
+                        Alaina PDF
                     </button>
                 </div>
             </div>
@@ -104,27 +95,26 @@
                     <table class="data-table" id="responsablesTable">
                         <thead>
                             <tr>
-                                <th class="sortable" onclick="sortTable(0)">Photo</th>
-                                <th class="sortable" onclick="sortTable(1)">Nom <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(2)">Prénom <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(0)">Sary</th>
+                                <th class="sortable" onclick="sortTable(1)">Anarana <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(2)">Fanampin'anarana <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(3)">Totem <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(4)">Date Naissance <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(4)">Daty nahaterahana <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(5)">N° CIN <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(6)">Téléphone <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(7)">Secteur <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(8)">Section <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(9)">Niveau <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(10)">Fanekena <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(11)">Assurance <i class="fas fa-sort"></i></th>
-                                <th>Actions</th>
+                                <th class="sortable" onclick="sortTable(6)">Finday <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(7)">Sektora <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(8)">Andraikitra <i class="fas fa-sort"></i></th> <!-- Andraikitra = postes/responsabilités -->
+                                <th class="sortable" onclick="sortTable(9)">Fanekena <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(10)">Fiantohana <i class="fas fa-sort"></i></th>
+                                <th>Asa</th>
                             </tr>
                         </thead>
                         <tbody>
                             <!-- Message si aucune donnée -->
                             <tr th:if="${#lists.isEmpty(responsables)}">
-                                <td colspan="13" class="empty-message">
+                                <td colspan="12" class="empty-message">
                                     <i class="fas fa-inbox"></i>
-                                    <p>Aucun responsable trouvé</p>
+                                    <p>Tsy misy Mpiandraikitra hita</p>
                                 </td>
                             </tr>
                             <!-- Données dynamiques -->
@@ -141,10 +131,9 @@
                                 th:data-datefanekena="${resp.dateFanekena}"
                                 th:data-secteur="${resp.secteur != null ? resp.secteur.nom : ''}"
                                 th:data-secteurid="${resp.secteur != null ? resp.secteur.id : ''}"
-                                th:data-section="${resp.section != null ? resp.section.nom : ''}"
-                                th:data-sectionid="${resp.section != null ? resp.section.id : ''}"
-                                th:data-niveau="${resp.niveau}"
-                                th:data-assurance="${resp.assurance != null && resp.assurance.statut == 'Active' ? 'Oui' : 'Non'}">
+                                th:data-andraikitra="${resp.andraikitra != null ? resp.andraikitra.nom : ''}"
+                                th:data-andraikitraid="${resp.andraikitra != null ? resp.andraikitra.id : ''}"
+                                th:data-assurance="${resp.assurance != null && resp.assurance.statut == 'Active' ? 'Eny' : 'Tsia'}">
                                 <td>
                                     <img th:if="${resp.image != null and !resp.image.isEmpty()}" th:src="${resp.image}" class="avatar" alt="Photo">
                                     <img th:unless="${resp.image != null and !resp.image.isEmpty()}" 
@@ -158,23 +147,17 @@
                                 <td th:text="${resp.numeroCin}">-</td>
                                 <td th:text="${resp.numeroTelephone}">-</td>
                                 <td th:text="${resp.secteur != null ? resp.secteur.nom : '-'}">-</td>
-                                <td th:text="${resp.section != null ? resp.section.nom : '-'}">-</td>
-                                <td>
-                                    <span th:if="${resp.niveau == 'Louveteau'}" class="badge-niveau louveteau">Louveteau</span>
-                                    <span th:if="${resp.niveau == 'Éclaireur'}" class="badge-niveau eclaireur">Éclaireur</span>
-                                    <span th:if="${resp.niveau == 'Routier'}" class="badge-niveau routier">Routier</span>
-                                    <span th:if="${resp.niveau == null}">-</span>
-                                </td>
+                                <td th:text="${resp.andraikitra != null ? resp.andraikitra.nom : '-'}">-</td>
                                 <td th:text="${resp.dateFanekena != null ? #temporals.format(resp.dateFanekena, 'dd/MM/yyyy') : '-'}">-</td>
                                 <td>
-                                    <span th:if="${resp.assurance != null && resp.assurance.statut == 'Active'}" class="status-badge delivered">Oui</span>
-                                    <span th:unless="${resp.assurance != null && resp.assurance.statut == 'Active'}" class="status-badge pending">Non</span>
+                                    <span th:if="${resp.assurance != null && resp.assurance.statut == 'Active'}" class="status-badge delivered">Eny</span>
+                                    <span th:unless="${resp.assurance != null && resp.assurance.statut == 'Active'}" class="status-badge pending">Tsia</span>
                                 </td>
                                 <td class="actions-cell">
-                                    <button class="btn-icon edit-btn" title="Modifier" th:data-id="${resp.id}"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon edit-btn" title="Hanova" th:data-id="${resp.id}"><i class="fas fa-edit"></i></button>
                                     <form th:action="@{/responsables/supprimer}" method="post" style="display: inline;">
                                         <input type="hidden" name="id" th:value="${resp.id}">
-                                        <button type="submit" class="btn-icon danger" title="Supprimer" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce responsable ?')"><i class="fas fa-trash"></i></button>
+                                        <button type="submit" class="btn-icon danger" title="Hamafa" onclick="return confirm('Azo antoka ve ianao fa te-hamafa ity Mpiandraikitra ity ?')"><i class="fas fa-trash"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -185,7 +168,7 @@
                 <!-- Pagination -->
                 <div class="table-footer">
                     <div class="rows-per-page">
-                        <span>Lignes par page:</span>
+                        <span>Andalana isaky ny pejy:</span>
                         <select>
                             <option>10</option>
                             <option>25</option>
@@ -193,7 +176,7 @@
                         </select>
                     </div>
                     <div class="pagination">
-                        <span id="paginationInfo" th:text="'1-' + ${totalCount} + ' sur ' + ${totalCount}">1-0 sur 0</span>
+                        <span id="paginationInfo" th:text="'1-' + ${totalCount} + ' amin\'ny ' + ${totalCount}">1-0 amin'ny 0</span>
                         <button class="btn-icon" disabled><i class="fas fa-chevron-left"></i></button>
                         <button class="btn-icon"><i class="fas fa-chevron-right"></i></button>
                     </div>
@@ -209,89 +192,80 @@
     <div id="addModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2><i class="fas fa-user-plus"></i> Ajouter un Responsable</h2>
+                <h2><i class="fas fa-user-plus"></i> Hanampy Mpiandraikitra</h2>
                 <button class="modal-close" onclick="closeAddModal()">&times;</button>
             </div>
             <form th:action="@{/responsables/ajouter}" method="post">
                 <div class="modal-body">
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="nom">Nom <span class="required">*</span></label>
-                            <input type="text" id="nom" name="nom" required placeholder="Ex: RAKOTO">
+                            <label for="nom">Anarana <span class="required">*</span></label>
+                            <input type="text" id="nom" name="nom" required placeholder="Ohatra: RAKOTO">
                         </div>
                         <div class="form-group">
-                            <label for="prenom">Prénom <span class="required">*</span></label>
-                            <input type="text" id="prenom" name="prenom" required placeholder="Ex: Jean">
+                            <label for="prenom">Fanampin'anarana <span class="required">*</span></label>
+                            <input type="text" id="prenom" name="prenom" required placeholder="Ohatra: Jean">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="totem">Totem</label>
-                            <input type="text" id="totem" name="totem" placeholder="Ex: Akanga">
+                            <input type="text" id="totem" name="totem" placeholder="Ohatra: Akanga">
                         </div>
                         <div class="form-group">
-                            <label for="dateNaissance">Date de Naissance</label>
+                            <label for="dateNaissance">Daty nahaterahana</label>
                             <input type="date" id="dateNaissance" name="dateNaissance">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="numeroCin">Numéro CIN</label>
-                            <input type="text" id="numeroCin" name="numeroCin" placeholder="Ex: 101 251 456 789">
+                            <label for="numeroCin">Laharana CIN</label>
+                            <input type="text" id="numeroCin" name="numeroCin" placeholder="Ohatra: 101 251 456 789">
                         </div>
                         <div class="form-group">
-                            <label for="numeroTelephone">Téléphone</label>
-                            <input type="text" id="numeroTelephone" name="numeroTelephone" placeholder="Ex: 034 12 345 67">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="nomPere">Nom du Père</label>
-                            <input type="text" id="nomPere" name="nomPere" placeholder="Ex: Pierre Rakoto">
-                        </div>
-                        <div class="form-group">
-                            <label for="nomMere">Nom de la Mère</label>
-                            <input type="text" id="nomMere" name="nomMere" placeholder="Ex: Marie Rasoa">
+                            <label for="numeroTelephone">Finday</label>
+                            <input type="text" id="numeroTelephone" name="numeroTelephone" placeholder="Ohatra: 034 12 345 67">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="secteurId">Secteur</label>
+                            <label for="nomPere">Anaran'ny Ray</label>
+                            <input type="text" id="nomPere" name="nomPere" placeholder="Ohatra: Pierre Rakoto">
+                        </div>
+                        <div class="form-group">
+                            <label for="nomMere">Anaran'ny Reny</label>
+                            <input type="text" id="nomMere" name="nomMere" placeholder="Ohatra: Marie Rasoa">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="secteurId">Sektora</label>
                             <select id="secteurId" name="secteurId">
-                                <option value="">-- Sélectionner --</option>
+                                <option value="">-- Mifidy --</option>
                                 <option th:each="secteur : ${secteurs}" th:value="${secteur.id}" th:text="${secteur.nom}"></option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="sectionId">Section</label>
-                            <select id="sectionId" name="sectionId">
-                                <option value="">-- Sélectionner --</option>
-                                <option th:each="section : ${sections}" th:value="${section.id}" th:text="${section.nom}"></option>
+                            <label for="andraikitraId">Andraikitra</label> <!-- Andraikitra = postes/responsabilités -->
+                            <select id="andraikitraId" name="andraikitraId">
+                                <option value="">-- Mifidy --</option>
+                                <option th:each="andraikitra : ${andraikitra}" th:value="${andraikitra.id}" th:text="${andraikitra.nom}"></option>
                             </select>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="niveau">Niveau</label>
-                            <select id="niveau" name="niveau">
-                                <option value="">-- Sélectionner --</option>
-                                <option value="Louveteau">Louveteau</option>
-                                <option value="Éclaireur">Éclaireur</option>
-                                <option value="Routier">Routier</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="dateFanekena">Date Fanekena</label>
+                            <label for="dateFanekena">Daty Fanekena</label>
                             <input type="date" id="dateFanekena" name="dateFanekena">
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" onclick="closeAddModal()">
-                        <i class="fas fa-times"></i> Annuler
+                        <i class="fas fa-times"></i> Hanafoana
                     </button>
                     <button type="submit" class="btn-primary">
-                        <i class="fas fa-save"></i> Enregistrer
+                        <i class="fas fa-save"></i> Tehirizina
                     </button>
                 </div>
             </form>
@@ -302,7 +276,7 @@
     <div id="editModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2><i class="fas fa-user-edit"></i> Modifier un Responsable</h2>
+                <h2><i class="fas fa-user-edit"></i> Hanova Mpiandraikitra</h2>
                 <button class="modal-close" onclick="closeEditModal()">&times;</button>
             </div>
             <form th:action="@{/responsables/modifier}" method="post">
@@ -310,11 +284,11 @@
                 <div class="modal-body">
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="editNom">Nom <span class="required">*</span></label>
+                            <label for="editNom">Anarana <span class="required">*</span></label>
                             <input type="text" id="editNom" name="nom" required>
                         </div>
                         <div class="form-group">
-                            <label for="editPrenom">Prénom <span class="required">*</span></label>
+                            <label for="editPrenom">Fanampin'anarana <span class="required">*</span></label>
                             <input type="text" id="editPrenom" name="prenom" required>
                         </div>
                     </div>
@@ -324,68 +298,59 @@
                             <input type="text" id="editTotem" name="totem">
                         </div>
                         <div class="form-group">
-                            <label for="editDateNaissance">Date de Naissance</label>
+                            <label for="editDateNaissance">Daty nahaterahana</label>
                             <input type="date" id="editDateNaissance" name="dateNaissance">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="editNumeroCin">Numéro CIN</label>
+                            <label for="editNumeroCin">Laharana CIN</label>
                             <input type="text" id="editNumeroCin" name="numeroCin">
                         </div>
                         <div class="form-group">
-                            <label for="editNumeroTelephone">Téléphone</label>
+                            <label for="editNumeroTelephone">Finday</label>
                             <input type="text" id="editNumeroTelephone" name="numeroTelephone">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="editNomPere">Nom du Père</label>
+                            <label for="editNomPere">Anaran'ny Ray</label>
                             <input type="text" id="editNomPere" name="nomPere">
                         </div>
                         <div class="form-group">
-                            <label for="editNomMere">Nom de la Mère</label>
+                            <label for="editNomMere">Anaran'ny Reny</label>
                             <input type="text" id="editNomMere" name="nomMere">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="editSecteurId">Secteur</label>
+                            <label for="editSecteurId">Sektora</label>
                             <select id="editSecteurId" name="secteurId">
-                                <option value="">-- Sélectionner --</option>
+                                <option value="">-- Mifidy --</option>
                                 <option th:each="secteur : ${secteurs}" th:value="${secteur.id}" th:text="${secteur.nom}"></option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="editSectionId">Section</label>
-                            <select id="editSectionId" name="sectionId">
-                                <option value="">-- Sélectionner --</option>
-                                <option th:each="section : ${sections}" th:value="${section.id}" th:text="${section.nom}"></option>
+                            <label for="editAndraikitraId">Andraikitra</label>
+                            <select id="editAndraikitraId" name="andraikitraId">
+                                <option value="">-- Mifidy --</option>
+                                <option th:each="andraikitra : ${andraikitra}" th:value="${andraikitra.id}" th:text="${andraikitra.nom}"></option>
                             </select>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="editNiveau">Niveau</label>
-                            <select id="editNiveau" name="niveau">
-                                <option value="">-- Sélectionner --</option>
-                                <option value="Louveteau">Louveteau</option>
-                                <option value="Éclaireur">Éclaireur</option>
-                                <option value="Routier">Routier</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="editDateFanekena">Date Fanekena</label>
+                            <label for="editDateFanekena">Daty Fanekena</label>
                             <input type="date" id="editDateFanekena" name="dateFanekena">
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" onclick="closeEditModal()">
-                        <i class="fas fa-times"></i> Annuler
+                        <i class="fas fa-times"></i> Hanafoana
                     </button>
                     <button type="submit" class="btn-primary">
-                        <i class="fas fa-save"></i> Enregistrer
+                        <i class="fas fa-save"></i> Tehirizina
                     </button>
                 </div>
             </form>
@@ -490,8 +455,7 @@
         function applyFilters() {
             const searchValue = document.getElementById('searchInput').value.toLowerCase();
             const secteurValue = document.getElementById('filterSecteur').value;
-            const sectionValue = document.getElementById('filterSection').value;
-            const niveauValue = document.getElementById('filterNiveau').value;
+            const andraikitraValue = document.getElementById('filterAndraikitra').value;
             const assuranceValue = document.getElementById('filterAssurance').value;
             
             const table = document.getElementById('responsablesTable');
@@ -501,17 +465,15 @@
             rows.forEach(row => {
                 const text = row.textContent.toLowerCase();
                 const secteur = row.getAttribute('data-secteur') || '';
-                const section = row.getAttribute('data-section') || '';
-                const niveau = row.getAttribute('data-niveau') || '';
+                const andraikitra = row.getAttribute('data-andraikitra') || '';
                 const assurance = row.getAttribute('data-assurance') || '';
                 
                 const matchSearch = !searchValue || text.includes(searchValue);
                 const matchSecteur = !secteurValue || secteur === secteurValue;
-                const matchSection = !sectionValue || section === sectionValue;
-                const matchNiveau = !niveauValue || niveau === niveauValue;
+                const matchAndraikitra = !andraikitraValue || andraikitra === andraikitraValue;
                 const matchAssurance = !assuranceValue || assurance === assuranceValue;
                 
-                if (matchSearch && matchSecteur && matchSection && matchNiveau && matchAssurance) {
+                if (matchSearch && matchSecteur && matchAndraikitra && matchAssurance) {
                     row.style.display = '';
                     visibleCount++;
                 } else {
@@ -519,16 +481,15 @@
                 }
             });
             
-            document.getElementById('recordCount').textContent = visibleCount + ' responsable' + (visibleCount > 1 ? 's' : '');
-            document.getElementById('paginationInfo').textContent = '1-' + visibleCount + ' sur ' + visibleCount;
+            document.getElementById('recordCount').textContent = visibleCount + ' Mpiandraikitra';
+            document.getElementById('paginationInfo').textContent = '1-' + visibleCount + ' amin\'ny ' + visibleCount;
         }
 
         // Réinitialiser les filtres
         function resetFilters() {
             document.getElementById('searchInput').value = '';
             document.getElementById('filterSecteur').value = '';
-            document.getElementById('filterSection').value = '';
-            document.getElementById('filterNiveau').value = '';
+            document.getElementById('filterAndraikitra').value = '';
             document.getElementById('filterAssurance').value = '';
             applyFilters();
         }
@@ -557,8 +518,7 @@
             document.getElementById('editNomMere').value = row.dataset.nommere || '';
             document.getElementById('editDateFanekena').value = row.dataset.datefanekena || '';
             document.getElementById('editSecteurId').value = row.dataset.secteurid || '';
-            document.getElementById('editSectionId').value = row.dataset.sectionid || '';
-            document.getElementById('editNiveau').value = row.dataset.niveau || '';
+            document.getElementById('editAndraikitraId').value = row.dataset.andraikitraid || '';
             
             document.getElementById('editModal').classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -600,7 +560,7 @@
                     reader.readAsDataURL(blob);
                 })
                 .catch(error => {
-                    console.error('Erreur lors du chargement de l\'image:', error);
+                    console.error('Hadisoana rehefa mampiditra ny sary:', error);
                     callback(null);
                 });
         }
@@ -612,21 +572,19 @@
             const visibleRows = Array.from(rows).filter(row => row.style.display !== 'none');
             
             if (visibleRows.length === 0) {
-                alert('Aucune donnée à exporter');
+                alert('Tsy misy angona hivoaka');
                 return;
             }
 
             const secteur = document.getElementById('filterSecteur').value;
-            const section = document.getElementById('filterSection').value;
-            const niveau = document.getElementById('filterNiveau').value;
+            const andraikitra = document.getElementById('filterAndraikitra').value;
             const assurance = document.getElementById('filterAssurance').value;
             
-            let filterTitle = 'Liste des Responsables';
+            let filterTitle = 'Lisitry ny Mpiandraikitra';
             let filters = [];
-            if (secteur) filters.push('Secteur: ' + secteur);
-            if (section) filters.push('Section: ' + section);
-            if (niveau) filters.push('Niveau: ' + niveau);
-            if (assurance) filters.push('Assurance: ' + assurance);
+            if (secteur) filters.push('Sektora: ' + secteur);
+            if (andraikitra) filters.push('Andraikitra: ' + andraikitra);
+            if (assurance) filters.push('Fiantohana: ' + assurance);
             
             // Charger l'image et la convertir en base64
             const imageUrl = window.location.origin + '/images/top-tily.jpg';
@@ -634,7 +592,7 @@
                 let printContent = `
                     <html>
                     <head>
-                        <title>Export Responsables - Tily</title>
+                        <title>Alaina Mpiandraikitra - Tily</title>
                         <style>
                             body { font-family: Arial, sans-serif; padding: 20px; }
                             .header-image { width: 100%; max-width: 800px; margin: 0 auto 20px; display: block; }
@@ -651,20 +609,21 @@
                     <body>
                         ${imageBase64 ? '<img src="' + imageBase64 + '" alt="Tily" class="header-image">' : ''}
                         <h1>${filterTitle}</h1>
-                        ${filters.length > 0 ? '<p class="filters">Filtres: ' + filters.join(' | ') + '</p>' : ''}
-                        <p class="date">Exporté le: ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}</p>
+                        ${filters.length > 0 ? '<p class="filters">Sivana: ' + filters.join(' | ') + '</p>' : ''}
+                        <p class="date">Voaloa tamin'ny: ${new Date().toLocaleDateString('fr-FR')} amin'ny ${new Date().toLocaleTimeString('fr-FR')}</p>
                     <table>
                         <thead>
                             <tr>
-                                <th>Nom</th>
-                                <th>Prénom</th>
+                                <th>Anarana</th>
+                                <th>Fanampin'anarana</th>
                                 <th>Totem</th>
-                                <th>Date Naissance</th>
-                                <th>Téléphone</th>
-                                <th>Secteur</th>
-                                <th>Section</th>
-                                <th>Niveau</th>
-                                <th>Assurance</th>
+                                <th>Daty nahaterahana</th>
+                                <th>N° CIN</th>
+                                <th>Finday</th>
+                                <th>Sektora</th>
+                                <th>Andraikitra</th>
+                                <th>Fanekena</th>
+                                <th>Fiantohana</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -678,11 +637,12 @@
                         <td>${cells[2].textContent}</td>
                         <td>${cells[3].textContent}</td>
                         <td>${cells[4].textContent}</td>
+                        <td>${cells[5].textContent}</td>
                         <td>${cells[6].textContent}</td>
                         <td>${cells[7].textContent}</td>
                         <td>${cells[8].textContent}</td>
                         <td>${cells[9].textContent}</td>
-                        <td>${cells[11].textContent}</td>
+                        <td>${cells[10].textContent}</td>
                     </tr>
                 `;
             });
@@ -691,7 +651,7 @@
                             </tbody>
                         </table>
                         <div class="footer">
-                            <p>Total: ${visibleRows.length} responsable(s) - Tily © ${new Date().getFullYear()}</p>
+                            <p>Total: ${visibleRows.length} Mpiandraikitra - Tily © ${new Date().getFullYear()}</p>
                         </div>
                     </body>
                     </html>

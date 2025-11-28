@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<html lang="mg" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Élèves - Tily</title>
+    <title>Beazina - Tily</title>
     <link rel="stylesheet" th:href="@{/css/dashboard.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -33,13 +33,13 @@
             <!-- Header avec actions -->
             <div class="page-header">
                 <div class="header-left">
-                    <h2>Liste des Élèves</h2>
-                    <span class="record-count" id="recordCount" th:text="${totalCount} + ' élève' + (${totalCount} > 1 ? 's' : '')">0 élève</span>
+                    <h2>Lisitry ny Beazina</h2>
+                    <span class="record-count" id="recordCount" th:text="${totalCount} + ' Beazina'">0 Beazina</span>
                 </div>
                 <div class="header-actions">
                     <button class="btn-primary" onclick="openAddModal()">
                         <i class="fas fa-plus"></i>
-                        Ajouter
+                        Hanampy
                     </button>
                 </div>
             </div>
@@ -48,52 +48,52 @@
             <div class="filters-section">
                 <div class="filters-row">
                     <div class="filter-group">
-                        <label>Recherche</label>
+                        <label>Fikarohana</label>
                         <div class="search-filter">
                             <i class="fas fa-search"></i>
-                            <input type="text" id="searchInput" placeholder="Nom, prénom, totem..." onkeyup="applyFilters()">
+                            <input type="text" id="searchInput" placeholder="Anarana, fanampin'anarana, totem..." onkeyup="applyFilters()">
                         </div>
                     </div>
                     <div class="filter-group">
-                        <label>Secteur</label>
+                        <label>Sektora</label>
                         <select id="filterSecteur" onchange="applyFilters()">
-                            <option value="">Tous les secteurs</option>
+                            <option value="">Ny sektora rehetra</option>
                             <option th:each="secteur : ${secteurs}" th:value="${secteur.nom}" th:text="${secteur.nom}"></option>
                         </select>
                     </div>
                     <div class="filter-group">
-                        <label>Section</label>
-                        <select id="filterSection" onchange="applyFilters()">
-                            <option value="">Toutes les sections</option>
-                            <option th:each="section : ${sections}" th:value="${section.nom}" th:text="${section.nom}"></option>
+                        <label>Fizarana</label>
+                        <select id="filterFizarana" onchange="applyFilters()">
+                            <option value="">Ny fizarana rehetra</option>
+                            <option th:each="fizarana : ${fizarana}" th:value="${fizarana.nom}" th:text="${fizarana.nom}"></option>
                         </select>
                     </div>
                     <div class="filter-group">
-                        <label>Niveau</label>
-                        <select id="filterNiveau" onchange="applyFilters()">
-                            <option value="">Tous les niveaux</option>
+                        <label>Ambaratonga</label>
+                        <select id="filterAmbaratonga" onchange="applyFilters()">
+                            <option value="">Ny ambaratonga rehetra</option>
                             <option value="Louveteau">Louveteau</option>
                             <option value="Éclaireur">Éclaireur</option>
                             <option value="Routier">Routier</option>
                         </select>
                     </div>
                     <div class="filter-group">
-                        <label>Assurance</label>
+                        <label>Fiantohana</label>
                         <select id="filterAssurance" onchange="applyFilters()">
-                            <option value="">Toutes</option>
-                            <option value="Oui">Oui</option>
-                            <option value="Non">Non</option>
+                            <option value="">Ny rehetra</option>
+                            <option value="Oui">Eny</option>
+                            <option value="Non">Tsia</option>
                         </select>
                     </div>
                 </div>
                 <div class="filters-actions">
                     <button class="btn-secondary" onclick="resetFilters()">
                         <i class="fas fa-undo"></i>
-                        Réinitialiser
+                        Averina
                     </button>
                     <button class="btn-pdf" onclick="exportToPDF()">
                         <i class="fas fa-file-pdf"></i>
-                        Exporter PDF
+                        Alaina PDF
                     </button>
                 </div>
             </div>
@@ -104,19 +104,19 @@
                     <table class="data-table" id="elevesTable">
                         <thead>
                             <tr>
-                                <th class="sortable" onclick="sortTable(0)">Photo</th>
-                                <th class="sortable" onclick="sortTable(1)">Nom <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(2)">Prénom <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(0)">Sary</th>
+                                <th class="sortable" onclick="sortTable(1)">Anarana <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(2)">Fanampin'anarana <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(3)">Totem <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(4)">Date Naissance <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(5)">Nom Père <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(6)">Nom Mère <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(7)">Secteur <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(8)">Section <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(9)">Niveau <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(4)">Daty nahaterahana <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(5)">Anaran'ny Ray <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(6)">Anaran'ny Reny <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(7)">Sektora <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(8)">Fizarana <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(9)">Ambaratonga <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(10)">Fanekena <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(11)">Assurance <i class="fas fa-sort"></i></th>
-                                <th>Actions</th>
+                                <th class="sortable" onclick="sortTable(11)">Fiantohana <i class="fas fa-sort"></i></th>
+                                <th>Asa</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -124,7 +124,7 @@
                             <tr th:if="${#lists.isEmpty(eleves)}">
                                 <td colspan="13" class="empty-message">
                                     <i class="fas fa-inbox"></i>
-                                    <p>Aucun élève trouvé</p>
+                                    <p>Tsy misy Beazina hita</p>
                                 </td>
                             </tr>
                             <!-- Données dynamiques -->
@@ -139,9 +139,9 @@
                                 th:data-datefanekena="${eleve.dateFanekena}"
                                 th:data-secteur="${eleve.secteur != null ? eleve.secteur.nom : ''}"
                                 th:data-secteurid="${eleve.secteur != null ? eleve.secteur.id : ''}"
-                                th:data-section="${eleve.section != null ? eleve.section.nom : ''}"
-                                th:data-sectionid="${eleve.section != null ? eleve.section.id : ''}"
-                                th:data-niveau="${eleve.niveau}"
+                                th:data-fizarana="${eleve.fizarana != null ? eleve.fizarana.nom : ''}"
+                                th:data-fizaranaid="${eleve.fizarana != null ? eleve.fizarana.id : ''}"
+                                th:data-ambaratonga="${eleve.ambaratonga}"
                                 th:data-assurance="${eleve.assurance != null && eleve.assurance.statut == 'Active' ? 'Oui' : 'Non'}">
                                 <td>
                                     <img th:if="${eleve.image != null and !eleve.image.isEmpty()}" th:src="${eleve.image}" class="avatar" alt="Photo">
@@ -156,23 +156,23 @@
                                 <td th:text="${eleve.nomPere}">-</td>
                                 <td th:text="${eleve.nomMere}">-</td>
                                 <td th:text="${eleve.secteur != null ? eleve.secteur.nom : '-'}">-</td>
-                                <td th:text="${eleve.section != null ? eleve.section.nom : '-'}">-</td>
+                                <td th:text="${eleve.fizarana != null ? eleve.fizarana.nom : '-'}">-</td>
                                 <td>
-                                    <span th:if="${eleve.niveau == 'Louveteau'}" class="badge-niveau louveteau">Louveteau</span>
-                                    <span th:if="${eleve.niveau == 'Éclaireur'}" class="badge-niveau eclaireur">Éclaireur</span>
-                                    <span th:if="${eleve.niveau == 'Routier'}" class="badge-niveau routier">Routier</span>
-                                    <span th:if="${eleve.niveau == null}">-</span>
+                                    <span th:if="${eleve.ambaratonga == 'Louveteau'}" class="badge-niveau louveteau">Louveteau</span>
+                                    <span th:if="${eleve.ambaratonga == 'Éclaireur'}" class="badge-niveau eclaireur">Éclaireur</span>
+                                    <span th:if="${eleve.ambaratonga == 'Routier'}" class="badge-niveau routier">Routier</span>
+                                    <span th:if="${eleve.ambaratonga == null}">-</span>
                                 </td>
                                 <td th:text="${eleve.dateFanekena != null ? #temporals.format(eleve.dateFanekena, 'dd/MM/yyyy') : '-'}">-</td>
                                 <td>
-                                    <span th:if="${eleve.assurance != null && eleve.assurance.statut == 'Active'}" class="status-badge delivered">Oui</span>
-                                    <span th:unless="${eleve.assurance != null && eleve.assurance.statut == 'Active'}" class="status-badge pending">Non</span>
+                                    <span th:if="${eleve.assurance != null && eleve.assurance.statut == 'Active'}" class="status-badge delivered">Eny</span>
+                                    <span th:unless="${eleve.assurance != null && eleve.assurance.statut == 'Active'}" class="status-badge pending">Tsia</span>
                                 </td>
                                 <td class="actions-cell">
-                                    <button class="btn-icon edit-btn" title="Modifier" th:data-id="${eleve.id}"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon edit-btn" title="Hanova" th:data-id="${eleve.id}"><i class="fas fa-edit"></i></button>
                                     <form th:action="@{/eleves/supprimer}" method="post" style="display: inline;">
                                         <input type="hidden" name="id" th:value="${eleve.id}">
-                                        <button type="submit" class="btn-icon danger" title="Supprimer" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet élève ?')"><i class="fas fa-trash"></i></button>
+                                        <button type="submit" class="btn-icon danger" title="Hamafa" onclick="return confirm('Azo antoka ve ianao fa te-hamafa ity Beazina ity ?')"><i class="fas fa-trash"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -183,7 +183,7 @@
                 <!-- Pagination -->
                 <div class="table-footer">
                     <div class="rows-per-page">
-                        <span>Lignes par page:</span>
+                        <span>Andalana isaky ny pejy:</span>
                         <select>
                             <option>10</option>
                             <option>25</option>
@@ -191,7 +191,7 @@
                         </select>
                     </div>
                     <div class="pagination">
-                        <span id="paginationInfo" th:text="'1-' + ${totalCount} + ' sur ' + ${totalCount}">1-0 sur 0</span>
+                        <span id="paginationInfo" th:text="'1-' + ${totalCount} + ' amin\'ny ' + ${totalCount}">1-0 amin'ny 0</span>
                         <button class="btn-icon" disabled><i class="fas fa-chevron-left"></i></button>
                         <button class="btn-icon"><i class="fas fa-chevron-right"></i></button>
                     </div>
@@ -207,79 +207,79 @@
     <div id="addModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2><i class="fas fa-user-graduate"></i> Ajouter un Élève</h2>
+                <h2><i class="fas fa-user-graduate"></i> Hanampy Beazina</h2>
                 <button class="modal-close" onclick="closeAddModal()">&times;</button>
             </div>
             <form th:action="@{/eleves/ajouter}" method="post">
                 <div class="modal-body">
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="nom">Nom <span class="required">*</span></label>
-                            <input type="text" id="nom" name="nom" required placeholder="Ex: RAKOTO">
+                            <label for="nom">Anarana <span class="required">*</span></label>
+                            <input type="text" id="nom" name="nom" required placeholder="Ohatra: RAKOTO">
                         </div>
                         <div class="form-group">
-                            <label for="prenom">Prénom <span class="required">*</span></label>
-                            <input type="text" id="prenom" name="prenom" required placeholder="Ex: Aina">
+                            <label for="prenom">Fanampin'anarana <span class="required">*</span></label>
+                            <input type="text" id="prenom" name="prenom" required placeholder="Ohatra: Aina">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="totem">Totem</label>
-                            <input type="text" id="totem" name="totem" placeholder="Ex: Akanga">
+                            <input type="text" id="totem" name="totem" placeholder="Ohatra: Akanga">
                         </div>
                         <div class="form-group">
-                            <label for="dateNaissance">Date de Naissance</label>
+                            <label for="dateNaissance">Daty nahaterahana</label>
                             <input type="date" id="dateNaissance" name="dateNaissance">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="nomPere">Nom du Père</label>
-                            <input type="text" id="nomPere" name="nomPere" placeholder="Ex: Jean Rakoto">
+                            <label for="nomPere">Anaran'ny Ray</label>
+                            <input type="text" id="nomPere" name="nomPere" placeholder="Ohatra: Jean Rakoto">
                         </div>
                         <div class="form-group">
-                            <label for="nomMere">Nom de la Mère</label>
-                            <input type="text" id="nomMere" name="nomMere" placeholder="Ex: Marie Rasoa">
+                            <label for="nomMere">Anaran'ny Reny</label>
+                            <input type="text" id="nomMere" name="nomMere" placeholder="Ohatra: Marie Rasoa">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="secteurId">Secteur</label>
+                            <label for="secteurId">Sektora</label>
                             <select id="secteurId" name="secteurId">
-                                <option value="">-- Sélectionner --</option>
+                                <option value="">-- Mifidy --</option>
                                 <option th:each="secteur : ${secteurs}" th:value="${secteur.id}" th:text="${secteur.nom}"></option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="sectionId">Section</label>
-                            <select id="sectionId" name="sectionId">
-                                <option value="">-- Sélectionner --</option>
-                                <option th:each="section : ${sections}" th:value="${section.id}" th:text="${section.nom}"></option>
+                            <label for="fizaranaId">Fizarana</label>
+                            <select id="fizaranaId" name="fizaranaId">
+                                <option value="">-- Mifidy --</option>
+                                <option th:each="fizarana : ${fizarana}" th:value="${fizarana.id}" th:text="${fizarana.nom}"></option>
                             </select>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="niveau">Niveau</label>
-                            <select id="niveau" name="niveau">
-                                <option value="">-- Sélectionner --</option>
+                            <label for="ambaratonga">Ambaratonga</label>
+                            <select id="ambaratonga" name="ambaratonga">
+                                <option value="">-- Mifidy --</option>
                                 <option value="Louveteau">Louveteau</option>
                                 <option value="Éclaireur">Éclaireur</option>
                                 <option value="Routier">Routier</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="dateFanekena">Date Fanekena</label>
+                            <label for="dateFanekena">Daty Fanekena</label>
                             <input type="date" id="dateFanekena" name="dateFanekena">
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" onclick="closeAddModal()">
-                        <i class="fas fa-times"></i> Annuler
+                        <i class="fas fa-times"></i> Hanafoana
                     </button>
                     <button type="submit" class="btn-primary">
-                        <i class="fas fa-save"></i> Enregistrer
+                        <i class="fas fa-save"></i> Tehirizina
                     </button>
                 </div>
             </form>
@@ -290,7 +290,7 @@
     <div id="editModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2><i class="fas fa-user-edit"></i> Modifier un Élève</h2>
+                <h2><i class="fas fa-user-edit"></i> Hanova Beazina</h2>
                 <button class="modal-close" onclick="closeEditModal()">&times;</button>
             </div>
             <form th:action="@{/eleves/modifier}" method="post">
@@ -298,11 +298,11 @@
                 <div class="modal-body">
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="editNom">Nom <span class="required">*</span></label>
+                            <label for="editNom">Anarana <span class="required">*</span></label>
                             <input type="text" id="editNom" name="nom" required>
                         </div>
                         <div class="form-group">
-                            <label for="editPrenom">Prénom <span class="required">*</span></label>
+                            <label for="editPrenom">Fanampin'anarana <span class="required">*</span></label>
                             <input type="text" id="editPrenom" name="prenom" required>
                         </div>
                     </div>
@@ -312,58 +312,58 @@
                             <input type="text" id="editTotem" name="totem">
                         </div>
                         <div class="form-group">
-                            <label for="editDateNaissance">Date de Naissance</label>
+                            <label for="editDateNaissance">Daty nahaterahana</label>
                             <input type="date" id="editDateNaissance" name="dateNaissance">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="editNomPere">Nom du Père</label>
+                            <label for="editNomPere">Anaran'ny Ray</label>
                             <input type="text" id="editNomPere" name="nomPere">
                         </div>
                         <div class="form-group">
-                            <label for="editNomMere">Nom de la Mère</label>
+                            <label for="editNomMere">Anaran'ny Reny</label>
                             <input type="text" id="editNomMere" name="nomMere">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="editSecteurId">Secteur</label>
+                            <label for="editSecteurId">Sektora</label>
                             <select id="editSecteurId" name="secteurId">
-                                <option value="">-- Sélectionner --</option>
+                                <option value="">-- Mifidy --</option>
                                 <option th:each="secteur : ${secteurs}" th:value="${secteur.id}" th:text="${secteur.nom}"></option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="editSectionId">Section</label>
-                            <select id="editSectionId" name="sectionId">
-                                <option value="">-- Sélectionner --</option>
-                                <option th:each="section : ${sections}" th:value="${section.id}" th:text="${section.nom}"></option>
+                            <label for="editFizaranaId">Fizarana</label>
+                            <select id="editFizaranaId" name="fizaranaId">
+                                <option value="">-- Mifidy --</option>
+                                <option th:each="fizarana : ${fizarana}" th:value="${fizarana.id}" th:text="${fizarana.nom}"></option>
                             </select>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="editNiveau">Niveau</label>
-                            <select id="editNiveau" name="niveau">
-                                <option value="">-- Sélectionner --</option>
+                            <label for="editAmbaratonga">Ambaratonga</label>
+                            <select id="editAmbaratonga" name="ambaratonga">
+                                <option value="">-- Mifidy --</option>
                                 <option value="Louveteau">Louveteau</option>
                                 <option value="Éclaireur">Éclaireur</option>
                                 <option value="Routier">Routier</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="editDateFanekena">Date Fanekena</label>
+                            <label for="editDateFanekena">Daty Fanekena</label>
                             <input type="date" id="editDateFanekena" name="dateFanekena">
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" onclick="closeEditModal()">
-                        <i class="fas fa-times"></i> Annuler
+                        <i class="fas fa-times"></i> Hanafoana
                     </button>
                     <button type="submit" class="btn-primary">
-                        <i class="fas fa-save"></i> Enregistrer
+                        <i class="fas fa-save"></i> Tehirizina
                     </button>
                 </div>
             </form>
@@ -468,8 +468,8 @@
         function applyFilters() {
             const searchValue = document.getElementById('searchInput').value.toLowerCase();
             const secteurValue = document.getElementById('filterSecteur').value;
-            const sectionValue = document.getElementById('filterSection').value;
-            const niveauValue = document.getElementById('filterNiveau').value;
+            const fizaranaValue = document.getElementById('filterFizarana').value;
+            const ambaratongaValue = document.getElementById('filterAmbaratonga').value;
             const assuranceValue = document.getElementById('filterAssurance').value;
             
             const table = document.getElementById('elevesTable');
@@ -479,17 +479,17 @@
             rows.forEach(row => {
                 const text = row.textContent.toLowerCase();
                 const secteur = row.getAttribute('data-secteur') || '';
-                const section = row.getAttribute('data-section') || '';
-                const niveau = row.getAttribute('data-niveau') || '';
+                const fizarana = row.getAttribute('data-fizarana') || '';
+                const ambaratonga = row.getAttribute('data-ambaratonga') || '';
                 const assurance = row.getAttribute('data-assurance') || '';
                 
                 const matchSearch = !searchValue || text.includes(searchValue);
                 const matchSecteur = !secteurValue || secteur === secteurValue;
-                const matchSection = !sectionValue || section === sectionValue;
-                const matchNiveau = !niveauValue || niveau === niveauValue;
+                const matchFizarana = !fizaranaValue || fizarana === fizaranaValue;
+                const matchAmbaratonga = !ambaratongaValue || ambaratonga === ambaratongaValue;
                 const matchAssurance = !assuranceValue || assurance === assuranceValue;
                 
-                if (matchSearch && matchSecteur && matchSection && matchNiveau && matchAssurance) {
+                if (matchSearch && matchSecteur && matchFizarana && matchAmbaratonga && matchAssurance) {
                     row.style.display = '';
                     visibleCount++;
                 } else {
@@ -497,7 +497,7 @@
                 }
             });
             
-            document.getElementById('recordCount').textContent = visibleCount + ' élève' + (visibleCount > 1 ? 's' : '');
+            document.getElementById('recordCount').textContent = visibleCount + ' Beazina';
             document.getElementById('paginationInfo').textContent = '1-' + visibleCount + ' sur ' + visibleCount;
         }
 
@@ -505,8 +505,8 @@
         function resetFilters() {
             document.getElementById('searchInput').value = '';
             document.getElementById('filterSecteur').value = '';
-            document.getElementById('filterSection').value = '';
-            document.getElementById('filterNiveau').value = '';
+            document.getElementById('filterFizarana').value = '';
+            document.getElementById('filterAmbaratonga').value = '';
             document.getElementById('filterAssurance').value = '';
             applyFilters();
         }
@@ -533,8 +533,8 @@
             document.getElementById('editNomMere').value = row.dataset.nommere || '';
             document.getElementById('editDateFanekena').value = row.dataset.datefanekena || '';
             document.getElementById('editSecteurId').value = row.dataset.secteurid || '';
-            document.getElementById('editSectionId').value = row.dataset.sectionid || '';
-            document.getElementById('editNiveau').value = row.dataset.niveau || '';
+            document.getElementById('editFizaranaId').value = row.dataset.fizaranaid || '';
+            document.getElementById('editAmbaratonga').value = row.dataset.ambaratonga || '';
             
             document.getElementById('editModal').classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -576,7 +576,7 @@
                     reader.readAsDataURL(blob);
                 })
                 .catch(error => {
-                    console.error('Erreur lors du chargement de l\'image:', error);
+                    console.error('Hadisoana rehefa mampiditra ny sary:', error);
                     callback(null);
                 });
         }
@@ -588,21 +588,21 @@
             const visibleRows = Array.from(rows).filter(row => row.style.display !== 'none');
             
             if (visibleRows.length === 0) {
-                alert('Aucune donnée à exporter');
+                alert('Tsy misy angona hivoaka');
                 return;
             }
 
             const secteur = document.getElementById('filterSecteur').value;
-            const section = document.getElementById('filterSection').value;
-            const niveau = document.getElementById('filterNiveau').value;
+            const fizarana = document.getElementById('filterFizarana').value;
+            const ambaratonga = document.getElementById('filterAmbaratonga').value;
             const assurance = document.getElementById('filterAssurance').value;
             
-            let filterTitle = 'Liste des Élèves';
+            let filterTitle = 'Lisitry ny Beazina';
             let filters = [];
-            if (secteur) filters.push('Secteur: ' + secteur);
-            if (section) filters.push('Section: ' + section);
-            if (niveau) filters.push('Niveau: ' + niveau);
-            if (assurance) filters.push('Assurance: ' + assurance);
+            if (secteur) filters.push('Sektora: ' + secteur);
+            if (fizarana) filters.push('Fizarana: ' + fizarana);
+            if (ambaratonga) filters.push('Ambaratonga: ' + ambaratonga);
+            if (assurance) filters.push('Fiantohana: ' + assurance);
             
             // Charger l'image et la convertir en base64
             const imageUrl = window.location.origin + '/images/top-tily.jpg';
@@ -610,7 +610,7 @@
                 let printContent = `
                     <html>
                     <head>
-                        <title>Export Élèves - Tily</title>
+                        <title>Alaina Beazina - Tily</title>
                         <style>
                             body { font-family: Arial, sans-serif; padding: 20px; }
                             .header-image { width: 100%; max-width: 800px; margin: 0 auto 20px; display: block; }
@@ -627,21 +627,21 @@
                     <body>
                         ${imageBase64 ? '<img src="' + imageBase64 + '" alt="Tily" class="header-image">' : ''}
                         <h1>${filterTitle}</h1>
-                        ${filters.length > 0 ? '<p class="filters">Filtres: ' + filters.join(' | ') + '</p>' : ''}
-                        <p class="date">Exporté le: ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}</p>
+                        ${filters.length > 0 ? '<p class="filters">Sivana: ' + filters.join(' | ') + '</p>' : ''}
+                        <p class="date">Voaloa tamin'ny: ${new Date().toLocaleDateString('fr-FR')} amin'ny ${new Date().toLocaleTimeString('fr-FR')}</p>
                     <table>
                         <thead>
                             <tr>
-                                <th>Nom</th>
-                                <th>Prénom</th>
+                                <th>Anarana</th>
+                                <th>Fanampin'anarana</th>
                                 <th>Totem</th>
-                                <th>Date Naissance</th>
-                                <th>Nom Père</th>
-                                <th>Nom Mère</th>
-                                <th>Secteur</th>
-                                <th>Section</th>
-                                <th>Niveau</th>
-                                <th>Assurance</th>
+                                <th>Daty nahaterahana</th>
+                                <th>Anaran'ny Ray</th>
+                                <th>Anaran'ny Reny</th>
+                                <th>Sektora</th>
+                                <th>Fizarana</th>
+                                <th>Ambaratonga</th>
+                                <th>Fiantohana</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -669,7 +669,7 @@
                             </tbody>
                         </table>
                         <div class="footer">
-                            <p>Total: ${visibleRows.length} élève(s) - Tily © ${new Date().getFullYear()}</p>
+                            <p>Total: ${visibleRows.length} Beazina - Tily © ${new Date().getFullYear()}</p>
                         </div>
                     </body>
                     </html>
