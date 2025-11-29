@@ -80,7 +80,7 @@ public class SecurityConfig {
                 })
             )
             .csrf(csrf -> csrf
-                .ignoringRequestMatchers("/auth/**")
+                .ignoringRequestMatchers("/auth/**", "/eleves/import-excel", "/responsables/import-excel")
             );
 
         return http.build();

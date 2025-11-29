@@ -9,11 +9,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import tily.mg.entity.Personne;
 import tily.mg.entity.Utilisateur;
 import tily.mg.service.AuthService;
 import tily.mg.service.DashboardService;
+import tily.mg.service.ExcelImportService;
 import tily.mg.service.PersonneService;
 
 import java.math.BigDecimal;
@@ -34,6 +36,9 @@ public class WebController {
 
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private ExcelImportService excelImportService;
 
     private String getCurrentUserName() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -516,5 +521,79 @@ public class WebController {
             redirectAttributes.addFlashAttribute("errorMessage", "Nisy tsy nety: " + e.getMessage());
         }
         return "redirect:/profil";
+    }
+
+    // Endpoint pour importer des Beazina depuis Excel
+    @PostMapping("/eleves/import-excel")
+    public String importBeazinaExcel(
+            @RequestParam("file") MultipartFile file,
+            RedirectAttributes redirectAttributes
+    ) {
+        if (file.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Aucun fichier sélectionné");
+            return "redirect:/eleves";
+        }
+
+        String fileName = file.getOriginalFilename().toLowerCase();
+        if (!fileName.endsWith(".xlsx") && !fileName.endsWith(".xls") && !fileName.endsWith(".csv")) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Le fichier doit être un fichier Excel (.xlsx, .xls) ou CSV (.csv)");
+            return "redirect:/eleves";
+        }
+
+        try {
+            ExcelImportService.ImportResult result = excelImportService.importBeazina(file);
+            
+            if (result.getErrorCount() == 0) {
+                redirectAttributes.addFlashAttribute("successMessage", 
+                    "Import réussi ! " + result.getSuccessCount() + " Beazina importé(s)");
+            } else {
+                redirectAttributes.addFlashAttribute("importResult", result);
+                redirectAttributes.addFlashAttribute("warningMessage", 
+                    "Import partiel : " + result.getSuccessCount() + " réussi(s), " + 
+                    result.getErrorCount() + " erreur(s)");
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", 
+                "Erreur lors de l'import : " + e.getMessage());
+        }
+
+        return "redirect:/eleves";
+    }
+
+    // Endpoint pour importer des Mpiandraikitra depuis Excel
+    @PostMapping("/responsables/import-excel")
+    public String importMpiandraikitraExcel(
+            @RequestParam("file") MultipartFile file,
+            RedirectAttributes redirectAttributes
+    ) {
+        if (file.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Aucun fichier sélectionné");
+            return "redirect:/responsables";
+        }
+
+        String fileName = file.getOriginalFilename().toLowerCase();
+        if (!fileName.endsWith(".xlsx") && !fileName.endsWith(".xls") && !fileName.endsWith(".csv")) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Le fichier doit être un fichier Excel (.xlsx, .xls) ou CSV (.csv)");
+            return "redirect:/responsables";
+        }
+
+        try {
+            ExcelImportService.ImportResult result = excelImportService.importMpiandraikitra(file);
+            
+            if (result.getErrorCount() == 0) {
+                redirectAttributes.addFlashAttribute("successMessage", 
+                    "Import réussi ! " + result.getSuccessCount() + " Mpiandraikitra importé(s)");
+            } else {
+                redirectAttributes.addFlashAttribute("importResult", result);
+                redirectAttributes.addFlashAttribute("warningMessage", 
+                    "Import partiel : " + result.getSuccessCount() + " réussi(s), " + 
+                    result.getErrorCount() + " erreur(s)");
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", 
+                "Erreur lors de l'import : " + e.getMessage());
+        }
+
+        return "redirect:/responsables";
     }
 }
