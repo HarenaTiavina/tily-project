@@ -239,6 +239,7 @@ public class WebController {
         // Reference data for filters and form
         model.addAttribute("secteurs", personneService.findAllSecteurs());
         model.addAttribute("fizarana", personneService.findAllFizarana());
+        model.addAttribute("fafiStatuts", personneService.findAllFafiStatuts());
 
         return "eleves";
     }

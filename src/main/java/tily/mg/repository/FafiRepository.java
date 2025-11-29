@@ -17,5 +17,8 @@ public interface FafiRepository extends JpaRepository<Fafi, Integer> {
     
     @Query("SELECT COUNT(f) FROM Fafi f WHERE f.statut = 'Active'")
     Long countActive();
+    
+    @Query("SELECT DISTINCT f.statut FROM Fafi f WHERE f.statut IS NOT NULL ORDER BY f.statut")
+    List<String> findDistinctStatuts();
 }
 

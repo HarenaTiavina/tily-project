@@ -55,16 +55,16 @@
                         </div>
                     </div>
                     <div class="filter-group">
-                        <label>Sektora</label>
+                        <label>Faritra</label>
                         <select id="filterSecteur" onchange="applyFilters()">
-                            <option value="">Ny sektora rehetra</option>
+                            <option value="">Ny Faritra rehetra</option>
                             <option th:each="secteur : ${secteurs}" th:value="${secteur.nom}" th:text="${secteur.nom}"></option>
                         </select>
                     </div>
                     <div class="filter-group">
-                        <label>Fizarana</label>
+                        <label>Sampana</label>
                         <select id="filterFizarana" onchange="applyFilters()">
-                            <option value="">Ny fizarana rehetra</option>
+                            <option value="">Ny sampana rehetra</option>
                             <option th:each="fizarana : ${fizarana}" th:value="${fizarana.nom}" th:text="${fizarana.nom}"></option>
                         </select>
                     </div>
@@ -72,8 +72,9 @@
                         <label>FAFI</label>
                         <select id="filterFafi" onchange="applyFilters()">
                             <option value="">Ny rehetra</option>
-                            <option value="Oui">Eny</option>
-                            <option value="Non">Tsia</option>
+                            <option th:each="statut : ${fafiStatuts}" 
+                                    th:value="${statut}" 
+                                    th:text="${statut == 'Active' ? 'Eny' : (statut == 'Inactive' ? 'Tsia' : statut)}"></option>
                         </select>
                     </div>
                 </div>
@@ -102,8 +103,8 @@
                                 <th class="sortable" onclick="sortTable(4)">Daty nahaterahana <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(5)">Anaran'ny Ray <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(6)">Anaran'ny Reny <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(7)">Sektora <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(8)">Fizarana <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(7)">Faritra <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(8)">Sampana <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(9)">Ambaratonga <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(10)">Fanekena <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(11)">FAFI <i class="fas fa-sort"></i></th>
@@ -133,7 +134,7 @@
                                 th:data-fizarana="${eleve.fizarana != null ? eleve.fizarana.nom : ''}"
                                 th:data-fizaranaid="${eleve.fizarana != null ? eleve.fizarana.id : ''}"
                                 th:data-ambaratonga="${eleve.ambaratonga}"
-                                th:data-fafi="${eleve.fafi != null && eleve.fafi.statut == 'Active' ? 'Oui' : 'Non'}">
+                                th:data-fafi="${eleve.fafi != null ? eleve.fafi.statut : 'Inactive'}">
                                 <td>
                                     <img th:if="${eleve.image != null and !eleve.image.isEmpty()}" th:src="${eleve.image}" class="avatar" alt="Photo">
                                     <img th:unless="${eleve.image != null and !eleve.image.isEmpty()}" 
@@ -230,14 +231,14 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="secteurId">Sektora</label>
+                            <label for="secteurId">Faritra</label>
                             <select id="secteurId" name="secteurId">
                                 <option value="">-- Mifidy --</option>
                                 <option th:each="secteur : ${secteurs}" th:value="${secteur.id}" th:text="${secteur.nom}"></option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="fizaranaId">Fizarana</label>
+                            <label for="fizaranaId">Sampana</label>
                             <select id="fizaranaId" name="fizaranaId">
                                 <option value="">-- Mifidy --</option>
                                 <option th:each="fizarana : ${fizarana}" th:value="${fizarana.id}" th:text="${fizarana.nom}"></option>
@@ -247,12 +248,7 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="ambaratonga">Ambaratonga</label>
-                            <select id="ambaratonga" name="ambaratonga">
-                                <option value="">-- Mifidy --</option>
-                                <option value="Louveteau">Louveteau</option>
-                                <option value="Éclaireur">Éclaireur</option>
-                                <option value="Routier">Routier</option>
-                            </select>
+                            <input type="text" id="ambaratonga" name="ambaratonga">
                         </div>
                         <div class="form-group">
                             <label for="dateFanekena">Daty Fanekena</label>
@@ -314,14 +310,14 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="editSecteurId">Sektora</label>
+                            <label for="editSecteurId">Faritra</label>
                             <select id="editSecteurId" name="secteurId">
                                 <option value="">-- Mifidy --</option>
                                 <option th:each="secteur : ${secteurs}" th:value="${secteur.id}" th:text="${secteur.nom}"></option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="editFizaranaId">Fizarana</label>
+                            <label for="editFizaranaId">Sampana</label>
                             <select id="editFizaranaId" name="fizaranaId">
                                 <option value="">-- Mifidy --</option>
                                 <option th:each="fizarana : ${fizarana}" th:value="${fizarana.id}" th:text="${fizarana.nom}"></option>
@@ -331,12 +327,7 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="editAmbaratonga">Ambaratonga</label>
-                            <select id="editAmbaratonga" name="ambaratonga">
-                                <option value="">-- Mifidy --</option>
-                                <option value="Louveteau">Louveteau</option>
-                                <option value="Éclaireur">Éclaireur</option>
-                                <option value="Routier">Routier</option>
-                            </select>
+                            <input type="text" id="editAmbaratonga" name="ambaratonga">
                         </div>
                         <div class="form-group">
                             <label for="editDateFanekena">Daty Fanekena</label>
@@ -455,7 +446,6 @@
             const searchValue = document.getElementById('searchInput').value.toLowerCase();
             const secteurValue = document.getElementById('filterSecteur').value;
             const fizaranaValue = document.getElementById('filterFizarana').value;
-            const ambaratongaValue = document.getElementById('filterAmbaratonga').value;
             const fafiValue = document.getElementById('filterFafi').value;
             
             const table = document.getElementById('elevesTable');
@@ -466,16 +456,14 @@
                 const text = row.textContent.toLowerCase();
                 const secteur = row.getAttribute('data-secteur') || '';
                 const fizarana = row.getAttribute('data-fizarana') || '';
-                const ambaratonga = row.getAttribute('data-ambaratonga') || '';
                 const fafi = row.getAttribute('data-fafi') || '';
                 
                 const matchSearch = !searchValue || text.includes(searchValue);
                 const matchSecteur = !secteurValue || secteur === secteurValue;
                 const matchFizarana = !fizaranaValue || fizarana === fizaranaValue;
-                const matchAmbaratonga = !ambaratongaValue || ambaratonga.toLowerCase().includes(ambaratongaValue.toLowerCase());
                 const matchFafi = !fafiValue || fafi === fafiValue;
                 
-                if (matchSearch && matchSecteur && matchFizarana && matchAmbaratonga && matchFafi) {
+                if (matchSearch && matchSecteur && matchFizarana && matchFafi) {
                     row.style.display = '';
                     visibleCount++;
                 } else {
@@ -492,7 +480,6 @@
             document.getElementById('searchInput').value = '';
             document.getElementById('filterSecteur').value = '';
             document.getElementById('filterFizarana').value = '';
-            document.getElementById('filterAmbaratonga').value = '';
             document.getElementById('filterFafi').value = '';
             applyFilters();
         }
@@ -584,8 +571,8 @@
             
             let filterTitle = 'Lisitry ny Beazina';
             let filters = [];
-            if (secteur) filters.push('Sektora: ' + secteur);
-            if (fizarana) filters.push('Fizarana: ' + fizarana);
+            if (secteur) filters.push('Faritra: ' + secteur);
+            if (fizarana) filters.push('Sampana: ' + fizarana);
             if (fafi) filters.push('FAFI: ' + fafi);
             
             // Charger l'image et la convertir en base64
@@ -622,8 +609,8 @@
                                 <th>Daty nahaterahana</th>
                                 <th>Anaran'ny Ray</th>
                                 <th>Anaran'ny Reny</th>
-                                <th>Sektora</th>
-                                <th>Fizarana</th>
+                                <th>Faritra</th>
+                                <th>Sampana</th>
                                 <th>Ambaratonga</th>
                                 <th>FAFI</th>
                             </tr>

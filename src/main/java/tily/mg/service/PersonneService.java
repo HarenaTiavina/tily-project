@@ -176,5 +176,9 @@ public class PersonneService {
         return personneRepository.save(personne);
     }
 
+    // Récupérer les statuts FAFI distincts depuis la base
+    public List<String> findAllFafiStatuts() {
+        return fafiRepository.findDistinctStatuts();
+    }
 }
 

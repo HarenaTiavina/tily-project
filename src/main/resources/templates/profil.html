@@ -366,7 +366,7 @@
                             </div>
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label for="secteurId">Sektora</label>
+                                    <label for="secteurId">Faritra</label>
                                     <select id="secteurId" name="secteurId">
                                         <option value="">-- Mifidy --</option>
                                         <option th:each="secteur : ${secteurs}" 
@@ -375,9 +375,9 @@
                                                 th:selected="${personne != null and personne.secteur != null and personne.secteur.id == secteur.id}"></option>
                                     </select>
                                 </div>
-                                <!-- Pour les Beazina : Fizarana (Section) -->
+                                <!-- Pour les Beazina : Sampana (Section) -->
                                 <div class="form-group" th:if="${personne != null and personne.typePersonne != null and personne.typePersonne.nom == 'Eleve'}">
-                                    <label for="fizaranaId">Fizarana</label>
+                                    <label for="fizaranaId">Sampana</label>
                                     <select id="fizaranaId" name="fizaranaId">
                                         <option value="">-- Mifidy --</option>
                                         <option th:each="fizarana : ${fizarana}" 

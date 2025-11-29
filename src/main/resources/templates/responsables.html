@@ -55,9 +55,9 @@
                         </div>
                     </div>
                     <div class="filter-group">
-                        <label>Sektora</label>
+                        <label>Faritra</label>
                         <select id="filterSecteur" onchange="applyFilters()">
-                            <option value="">Ny sektora rehetra</option>
+                            <option value="">Ny Faritra rehetra</option>
                             <option th:each="secteur : ${secteurs}" th:value="${secteur.nom}" th:text="${secteur.nom}"></option>
                         </select>
                     </div>
@@ -95,7 +95,7 @@
                                 <th class="sortable" onclick="sortTable(4)">Daty nahaterahana <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(5)">N° CIN <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(6)">Finday <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(7)">Sektora <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(7)">Faritra <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(8)">Andraikitra <i class="fas fa-sort"></i></th> <!-- Andraikitra = postes/responsabilités -->
                                 <th class="sortable" onclick="sortTable(9)">Fanekena <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(10)">FAFI <i class="fas fa-sort"></i></th>
@@ -232,7 +232,7 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="secteurId">Sektora</label>
+                            <label for="secteurId">Faritra</label>
                             <select id="secteurId" name="secteurId">
                                 <option value="">-- Mifidy --</option>
                                 <option th:each="secteur : ${secteurs}" th:value="${secteur.id}" th:text="${secteur.nom}"></option>
@@ -317,7 +317,7 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="editSecteurId">Sektora</label>
+                            <label for="editSecteurId">Faritra</label>
                             <select id="editSecteurId" name="secteurId">
                                 <option value="">-- Mifidy --</option>
                                 <option th:each="secteur : ${secteurs}" th:value="${secteur.id}" th:text="${secteur.nom}"></option>
@@ -574,7 +574,7 @@
             
             let filterTitle = 'Lisitry ny Mpiandraikitra';
             let filters = [];
-            if (secteur) filters.push('Sektora: ' + secteur);
+            if (secteur) filters.push('Faritra: ' + secteur);
             if (fafi) filters.push('FAFI: ' + fafi);
             
             // Charger l'image et la convertir en base64
@@ -611,7 +611,7 @@
                                 <th>Daty nahaterahana</th>
                                 <th>N° CIN</th>
                                 <th>Finday</th>
-                                <th>Sektora</th>
+                                <th>Faritra</th>
                                 <th>Andraikitra</th>
                                 <th>Fanekena</th>
                                 <th>FAFI</th>
