@@ -414,6 +414,38 @@
                             </div>
                         </div>
 
+                        <!-- FAFI -->
+                        <div class="form-section">
+                            <div class="form-section-title">
+                                <i class="fas fa-money-bill-wave"></i>
+                                <span>FAFI</span>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="fafiDatePaiement">Daty fandoavana</label>
+                                    <input type="date" id="fafiDatePaiement" name="fafiDatePaiement" 
+                                           th:value="${personne != null && personne.fafi != null && personne.fafi.datePaiement != null ? personne.fafi.datePaiement : ''}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="fafiMontant">Vola</label>
+                                    <input type="number" id="fafiMontant" name="fafiMontant" step="0.01" min="0" 
+                                           th:value="${personne != null && personne.fafi != null && personne.fafi.montant != null ? personne.fafi.montant : ''}"
+                                           placeholder="Ohatra: 8000.00">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="fafiStatut">Sata</label>
+                                    <select id="fafiStatut" name="fafiStatut">
+                                        <option th:each="statut : ${fafiStatuts}" 
+                                                th:value="${statut}" 
+                                                th:text="${statut == 'Active' ? 'Active (Eny)' : (statut == 'Inactive' ? 'Inactive (Tsia)' : statut)}"
+                                                th:selected="${personne != null && personne.fafi != null && personne.fafi.statut != null && personne.fafi.statut == statut}"></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Compte utilisateur (lecture seule) -->
                         <div class="form-section">
                             <div class="form-section-title">

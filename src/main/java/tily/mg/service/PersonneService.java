@@ -7,6 +7,7 @@ import tily.mg.entity.*;
 import tily.mg.repository.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -179,6 +180,51 @@ public class PersonneService {
     // Récupérer les statuts FAFI distincts depuis la base
     public List<String> findAllFafiStatuts() {
         return fafiRepository.findDistinctStatuts();
+    }
+
+    // Mettre à jour ou créer le FAFI d'une personne
+    public void updateFafi(Integer personneId, LocalDate datePaiement, BigDecimal montant, String statut) {
+        // Récupérer la personne avec son Fafi chargé explicitement
+        Optional<Personne> personneOpt = personneRepository.findByIdWithFafi(personneId);
+        if (personneOpt.isPresent()) {
+            Personne personne = personneOpt.get();
+            Fafi fafi = personne.getFafi();
+            
+            if (fafi == null) {
+                // Créer un nouveau FAFI
+                fafi = new Fafi();
+                if (datePaiement != null) {
+                    fafi.setDatePaiement(datePaiement);
+                }
+                if (montant != null) {
+                    fafi.setMontant(montant);
+                }
+                fafi.setStatut(statut != null && !statut.isEmpty() ? statut : "Inactive");
+                // Sauvegarder le Fafi
+                fafi = fafiRepository.saveAndFlush(fafi);
+                // Associer le Fafi à la personne
+                personne.setFafi(fafi);
+                // Sauvegarder la personne
+                personneRepository.saveAndFlush(personne);
+            } else {
+                // Mettre à jour le FAFI existant
+                // Mettre à jour les champs seulement si fournis
+                if (datePaiement != null) {
+                    fafi.setDatePaiement(datePaiement);
+                }
+                if (montant != null) {
+                    fafi.setMontant(montant);
+                }
+                if (statut != null && !statut.isEmpty()) {
+                    fafi.setStatut(statut);
+                }
+                // Sauvegarder le Fafi mis à jour avec flush pour forcer la persistance
+                fafiRepository.saveAndFlush(fafi);
+                // S'assurer que la personne référence le Fafi mis à jour
+                personne.setFafi(fafi);
+                personneRepository.saveAndFlush(personne);
+            }
+        }
     }
 }
 

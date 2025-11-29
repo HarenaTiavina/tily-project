@@ -16,10 +16,12 @@ import tily.mg.service.AuthService;
 import tily.mg.service.DashboardService;
 import tily.mg.service.PersonneService;
 
+import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 @Controller
 public class WebController {
@@ -138,9 +140,9 @@ public class WebController {
 
             personneService.createResponsable(personne, secteurId, andraikitraId);
             
-            redirectAttributes.addFlashAttribute("successMessage", "Responsable ajouté avec succès !");
+            redirectAttributes.addFlashAttribute("successMessage", "Tafiditra mpiandraikitra !");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Erreur lors de l'ajout : " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Nisy tsy nety :" + e.getMessage());
         }
         
         return "redirect:/responsables";
@@ -271,9 +273,9 @@ public class WebController {
 
             personneService.createEleve(personne, secteurId, fizaranaId);
             
-            redirectAttributes.addFlashAttribute("successMessage", "Élève ajouté avec succès !");
+            redirectAttributes.addFlashAttribute("successMessage", "Tafiditra soa ny Beazina!");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Erreur lors de l'ajout : " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Nisy tsy nety : " + e.getMessage());
         }
         
         return "redirect:/eleves";
@@ -362,6 +364,7 @@ public class WebController {
         model.addAttribute("secteurs", personneService.findAllSecteurs());
         model.addAttribute("fizarana", personneService.findAllFizarana());
         model.addAttribute("andraikitra", personneService.findAllAndraikitra());
+        model.addAttribute("fafiStatuts", personneService.findAllFafiStatuts());
 
         return "profil";
     }
@@ -381,13 +384,18 @@ public class WebController {
             @RequestParam(required = false) Integer secteurId,
             @RequestParam(required = false) Integer fizaranaId,
             @RequestParam(required = false) Integer andraikitraId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fafiDatePaiement,
+            @RequestParam(required = false) BigDecimal fafiMontant,
+            @RequestParam(required = false) String fafiStatut,
             RedirectAttributes redirectAttributes
     ) {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth != null && auth.isAuthenticated()) {
+            if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) {
                 String email = auth.getName();
-                authService.findByEmail(email).ifPresent(utilisateur -> {
+                Optional<Utilisateur> utilisateurOpt = authService.findByEmail(email);
+                if (utilisateurOpt.isPresent()) {
+                    Utilisateur utilisateur = utilisateurOpt.get();
                     Personne personne = utilisateur.getPersonne();
                     if (personne != null) {
                         personne.setNom(nom);
@@ -435,15 +443,78 @@ public class WebController {
                             personne.setFizarana(null);
                         }
 
+                        // Sauvegarder les modifications de la personne
                         personneService.save(personne);
+                        
+                        // Mettre à jour le FAFI si les paramètres sont fournis
+                        personneService.updateFafi(personne.getId(), fafiDatePaiement, fafiMontant, fafiStatut);
+                        
+                        redirectAttributes.addFlashAttribute("successMessage", "Voaray ny fihovana");
+                    } else {
+                        redirectAttributes.addFlashAttribute("errorMessage", "Tsy hita ny mombamomba ny olona");
                     }
-                });
+                } else {
+                    redirectAttributes.addFlashAttribute("errorMessage", "Tsy hita ny mpampiasa");
+                }
+            } else {
+                redirectAttributes.addFlashAttribute("errorMessage", "Tsy voaantoka ny mpampiasa");
             }
-            redirectAttributes.addFlashAttribute("successMessage", "Profil mis à jour avec succès !");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Erreur lors de la mise à jour : " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Nisy olana : " + e.getMessage());
         }
 
+        return "redirect:/profil";
+    }
+
+    // Endpoint pour modifier le FAFI d'un élève (admin)
+    @PostMapping("/eleves/modifier-fafi")
+    public String modifierFafiEleve(
+            @RequestParam Integer personneId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate datePaiement,
+            @RequestParam(required = false) BigDecimal montant,
+            @RequestParam(required = false) String statut,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            personneService.updateFafi(personneId, datePaiement, montant, statut);
+            redirectAttributes.addFlashAttribute("successMessage", "FAFI novaina soa!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Nisy tsy nety: " + e.getMessage());
+        }
+        return "redirect:/eleves";
+    }
+
+    // Endpoint pour modifier le FAFI depuis le profil (utilisateur)
+    @PostMapping("/profil/modifier-fafi")
+    public String modifierFafiProfil(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate datePaiement,
+            @RequestParam(required = false) BigDecimal montant,
+            @RequestParam(required = false) String statut,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) {
+                String email = auth.getName();
+                Optional<Utilisateur> utilisateurOpt = authService.findByEmail(email);
+                if (utilisateurOpt.isPresent()) {
+                    Utilisateur utilisateur = utilisateurOpt.get();
+                    Personne personne = utilisateur.getPersonne();
+                    if (personne != null) {
+                        personneService.updateFafi(personne.getId(), datePaiement, montant, statut);
+                        redirectAttributes.addFlashAttribute("successMessage", "FAFI novaina soa!");
+                    } else {
+                        redirectAttributes.addFlashAttribute("errorMessage", "Tsy hita ny mombamomba ny olona");
+                    }
+                } else {
+                    redirectAttributes.addFlashAttribute("errorMessage", "Tsy hita ny mpampiasa amin'ny email: " + email);
+                }
+            } else {
+                redirectAttributes.addFlashAttribute("errorMessage", "Tsy voaantoka ny mpampiasa");
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Nisy tsy nety: " + e.getMessage());
+        }
         return "redirect:/profil";
     }
 }

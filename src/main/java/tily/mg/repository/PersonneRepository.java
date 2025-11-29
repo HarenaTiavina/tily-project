@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import tily.mg.entity.Personne;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PersonneRepository extends JpaRepository<Personne, Integer> {
@@ -15,12 +16,16 @@ public interface PersonneRepository extends JpaRepository<Personne, Integer> {
     @Query("SELECT p FROM Personne p WHERE p.typePersonne.nom = :typeName")
     List<Personne> findByTypePersonneNom(@Param("typeName") String typeName);
     
+    // Find by id with Fafi loaded
+    @Query("SELECT p FROM Personne p LEFT JOIN FETCH p.fafi WHERE p.id = :id")
+    Optional<Personne> findByIdWithFafi(@Param("id") Integer id);
+    
     // Find responsables
-    @Query("SELECT p FROM Personne p WHERE p.typePersonne.nom = 'Responsable'")
+    @Query("SELECT p FROM Personne p LEFT JOIN FETCH p.fafi WHERE p.typePersonne.nom = 'Responsable'")
     List<Personne> findAllResponsables();
     
     // Find eleves
-    @Query("SELECT p FROM Personne p WHERE p.typePersonne.nom = 'Eleve'")
+    @Query("SELECT p FROM Personne p LEFT JOIN FETCH p.fafi WHERE p.typePersonne.nom = 'Eleve'")
     List<Personne> findAllEleves();
     
     // Find by secteur
@@ -52,7 +57,7 @@ public interface PersonneRepository extends JpaRepository<Personne, Integer> {
     List<Personne> search(@Param("search") String search);
     
     // Filter responsables (pas de niveau, utilise andraikitra au lieu de section)
-    @Query("SELECT p FROM Personne p WHERE p.typePersonne.nom = 'Responsable' " +
+    @Query("SELECT DISTINCT p FROM Personne p LEFT JOIN FETCH p.fafi WHERE p.typePersonne.nom = 'Responsable' " +
            "AND (:secteurId IS NULL OR p.secteur.id = :secteurId) " +
            "AND (:andraikitraId IS NULL OR p.andraikitra.id = :andraikitraId) " +
            "AND (:hasFafi IS NULL OR " +
@@ -65,7 +70,7 @@ public interface PersonneRepository extends JpaRepository<Personne, Integer> {
     );
     
     // Filter eleves (Beazina)
-    @Query("SELECT p FROM Personne p WHERE p.typePersonne.nom = 'Eleve' " +
+    @Query("SELECT DISTINCT p FROM Personne p LEFT JOIN FETCH p.fafi WHERE p.typePersonne.nom = 'Eleve' " +
            "AND (:secteurId IS NULL OR p.secteur.id = :secteurId) " +
            "AND (:fizaranaId IS NULL OR p.fizarana.id = :fizaranaId) " +
            "AND (:ambaratonga IS NULL OR p.ambaratonga = :ambaratonga) " +

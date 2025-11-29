@@ -90,7 +90,11 @@ public class AuthService {
      * Trouver un utilisateur par email
      */
     public Optional<Utilisateur> findByEmail(String email) {
-        return utilisateurRepository.findByEmailWithPersonne(email);
+        if (email == null || email.trim().isEmpty()) {
+            return Optional.empty();
+        }
+        // Utiliser directement la méthode avec JOIN FETCH pour charger la personne et le fafi
+        return utilisateurRepository.findByEmailWithPersonne(email.trim());
     }
 
     /**

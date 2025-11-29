@@ -157,6 +157,12 @@
                                 </td>
                                 <td class="actions-cell">
                                     <button class="btn-icon edit-btn" title="Hanova" th:data-id="${eleve.id}"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon fafi-btn" title="Hanova FAFI" th:data-id="${eleve.id}" 
+                                            th:data-datepaiement="${eleve.fafi != null && eleve.fafi.datePaiement != null ? #temporals.format(eleve.fafi.datePaiement, 'yyyy-MM-dd') : ''}"
+                                            th:data-montant="${eleve.fafi != null && eleve.fafi.montant != null ? eleve.fafi.montant : ''}"
+                                            th:data-statut="${eleve.fafi != null && eleve.fafi.statut != null ? eleve.fafi.statut : 'Inactive'}">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                    </button>
                                     <form th:action="@{/eleves/supprimer}" method="post" style="display: inline;">
                                         <input type="hidden" name="id" th:value="${eleve.id}">
                                         <button type="submit" class="btn-icon danger" title="Hamafa" onclick="return confirm('Azo antoka ve ianao fa te-hamafa ity Beazina ity ?')"><i class="fas fa-trash"></i></button>
@@ -337,6 +343,49 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" onclick="closeEditModal()">
+                        <i class="fas fa-times"></i> Hanafoana
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i> Tehirizina
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Modifier FAFI -->
+    <div id="fafiModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-money-bill-wave"></i> Hanova FAFI</h2>
+                <button class="modal-close" onclick="closeFafiModal()">&times;</button>
+            </div>
+            <form th:action="@{/eleves/modifier-fafi}" method="post">
+                <input type="hidden" id="fafiPersonneId" name="personneId">
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fafiDatePaiement">Daty fandoavana</label>
+                            <input type="date" id="fafiDatePaiement" name="datePaiement">
+                        </div>
+                        <div class="form-group">
+                            <label for="fafiMontant">Vola</label>
+                            <input type="number" id="fafiMontant" name="montant" step="0.01" min="0" placeholder="Ohatra: 8000.00">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fafiStatut">Sata</label>
+                            <select id="fafiStatut" name="statut">
+                                <option th:each="statut : ${fafiStatuts}" 
+                                        th:value="${statut}" 
+                                        th:text="${statut == 'Active' ? 'Active (Eny)' : (statut == 'Inactive' ? 'Inactive (Tsia)' : statut)}"></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeFafiModal()">
                         <i class="fas fa-times"></i> Hanafoana
                     </button>
                     <button type="submit" class="btn-primary">
@@ -531,7 +580,38 @@
             if (e.key === 'Escape') {
                 closeAddModal();
                 closeEditModal();
+                closeFafiModal();
             }
+        });
+
+        // Modal FAFI functions
+        function openFafiModal(button) {
+            const personneId = button.dataset.id;
+            const datePaiement = button.dataset.datepaiement || '';
+            const montant = button.dataset.montant || '';
+            const statut = button.dataset.statut || 'Inactive';
+            
+            document.getElementById('fafiPersonneId').value = personneId;
+            document.getElementById('fafiDatePaiement').value = datePaiement;
+            document.getElementById('fafiMontant').value = montant;
+            document.getElementById('fafiStatut').value = statut;
+            
+            document.getElementById('fafiModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeFafiModal() {
+            document.getElementById('fafiModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Attach FAFI button listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.fafi-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    openFafiModal(this);
+                });
+            });
         });
 
         // Fonction helper pour convertir une image en base64

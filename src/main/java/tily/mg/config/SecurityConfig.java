@@ -44,8 +44,8 @@ public class SecurityConfig {
                 .requestMatchers("/login", "/inscription", "/auth/**", "/access-denied").permitAll()
                 // Pages réservées aux ADMIN uniquement
                 .requestMatchers("/dashboard", "/", "/responsables/**", "/eleves/**").hasRole("ADMIN")
-                // Page profil réservée aux USER uniquement
-                .requestMatchers("/profil/**").hasRole("USER")
+                // Page profil accessible aux USER et ADMIN
+                .requestMatchers("/profil/**").hasAnyRole("USER", "ADMIN")
                 // Toutes les autres requêtes nécessitent une authentification
                 .anyRequest().authenticated()
             )
