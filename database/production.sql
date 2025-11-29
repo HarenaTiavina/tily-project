@@ -71,7 +71,15 @@ INSERT INTO andraikitra (nom) VALUES ('Mpitandrina mpanampy fahatelo');
 -- Puis remplacez le hash ci-dessous par celui généré
 --
 -- Hash BCrypt valide pour "Admin@Tily2024!":
--- (Ce hash a été généré avec BCryptPasswordEncoder - 10 rounds)
+-- ATTENTION: Le hash ci-dessous doit être généré avec BCryptGenerator.java
+-- Le hash actuel est temporaire - GÉNÉREZ-EN UN NOUVEAU pour la production !
+-- 
+-- Pour générer un nouveau hash:
+-- 1. Exécutez: mvn compile exec:java -Dexec.mainClass="tily.mg.util.BCryptGenerator"
+-- 2. Copiez le hash généré et remplacez-le ci-dessous
+-- 3. Ou utilisez: https://bcrypt-generator.com/ avec 10 rounds
+--
+-- Hash temporaire (à remplacer):
 INSERT INTO utilisateur (email, motdepasse, role, actif, datecreation, idpersonne) 
 VALUES (
     'admin@tily.mg',
