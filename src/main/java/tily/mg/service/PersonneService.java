@@ -7,6 +7,7 @@ import tily.mg.entity.*;
 import tily.mg.repository.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,7 +31,7 @@ public class PersonneService {
     private AndraikitraRepository andraikitraRepository;
 
     @Autowired
-    private AssuranceRepository assuranceRepository;
+    private FafiRepository fafiRepository;
 
     // CRUD Operations
     public List<Personne> findAll() {
@@ -58,12 +59,12 @@ public class PersonneService {
         return personneRepository.countByTypePersonneNom("Responsable");
     }
 
-    public Long countResponsablesWithAssurance() {
-        return personneRepository.countResponsablesWithAssurance();
+    public Long countResponsablesWithFafi() {
+        return personneRepository.countResponsablesWithFafi();
     }
 
-    public List<Personne> filterResponsables(Integer secteurId, Integer andraikitraId, Boolean hasAssurance) {
-        return personneRepository.filterResponsables(secteurId, andraikitraId, hasAssurance);
+    public List<Personne> filterResponsables(Integer secteurId, Integer andraikitraId, Boolean hasFafi) {
+        return personneRepository.filterResponsables(secteurId, andraikitraId, hasFafi);
     }
 
     // Eleves
@@ -75,12 +76,12 @@ public class PersonneService {
         return personneRepository.countByTypePersonneNom("Eleve");
     }
 
-    public Long countElevesWithAssurance() {
-        return personneRepository.countElevesWithAssurance();
+    public Long countElevesWithFafi() {
+        return personneRepository.countElevesWithFafi();
     }
 
-    public List<Personne> filterEleves(Integer secteurId, Integer fizaranaId, String ambaratonga, Boolean hasAssurance) {
-        return personneRepository.filterEleves(secteurId, fizaranaId, ambaratonga, hasAssurance);
+    public List<Personne> filterEleves(Integer secteurId, Integer fizaranaId, String ambaratonga, Boolean hasFafi) {
+        return personneRepository.filterEleves(secteurId, fizaranaId, ambaratonga, hasFafi);
     }
 
     // Reference data
@@ -101,13 +102,13 @@ public class PersonneService {
     }
 
     // Statistics
-    public BigDecimal getTotalAssuranceMontant() {
-        BigDecimal total = assuranceRepository.getTotalMontantActive();
+    public BigDecimal getTotalFafiMontant() {
+        BigDecimal total = fafiRepository.getTotalMontantActive();
         return total != null ? total : BigDecimal.ZERO;
     }
 
-    public Long countWithAssurance() {
-        Long count = assuranceRepository.countActive();
+    public Long countWithFafi() {
+        Long count = fafiRepository.countActive();
         return count != null ? count : 0L;
     }
 
@@ -176,5 +177,54 @@ public class PersonneService {
         return personneRepository.save(personne);
     }
 
+    // Récupérer les statuts FAFI distincts depuis la base
+    public List<String> findAllFafiStatuts() {
+        return fafiRepository.findDistinctStatuts();
+    }
+
+    // Mettre à jour ou créer le FAFI d'une personne
+    public void updateFafi(Integer personneId, LocalDate datePaiement, BigDecimal montant, String statut) {
+        // Récupérer la personne avec son Fafi chargé explicitement
+        Optional<Personne> personneOpt = personneRepository.findByIdWithFafi(personneId);
+        if (personneOpt.isPresent()) {
+            Personne personne = personneOpt.get();
+            Fafi fafi = personne.getFafi();
+            
+            if (fafi == null) {
+                // Créer un nouveau FAFI
+                fafi = new Fafi();
+                if (datePaiement != null) {
+                    fafi.setDatePaiement(datePaiement);
+                }
+                if (montant != null) {
+                    fafi.setMontant(montant);
+                }
+                fafi.setStatut(statut != null && !statut.isEmpty() ? statut : "Inactive");
+                // Sauvegarder le Fafi
+                fafi = fafiRepository.saveAndFlush(fafi);
+                // Associer le Fafi à la personne
+                personne.setFafi(fafi);
+                // Sauvegarder la personne
+                personneRepository.saveAndFlush(personne);
+            } else {
+                // Mettre à jour le FAFI existant
+                // Mettre à jour les champs seulement si fournis
+                if (datePaiement != null) {
+                    fafi.setDatePaiement(datePaiement);
+                }
+                if (montant != null) {
+                    fafi.setMontant(montant);
+                }
+                if (statut != null && !statut.isEmpty()) {
+                    fafi.setStatut(statut);
+                }
+                // Sauvegarder le Fafi mis à jour avec flush pour forcer la persistance
+                fafiRepository.saveAndFlush(fafi);
+                // S'assurer que la personne référence le Fafi mis à jour
+                personne.setFafi(fafi);
+                personneRepository.saveAndFlush(personne);
+            }
+        }
+    }
 }
 

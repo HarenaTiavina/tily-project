@@ -55,22 +55,15 @@
                         </div>
                     </div>
                     <div class="filter-group">
-                        <label>Sektora</label>
+                        <label>Faritra</label>
                         <select id="filterSecteur" onchange="applyFilters()">
-                            <option value="">Ny sektora rehetra</option>
+                            <option value="">Ny Faritra rehetra</option>
                             <option th:each="secteur : ${secteurs}" th:value="${secteur.nom}" th:text="${secteur.nom}"></option>
                         </select>
                     </div>
                     <div class="filter-group">
-                        <label>Andraikitra</label> <!-- Andraikitra = postes/responsabilités en scout -->
-                        <select id="filterAndraikitra" onchange="applyFilters()">
-                            <option value="">Ny andraikitra rehetra</option>
-                            <option th:each="andraikitra : ${andraikitra}" th:value="${andraikitra.nom}" th:text="${andraikitra.nom}"></option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label>Fiantohana</label>
-                        <select id="filterAssurance" onchange="applyFilters()">
+                        <label>FAFI</label>
+                        <select id="filterFafi" onchange="applyFilters()">
                             <option value="">Ny rehetra</option>
                             <option value="Oui">Eny</option>
                             <option value="Non">Tsia</option>
@@ -102,10 +95,10 @@
                                 <th class="sortable" onclick="sortTable(4)">Daty nahaterahana <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(5)">N° CIN <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(6)">Finday <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(7)">Sektora <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(7)">Faritra <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(8)">Andraikitra <i class="fas fa-sort"></i></th> <!-- Andraikitra = postes/responsabilités -->
                                 <th class="sortable" onclick="sortTable(9)">Fanekena <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(10)">Fiantohana <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(10)">FAFI <i class="fas fa-sort"></i></th>
                                 <th>Asa</th>
                             </tr>
                         </thead>
@@ -133,7 +126,7 @@
                                 th:data-secteurid="${resp.secteur != null ? resp.secteur.id : ''}"
                                 th:data-andraikitra="${resp.andraikitra != null ? resp.andraikitra.nom : ''}"
                                 th:data-andraikitraid="${resp.andraikitra != null ? resp.andraikitra.id : ''}"
-                                th:data-assurance="${resp.assurance != null && resp.assurance.statut == 'Active' ? 'Eny' : 'Tsia'}">
+                                th:data-fafi="${resp.fafi != null && resp.fafi.statut == 'Active' ? 'Eny' : 'Tsia'}">
                                 <td>
                                     <img th:if="${resp.image != null and !resp.image.isEmpty()}" th:src="${resp.image}" class="avatar" alt="Photo">
                                     <img th:unless="${resp.image != null and !resp.image.isEmpty()}" 
@@ -150,8 +143,8 @@
                                 <td th:text="${resp.andraikitra != null ? resp.andraikitra.nom : '-'}">-</td>
                                 <td th:text="${resp.dateFanekena != null ? #temporals.format(resp.dateFanekena, 'dd/MM/yyyy') : '-'}">-</td>
                                 <td>
-                                    <span th:if="${resp.assurance != null && resp.assurance.statut == 'Active'}" class="status-badge delivered">Eny</span>
-                                    <span th:unless="${resp.assurance != null && resp.assurance.statut == 'Active'}" class="status-badge pending">Tsia</span>
+                                    <span th:if="${resp.fafi != null && resp.fafi.statut == 'Active'}" class="status-badge delivered">Eny</span>
+                                    <span th:unless="${resp.fafi != null && resp.fafi.statut == 'Active'}" class="status-badge pending">Tsia</span>
                                 </td>
                                 <td class="actions-cell">
                                     <button class="btn-icon edit-btn" title="Hanova" th:data-id="${resp.id}"><i class="fas fa-edit"></i></button>
@@ -239,7 +232,7 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="secteurId">Sektora</label>
+                            <label for="secteurId">Faritra</label>
                             <select id="secteurId" name="secteurId">
                                 <option value="">-- Mifidy --</option>
                                 <option th:each="secteur : ${secteurs}" th:value="${secteur.id}" th:text="${secteur.nom}"></option>
@@ -324,7 +317,7 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="editSecteurId">Sektora</label>
+                            <label for="editSecteurId">Faritra</label>
                             <select id="editSecteurId" name="secteurId">
                                 <option value="">-- Mifidy --</option>
                                 <option th:each="secteur : ${secteurs}" th:value="${secteur.id}" th:text="${secteur.nom}"></option>
@@ -456,7 +449,7 @@
             const searchValue = document.getElementById('searchInput').value.toLowerCase();
             const secteurValue = document.getElementById('filterSecteur').value;
             const andraikitraValue = document.getElementById('filterAndraikitra').value;
-            const assuranceValue = document.getElementById('filterAssurance').value;
+            const fafiValue = document.getElementById('filterFafi').value;
             
             const table = document.getElementById('responsablesTable');
             const rows = table.querySelectorAll('tbody tr:not(.empty-message)');
@@ -466,14 +459,14 @@
                 const text = row.textContent.toLowerCase();
                 const secteur = row.getAttribute('data-secteur') || '';
                 const andraikitra = row.getAttribute('data-andraikitra') || '';
-                const assurance = row.getAttribute('data-assurance') || '';
+                const fafi = row.getAttribute('data-fafi') || '';
                 
                 const matchSearch = !searchValue || text.includes(searchValue);
                 const matchSecteur = !secteurValue || secteur === secteurValue;
                 const matchAndraikitra = !andraikitraValue || andraikitra === andraikitraValue;
-                const matchAssurance = !assuranceValue || assurance === assuranceValue;
+                const matchFafi = !fafiValue || fafi === fafiValue;
                 
-                if (matchSearch && matchSecteur && matchAndraikitra && matchAssurance) {
+                if (matchSearch && matchSecteur && matchAndraikitra && matchFafi) {
                     row.style.display = '';
                     visibleCount++;
                 } else {
@@ -490,7 +483,7 @@
             document.getElementById('searchInput').value = '';
             document.getElementById('filterSecteur').value = '';
             document.getElementById('filterAndraikitra').value = '';
-            document.getElementById('filterAssurance').value = '';
+            document.getElementById('filterFafi').value = '';
             applyFilters();
         }
 
@@ -577,14 +570,12 @@
             }
 
             const secteur = document.getElementById('filterSecteur').value;
-            const andraikitra = document.getElementById('filterAndraikitra').value;
-            const assurance = document.getElementById('filterAssurance').value;
+            const fafi = document.getElementById('filterFafi').value;
             
             let filterTitle = 'Lisitry ny Mpiandraikitra';
             let filters = [];
-            if (secteur) filters.push('Sektora: ' + secteur);
-            if (andraikitra) filters.push('Andraikitra: ' + andraikitra);
-            if (assurance) filters.push('Fiantohana: ' + assurance);
+            if (secteur) filters.push('Faritra: ' + secteur);
+            if (fafi) filters.push('FAFI: ' + fafi);
             
             // Charger l'image et la convertir en base64
             const imageUrl = window.location.origin + '/images/top-tily.jpg';
@@ -620,10 +611,10 @@
                                 <th>Daty nahaterahana</th>
                                 <th>N° CIN</th>
                                 <th>Finday</th>
-                                <th>Sektora</th>
+                                <th>Faritra</th>
                                 <th>Andraikitra</th>
                                 <th>Fanekena</th>
-                                <th>Fiantohana</th>
+                                <th>FAFI</th>
                             </tr>
                         </thead>
                         <tbody>

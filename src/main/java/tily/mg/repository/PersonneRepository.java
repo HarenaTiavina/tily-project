@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import tily.mg.entity.Personne;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PersonneRepository extends JpaRepository<Personne, Integer> {
@@ -15,12 +16,16 @@ public interface PersonneRepository extends JpaRepository<Personne, Integer> {
     @Query("SELECT p FROM Personne p WHERE p.typePersonne.nom = :typeName")
     List<Personne> findByTypePersonneNom(@Param("typeName") String typeName);
     
+    // Find by id with Fafi loaded
+    @Query("SELECT p FROM Personne p LEFT JOIN FETCH p.fafi WHERE p.id = :id")
+    Optional<Personne> findByIdWithFafi(@Param("id") Integer id);
+    
     // Find responsables
-    @Query("SELECT p FROM Personne p WHERE p.typePersonne.nom = 'Responsable'")
+    @Query("SELECT p FROM Personne p LEFT JOIN FETCH p.fafi WHERE p.typePersonne.nom = 'Responsable'")
     List<Personne> findAllResponsables();
     
     // Find eleves
-    @Query("SELECT p FROM Personne p WHERE p.typePersonne.nom = 'Eleve'")
+    @Query("SELECT p FROM Personne p LEFT JOIN FETCH p.fafi WHERE p.typePersonne.nom = 'Eleve'")
     List<Personne> findAllEleves();
     
     // Find by secteur
@@ -36,13 +41,13 @@ public interface PersonneRepository extends JpaRepository<Personne, Integer> {
     @Query("SELECT COUNT(p) FROM Personne p WHERE p.typePersonne.nom = :typeName")
     Long countByTypePersonneNom(@Param("typeName") String typeName);
     
-    // Count responsables with assurance
-    @Query("SELECT COUNT(p) FROM Personne p WHERE p.typePersonne.nom = 'Responsable' AND p.assurance IS NOT NULL AND p.assurance.statut = 'Active'")
-    Long countResponsablesWithAssurance();
+    // Count responsables with fafi
+    @Query("SELECT COUNT(p) FROM Personne p WHERE p.typePersonne.nom = 'Responsable' AND p.fafi IS NOT NULL AND p.fafi.statut = 'Active'")
+    Long countResponsablesWithFafi();
     
-    // Count eleves with assurance
-    @Query("SELECT COUNT(p) FROM Personne p WHERE p.typePersonne.nom = 'Eleve' AND p.assurance IS NOT NULL AND p.assurance.statut = 'Active'")
-    Long countElevesWithAssurance();
+    // Count eleves with fafi
+    @Query("SELECT COUNT(p) FROM Personne p WHERE p.typePersonne.nom = 'Eleve' AND p.fafi IS NOT NULL AND p.fafi.statut = 'Active'")
+    Long countElevesWithFafi();
     
     // Search
     @Query("SELECT p FROM Personne p WHERE " +
@@ -52,31 +57,31 @@ public interface PersonneRepository extends JpaRepository<Personne, Integer> {
     List<Personne> search(@Param("search") String search);
     
     // Filter responsables (pas de niveau, utilise andraikitra au lieu de section)
-    @Query("SELECT p FROM Personne p WHERE p.typePersonne.nom = 'Responsable' " +
+    @Query("SELECT DISTINCT p FROM Personne p LEFT JOIN FETCH p.fafi WHERE p.typePersonne.nom = 'Responsable' " +
            "AND (:secteurId IS NULL OR p.secteur.id = :secteurId) " +
            "AND (:andraikitraId IS NULL OR p.andraikitra.id = :andraikitraId) " +
-           "AND (:hasAssurance IS NULL OR " +
-           "(:hasAssurance = true AND p.assurance IS NOT NULL AND p.assurance.statut = 'Active') OR " +
-           "(:hasAssurance = false AND (p.assurance IS NULL OR p.assurance.statut != 'Active')))")
+           "AND (:hasFafi IS NULL OR " +
+           "(:hasFafi = true AND p.fafi IS NOT NULL AND p.fafi.statut = 'Active') OR " +
+           "(:hasFafi = false AND (p.fafi IS NULL OR p.fafi.statut != 'Active')))")
     List<Personne> filterResponsables(
         @Param("secteurId") Integer secteurId,
         @Param("andraikitraId") Integer andraikitraId,
-        @Param("hasAssurance") Boolean hasAssurance
+        @Param("hasFafi") Boolean hasFafi
     );
     
     // Filter eleves (Beazina)
-    @Query("SELECT p FROM Personne p WHERE p.typePersonne.nom = 'Eleve' " +
+    @Query("SELECT DISTINCT p FROM Personne p LEFT JOIN FETCH p.fafi WHERE p.typePersonne.nom = 'Eleve' " +
            "AND (:secteurId IS NULL OR p.secteur.id = :secteurId) " +
            "AND (:fizaranaId IS NULL OR p.fizarana.id = :fizaranaId) " +
            "AND (:ambaratonga IS NULL OR p.ambaratonga = :ambaratonga) " +
-           "AND (:hasAssurance IS NULL OR " +
-           "(:hasAssurance = true AND p.assurance IS NOT NULL AND p.assurance.statut = 'Active') OR " +
-           "(:hasAssurance = false AND (p.assurance IS NULL OR p.assurance.statut != 'Active')))")
+           "AND (:hasFafi IS NULL OR " +
+           "(:hasFafi = true AND p.fafi IS NOT NULL AND p.fafi.statut = 'Active') OR " +
+           "(:hasFafi = false AND (p.fafi IS NULL OR p.fafi.statut != 'Active')))")
     List<Personne> filterEleves(
         @Param("secteurId") Integer secteurId,
         @Param("fizaranaId") Integer fizaranaId,
         @Param("ambaratonga") String ambaratonga,
-        @Param("hasAssurance") Boolean hasAssurance
+        @Param("hasFafi") Boolean hasFafi
     );
 }
 

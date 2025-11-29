@@ -366,7 +366,7 @@
                             </div>
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label for="secteurId">Sektora</label>
+                                    <label for="secteurId">Faritra</label>
                                     <select id="secteurId" name="secteurId">
                                         <option value="">-- Mifidy --</option>
                                         <option th:each="secteur : ${secteurs}" 
@@ -375,9 +375,9 @@
                                                 th:selected="${personne != null and personne.secteur != null and personne.secteur.id == secteur.id}"></option>
                                     </select>
                                 </div>
-                                <!-- Pour les Beazina : Fizarana (Section) -->
+                                <!-- Pour les Beazina : Sampana (Section) -->
                                 <div class="form-group" th:if="${personne != null and personne.typePersonne != null and personne.typePersonne.nom == 'Eleve'}">
-                                    <label for="fizaranaId">Fizarana</label>
+                                    <label for="fizaranaId">Sampana</label>
                                     <select id="fizaranaId" name="fizaranaId">
                                         <option value="">-- Mifidy --</option>
                                         <option th:each="fizarana : ${fizarana}" 
@@ -399,20 +399,49 @@
                                 </div>
                             </div>
                             <div class="form-row">
-                                <!-- Pour les Beazina : Ambaratonga (Niveau) -->
+                                <!-- Pour les Beazina : Ambaratonga (Niveau) - champ texte libre -->
                                 <div class="form-group" th:if="${personne != null and personne.typePersonne != null and personne.typePersonne.nom == 'Eleve'}">
                                     <label for="ambaratonga">Ambaratonga</label>
-                                    <select id="ambaratonga" name="ambaratonga">
-                                        <option value="">-- Mifidy --</option>
-                                        <option value="Louveteau" th:selected="${personne != null and personne.ambaratonga == 'Louveteau'}">Louveteau</option>
-                                        <option value="Éclaireur" th:selected="${personne != null and personne.ambaratonga == 'Éclaireur'}">Éclaireur</option>
-                                        <option value="Routier" th:selected="${personne != null and personne.ambaratonga == 'Routier'}">Routier</option>
-                                    </select>
+                                    <input type="text" id="ambaratonga" name="ambaratonga" 
+                                           th:value="${personne != null ? personne.ambaratonga : ''}"
+                                           placeholder="Ohatra: Louveteau, Éclaireur, Routier...">
                                 </div>
                                 <div class="form-group">
                                     <label for="dateFanekena">Daty Fanekena</label>
                                     <input type="date" id="dateFanekena" name="dateFanekena" 
                                            th:value="${personne != null and personne.dateFanekena != null ? personne.dateFanekena : ''}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FAFI -->
+                        <div class="form-section">
+                            <div class="form-section-title">
+                                <i class="fas fa-money-bill-wave"></i>
+                                <span>FAFI</span>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="fafiDatePaiement">Daty fandoavana</label>
+                                    <input type="date" id="fafiDatePaiement" name="fafiDatePaiement" 
+                                           th:value="${personne != null && personne.fafi != null && personne.fafi.datePaiement != null ? personne.fafi.datePaiement : ''}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="fafiMontant">Vola</label>
+                                    <input type="number" id="fafiMontant" name="fafiMontant" step="0.01" min="0" 
+                                           th:value="${personne != null && personne.fafi != null && personne.fafi.montant != null ? personne.fafi.montant : ''}"
+                                           placeholder="Ohatra: 8000.00">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="fafiStatut">Sata</label>
+                                    <select id="fafiStatut" name="fafiStatut">
+                                        <option th:each="statut : ${fafiStatuts}" 
+                                                th:value="${statut}" 
+                                                th:text="${statut == 'Active' ? 'Active (Eny)' : (statut == 'Inactive' ? 'Inactive (Tsia)' : statut)}"
+                                                th:selected="${personne != null && personne.fafi != null && personne.fafi.statut != null && personne.fafi.statut == statut}"></option>
+                                    </select>
                                 </div>
                             </div>
                         </div>

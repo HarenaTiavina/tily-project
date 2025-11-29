@@ -39,7 +39,7 @@ class PersonneServiceTest {
     private AndraikitraRepository andraikitraRepository;
 
     @Mock
-    private AssuranceRepository assuranceRepository;
+    private FafiRepository fafiRepository;
 
     @InjectMocks
     private PersonneService personneService;
@@ -338,26 +338,26 @@ class PersonneServiceTest {
     }
 
     @Test
-    void testGetTotalAssuranceMontant() {
+    void testGetTotalFafiMontant() {
         // Given
-        when(assuranceRepository.getTotalMontantActive()).thenReturn(new BigDecimal("1000.00"));
+        when(fafiRepository.getTotalMontantActive()).thenReturn(new BigDecimal("1000.00"));
 
         // When
-        BigDecimal result = personneService.getTotalAssuranceMontant();
+        BigDecimal result = personneService.getTotalFafiMontant();
 
         // Then
         assertNotNull(result);
         assertEquals(new BigDecimal("1000.00"), result);
-        verify(assuranceRepository, times(1)).getTotalMontantActive();
+        verify(fafiRepository, times(1)).getTotalMontantActive();
     }
 
     @Test
-    void testGetTotalAssuranceMontantNull() {
+    void testGetTotalFafiMontantNull() {
         // Given
-        when(assuranceRepository.getTotalMontantActive()).thenReturn(null);
+        when(fafiRepository.getTotalMontantActive()).thenReturn(null);
 
         // When
-        BigDecimal result = personneService.getTotalAssuranceMontant();
+        BigDecimal result = personneService.getTotalFafiMontant();
 
         // Then
         assertNotNull(result);
@@ -365,25 +365,25 @@ class PersonneServiceTest {
     }
 
     @Test
-    void testCountWithAssurance() {
+    void testCountWithFafi() {
         // Given
-        when(assuranceRepository.countActive()).thenReturn(5L);
+        when(fafiRepository.countActive()).thenReturn(5L);
 
         // When
-        Long count = personneService.countWithAssurance();
+        Long count = personneService.countWithFafi();
 
         // Then
         assertEquals(5L, count);
-        verify(assuranceRepository, times(1)).countActive();
+        verify(fafiRepository, times(1)).countActive();
     }
 
     @Test
-    void testCountWithAssuranceNull() {
+    void testCountWithFafiNull() {
         // Given
-        when(assuranceRepository.countActive()).thenReturn(null);
+        when(fafiRepository.countActive()).thenReturn(null);
 
         // When
-        Long count = personneService.countWithAssurance();
+        Long count = personneService.countWithFafi();
 
         // Then
         assertEquals(0L, count);

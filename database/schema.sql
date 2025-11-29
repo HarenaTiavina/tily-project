@@ -41,10 +41,10 @@ CREATE TABLE IF NOT EXISTS andraikitra (
 );
 
 -- =====================================
--- TABLE : assurance
+-- TABLE : fafi (FAFI en malgache - remplace assurance)
 -- =====================================
-CREATE TABLE IF NOT EXISTS assurance (
-    idAssurance SERIAL PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS fafi (
+    idFafi SERIAL PRIMARY KEY,
     datePaiement DATE,
     montant NUMERIC(10,2),
     statut VARCHAR(20)
@@ -67,14 +67,14 @@ CREATE TABLE IF NOT EXISTS personne (
     nomMere VARCHAR(100),
     dateFanekena DATE,
     idTypePersonne INTEGER,
-    idAssurance INTEGER,
+    idFafi INTEGER,
     idSecteur INTEGER,
     idSection INTEGER,
     idAndraikitra INTEGER,
     CONSTRAINT fk_type_personne FOREIGN KEY (idTypePersonne)
         REFERENCES type_personne(idTypePersonne),
-    CONSTRAINT fk_assurance FOREIGN KEY (idAssurance)
-        REFERENCES assurance(idAssurance),
+    CONSTRAINT fk_fafi FOREIGN KEY (idFafi)
+        REFERENCES fafi(idFafi),
     CONSTRAINT fk_secteur FOREIGN KEY (idSecteur)
         REFERENCES secteur(idSecteur),
     CONSTRAINT fk_section FOREIGN KEY (idSection)
@@ -104,7 +104,7 @@ CREATE INDEX IF NOT EXISTS idx_personne_type ON personne(idTypePersonne);
 CREATE INDEX IF NOT EXISTS idx_personne_secteur ON personne(idSecteur);
 CREATE INDEX IF NOT EXISTS idx_personne_section ON personne(idSection);
 CREATE INDEX IF NOT EXISTS idx_personne_andraikitra ON personne(idAndraikitra);
-CREATE INDEX IF NOT EXISTS idx_personne_assurance ON personne(idAssurance);
+CREATE INDEX IF NOT EXISTS idx_personne_fafi ON personne(idFafi);
 CREATE INDEX IF NOT EXISTS idx_utilisateur_email ON utilisateur(email);
 CREATE INDEX IF NOT EXISTS idx_utilisateur_personne ON utilisateur(idPersonne);
 
