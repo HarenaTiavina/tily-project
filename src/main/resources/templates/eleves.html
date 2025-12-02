@@ -37,6 +37,11 @@
                     <span class="record-count" id="recordCount" th:text="${totalCount} + ' Beazina'">0 Beazina</span>
                 </div>
                 <div class="header-actions">
+                    <label for="excelFileBeazina" class="btn-secondary" style="cursor: pointer; margin-right: 10px;">
+                        <i class="fas fa-file-excel"></i>
+                        Ampidirina avy amin'ny Excel
+                    </label>
+                    <input type="file" id="excelFileBeazina" accept=".xlsx,.xls,.csv" style="display: none;" onchange="uploadExcelBeazina(this)">
                     <button class="btn-primary" onclick="openAddModal()">
                         <i class="fas fa-plus"></i>
                         Hanampy
@@ -732,6 +737,35 @@
                 printWindow.focus();
                 setTimeout(() => printWindow.print(), 250);
             });
+        }
+    </script>
+
+    <script>
+        function uploadExcelBeazina(input) {
+            if (input.files && input.files[0]) {
+                const formData = new FormData();
+                formData.append('file', input.files[0]);
+                
+                // Afficher un message de chargement
+                const loadingMsg = document.createElement('div');
+                loadingMsg.className = 'alert alert-info';
+                loadingMsg.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Import en cours...';
+                document.querySelector('.dashboard-content').insertBefore(loadingMsg, document.querySelector('.dashboard-content').firstChild);
+                
+                fetch('/eleves/import-excel', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    alert('Erreur lors de l\'import: ' + error.message);
+                });
+            }
         }
     </script>
 </body>

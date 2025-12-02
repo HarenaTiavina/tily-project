@@ -80,14 +80,7 @@ public class SecurityConfig {
                 })
             )
             .csrf(csrf -> csrf
-                .ignoringRequestMatchers("/auth/**")
-            )
-            .headers(headers -> headers
-                .frameOptions(frameOptions -> frameOptions.deny())
-                .contentTypeOptions(contentTypeOptions -> {})
-                .httpStrictTransportSecurity(hstsConfig -> hstsConfig
-                    .maxAgeInSeconds(31536000)
-                )
+                .ignoringRequestMatchers("/auth/**", "/eleves/import-excel", "/responsables/import-excel")
             );
 
         return http.build();
