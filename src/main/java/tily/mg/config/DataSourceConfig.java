@@ -69,6 +69,7 @@ public class DataSourceConfig {
                 // Construire l'URL JDBC avec paramètres de connexion
                 jdbcUrl = buildJdbcUrl(host, port, dbName);
                 logger.info("Configuration DB depuis DATABASE_URL - Host: {}, Port: {}, Database: {}", host, port, dbName);
+                logger.info("Username: {}", username);
             } catch (URISyntaxException e) {
                 throw new RuntimeException("Erreur lors du parsing de DATABASE_URL: " + databaseUrl, e);
             }
@@ -77,7 +78,9 @@ public class DataSourceConfig {
             jdbcUrl = databaseUrl;
             // Ajouter les paramètres de connexion s'ils ne sont pas déjà présents
             if (!jdbcUrl.contains("connectTimeout")) {
-                jdbcUrl = appendConnectionParams(jdbcUrl);
+                // Extraire le host de l'URL JDBC
+                String host = extractHostFromJdbcUrl(jdbcUrl);
+                jdbcUrl = appendConnectionParams(jdbcUrl, host);
             }
             username = pgUser;
             password = pgPassword;
@@ -102,54 +105,85 @@ public class DataSourceConfig {
         
         // Configuration du pool de connexions
         config.setMaximumPoolSize(10);
-        config.setMinimumIdle(2);
-        config.setConnectionTimeout(60000); // 60 secondes
+        config.setMinimumIdle(2); // Maintenir 2 connexions idle pour performance
+        config.setConnectionTimeout(30000); // 30 secondes pour établir la connexion
         config.setIdleTimeout(300000); // 5 minutes
         config.setMaxLifetime(1800000); // 30 minutes
         config.setLeakDetectionThreshold(60000); // 60 secondes
         
         // Validation de connexion
         config.setConnectionTestQuery("SELECT 1");
-        config.setValidationTimeout(5000); // 5 secondes
+        config.setValidationTimeout(5000); // 5 secondes pour validation
+        config.setInitializationFailTimeout(1); // 1 seconde - laisser HikariCP valider mais rapidement
         
         // Auto-commit
         config.setAutoCommit(true);
         
-        return new HikariDataSource(config);
+        // Créer la DataSource avec validation
+        HikariDataSource dataSource = new HikariDataSource(config);
+        
+        logger.info("HikariCP DataSource configurée avec succès");
+        logger.info("Pool de connexions: min={}, max={}", config.getMinimumIdle(), config.getMaximumPoolSize());
+        
+        return dataSource;
     }
     
     private String buildJdbcUrl(String host, int port, String dbName) {
         String baseUrl = String.format("jdbc:postgresql://%s:%d/%s", host, port, dbName);
-        return appendConnectionParams(baseUrl);
+        return appendConnectionParams(baseUrl, host);
     }
     
-    private String appendConnectionParams(String jdbcUrl) {
+    private String appendConnectionParams(String jdbcUrl, String host) {
         StringBuilder url = new StringBuilder(jdbcUrl);
         
         // Déterminer si on doit ajouter ? ou &
         String separator = jdbcUrl.contains("?") ? "&" : "?";
         
-        // Paramètres de connexion PostgreSQL
+        // Paramètres de connexion PostgreSQL optimisés pour Railway
         url.append(separator).append("connectTimeout=30"); // 30 secondes pour établir la connexion
         url.append("&socketTimeout=60"); // 60 secondes pour les opérations socket
         url.append("&loginTimeout=30"); // 30 secondes pour l'authentification
         url.append("&tcpKeepAlive=true"); // Garder la connexion alive
         url.append("&ApplicationName=tily"); // Nom de l'application
         
-        // SSL - configuré pour permettre les connexions SSL si nécessaire (Railway, etc.)
-        // Par défaut, on essaie d'abord sans SSL, puis avec SSL si échec
-        // Pour forcer SSL, définir DB_SSL=true dans les variables d'environnement
+        // SSL - Pour Railway, les connexions internes (postgres.railway.internal) n'ont pas besoin de SSL
         String sslMode = System.getenv("DB_SSL");
-        if (sslMode != null && (sslMode.equalsIgnoreCase("true") || sslMode.equalsIgnoreCase("require"))) {
+        
+        if (host != null && host.contains("railway.internal")) {
+            // Connexion interne Railway - pas besoin de SSL
+            url.append("&ssl=false");
+            url.append("&sslmode=disable");
+            logger.debug("Mode SSL désactivé pour connexion interne Railway: {}", host);
+        } else if (sslMode != null && (sslMode.equalsIgnoreCase("true") || sslMode.equalsIgnoreCase("require"))) {
+            // SSL forcé via variable d'environnement
             url.append("&ssl=true");
             url.append("&sslmode=require");
         } else {
-            // Mode préféré : SSL si disponible, sinon sans SSL
+            // Par défaut, essayer avec SSL mais accepter sans
             url.append("&ssl=true");
             url.append("&sslmode=prefer");
         }
         
         return url.toString();
+    }
+    
+    private String extractHostFromJdbcUrl(String jdbcUrl) {
+        try {
+            // Extraire le host depuis jdbc:postgresql://host:port/db
+            if (jdbcUrl.startsWith("jdbc:postgresql://")) {
+                String withoutPrefix = jdbcUrl.substring("jdbc:postgresql://".length());
+                int colonIndex = withoutPrefix.indexOf(':');
+                int slashIndex = withoutPrefix.indexOf('/');
+                if (colonIndex > 0 && (slashIndex == -1 || colonIndex < slashIndex)) {
+                    return withoutPrefix.substring(0, colonIndex);
+                } else if (slashIndex > 0) {
+                    return withoutPrefix.substring(0, slashIndex);
+                }
+            }
+        } catch (Exception e) {
+            logger.warn("Impossible d'extraire le host de l'URL JDBC: {}", jdbcUrl, e);
+        }
+        return null;
     }
 }
 
