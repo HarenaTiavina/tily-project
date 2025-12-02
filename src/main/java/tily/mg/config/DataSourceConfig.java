@@ -24,74 +24,56 @@ public class DataSourceConfig {
     @Value("${DATABASE_URL:}")
     private String databaseUrl;
 
-    @Value("${PGUSER:postgres}")
-    private String pgUser;
-
-    @Value("${PGPASSWORD:postgres}")
-    private String pgPassword;
-
-    @Value("${PGDATABASE:tily}")
-    private String pgDatabase;
-
-    @Value("${PGHOST:}")
-    private String pgHost;
-
-    @Value("${PGPORT:5432}")
-    private String pgPort;
-
     @Bean
     @Primary
     public DataSource dataSource() {
+        // Vérifier que DATABASE_URL est fournie
+        if (databaseUrl == null || databaseUrl.isEmpty()) {
+            throw new IllegalStateException("DATABASE_URL n'est pas définie. Veuillez configurer la variable d'environnement DATABASE_URL.");
+        }
+        
         String jdbcUrl;
         String username;
         String password;
+        String host;
+        int port;
+        String dbName;
         
-        // Si DATABASE_URL est fourni et au format postgresql://, le parser
-        if (databaseUrl != null && !databaseUrl.isEmpty() && !databaseUrl.startsWith("jdbc:")) {
-            try {
-                // Parser l'URL PostgreSQL standard (postgresql://user:pass@host:port/db)
-                URI dbUri = new URI(databaseUrl);
-                
-                // Extraire username et password depuis userInfo (peut contenir des caractères encodés)
-                if (dbUri.getUserInfo() != null) {
-                    String[] userInfo = dbUri.getUserInfo().split(":", 2);
-                    username = userInfo.length > 0 ? URLDecoder.decode(userInfo[0], StandardCharsets.UTF_8) : pgUser;
-                    password = userInfo.length > 1 ? URLDecoder.decode(userInfo[1], StandardCharsets.UTF_8) : pgPassword;
-                } else {
-                    username = pgUser;
-                    password = pgPassword;
-                }
-                String host = dbUri.getHost();
-                int port = dbUri.getPort() == -1 ? 5432 : dbUri.getPort();
-                String path = dbUri.getPath();
-                String dbName = path != null && path.length() > 1 ? path.substring(1) : pgDatabase;
-                
-                // Construire l'URL JDBC avec paramètres de connexion
-                jdbcUrl = buildJdbcUrl(host, port, dbName);
-                logger.info("Configuration DB depuis DATABASE_URL - Host: {}, Port: {}, Database: {}", host, port, dbName);
-                logger.info("Username: {}", username);
-            } catch (URISyntaxException e) {
-                throw new RuntimeException("Erreur lors du parsing de DATABASE_URL: " + databaseUrl, e);
+        try {
+            // Parser l'URL PostgreSQL standard (postgresql://user:pass@host:port/db)
+            URI dbUri = new URI(databaseUrl);
+            
+            // Extraire username et password depuis userInfo (peut contenir des caractères encodés)
+            if (dbUri.getUserInfo() != null) {
+                String[] userInfo = dbUri.getUserInfo().split(":", 2);
+                username = userInfo.length > 0 ? URLDecoder.decode(userInfo[0], StandardCharsets.UTF_8) : null;
+                password = userInfo.length > 1 ? URLDecoder.decode(userInfo[1], StandardCharsets.UTF_8) : null;
+            } else {
+                throw new IllegalStateException("DATABASE_URL ne contient pas d'informations d'authentification (user:pass@)");
             }
-        } else if (databaseUrl != null && !databaseUrl.isEmpty() && databaseUrl.startsWith("jdbc:")) {
-            // Si DATABASE_URL est déjà au format JDBC, l'utiliser directement
-            jdbcUrl = databaseUrl;
-            // Ajouter les paramètres de connexion s'ils ne sont pas déjà présents
-            if (!jdbcUrl.contains("connectTimeout")) {
-                // Extraire le host de l'URL JDBC
-                String host = extractHostFromJdbcUrl(jdbcUrl);
-                jdbcUrl = appendConnectionParams(jdbcUrl, host);
+            
+            // Extraire host, port et database
+            host = dbUri.getHost();
+            if (host == null) {
+                throw new IllegalStateException("DATABASE_URL ne contient pas d'host valide");
             }
-            username = pgUser;
-            password = pgPassword;
-        } else {
-            // Sinon, utiliser les variables PGUSER, PGPASSWORD, PGDATABASE, PGHOST, PGPORT
-            String host = pgHost != null && !pgHost.isEmpty() ? pgHost : "postgres.railway.internal";
-            int port = pgPort != null && !pgPort.isEmpty() ? Integer.parseInt(pgPort) : 5432;
-            jdbcUrl = buildJdbcUrl(host, port, pgDatabase);
-            username = pgUser;
-            password = pgPassword;
-            logger.info("Configuration DB depuis variables PG* - Host: {}, Port: {}, Database: {}", host, port, pgDatabase);
+            
+            port = dbUri.getPort() == -1 ? 5432 : dbUri.getPort();
+            
+            String path = dbUri.getPath();
+            dbName = path != null && path.length() > 1 ? path.substring(1) : null;
+            if (dbName == null || dbName.isEmpty()) {
+                throw new IllegalStateException("DATABASE_URL ne contient pas de nom de base de données");
+            }
+            
+            // Construire l'URL JDBC avec paramètres de connexion
+            jdbcUrl = buildJdbcUrl(host, port, dbName);
+            
+            logger.info("Configuration DB depuis DATABASE_URL");
+            logger.info("Host: {}, Port: {}, Database: {}, Username: {}", host, port, dbName, username);
+            
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("Erreur lors du parsing de DATABASE_URL: " + databaseUrl, e);
         }
         
         logger.info("JDBC URL configurée (sans credentials): {}", jdbcUrl.replaceAll("password=[^&]*", "password=***"));
@@ -105,25 +87,28 @@ public class DataSourceConfig {
         
         // Configuration du pool de connexions
         config.setMaximumPoolSize(10);
-        config.setMinimumIdle(2); // Maintenir 2 connexions idle pour performance
+        config.setMinimumIdle(0); // Ne pas créer de connexions au démarrage
         config.setConnectionTimeout(30000); // 30 secondes pour établir la connexion
         config.setIdleTimeout(300000); // 5 minutes
         config.setMaxLifetime(1800000); // 30 minutes
         config.setLeakDetectionThreshold(60000); // 60 secondes
         
-        // Validation de connexion
+        // IMPORTANT: Désactiver complètement la validation au démarrage
+        // Cela permet à l'application de démarrer même si la DB n'est pas disponible
+        config.setInitializationFailTimeout(-1); // -1 = ne jamais échouer au démarrage
         config.setConnectionTestQuery("SELECT 1");
-        config.setValidationTimeout(5000); // 5 secondes pour validation
-        config.setInitializationFailTimeout(1); // 1 seconde - laisser HikariCP valider mais rapidement
+        config.setValidationTimeout(3000); // 3 secondes pour validation
         
         // Auto-commit
         config.setAutoCommit(true);
         
-        // Créer la DataSource avec validation
+        // Créer la DataSource sans validation initiale
+        // Les connexions seront créées à la demande quand nécessaire
         HikariDataSource dataSource = new HikariDataSource(config);
         
-        logger.info("HikariCP DataSource configurée avec succès");
+        logger.info("HikariCP DataSource configurée - l'application peut démarrer même si la DB n'est pas disponible");
         logger.info("Pool de connexions: min={}, max={}", config.getMinimumIdle(), config.getMaximumPoolSize());
+        logger.warn("La validation de connexion au démarrage est désactivée - les connexions seront créées à la demande");
         
         return dataSource;
     }
@@ -165,25 +150,6 @@ public class DataSourceConfig {
         }
         
         return url.toString();
-    }
-    
-    private String extractHostFromJdbcUrl(String jdbcUrl) {
-        try {
-            // Extraire le host depuis jdbc:postgresql://host:port/db
-            if (jdbcUrl.startsWith("jdbc:postgresql://")) {
-                String withoutPrefix = jdbcUrl.substring("jdbc:postgresql://".length());
-                int colonIndex = withoutPrefix.indexOf(':');
-                int slashIndex = withoutPrefix.indexOf('/');
-                if (colonIndex > 0 && (slashIndex == -1 || colonIndex < slashIndex)) {
-                    return withoutPrefix.substring(0, colonIndex);
-                } else if (slashIndex > 0) {
-                    return withoutPrefix.substring(0, slashIndex);
-                }
-            }
-        } catch (Exception e) {
-            logger.warn("Impossible d'extraire le host de l'URL JDBC: {}", jdbcUrl, e);
-        }
-        return null;
     }
 }
 
