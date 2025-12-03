@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS personne (
         REFERENCES section(idSection),
     CONSTRAINT fk_andraikitra FOREIGN KEY (idAndraikitra)
         REFERENCES andraikitra(idAndraikitra),
-    CONSTRAINT fk_fivondronana FOREIGN KEY (idFivondronana)
+    CONSTRAINT fk_vodrona FOREIGN KEY (idVondrona)
         REFERENCES vondrona(idVondrona),
     CONSTRAINT fk_fivondronana FOREIGN KEY (idFivondronana)
         REFERENCES fivondronana(idFivondronana)
@@ -130,7 +130,6 @@ CREATE INDEX IF NOT EXISTS idx_personne_section ON personne(idSection);
 CREATE INDEX IF NOT EXISTS idx_personne_andraikitra ON personne(idAndraikitra);
 CREATE INDEX IF NOT EXISTS idx_personne_fafi ON personne(idFafi);
 CREATE INDEX IF NOT EXISTS idx_personne_vondrona ON personne(idVondrona);
-CREATE INDEX IF NOT EXISTS idx_personne_Vondrona ON personne(idVondrona);
 CREATE INDEX IF NOT EXISTS idx_utilisateur_email ON utilisateur(email);
 CREATE INDEX IF NOT EXISTS idx_utilisateur_fivondronana ON utilisateur(idFivondronana);
 
