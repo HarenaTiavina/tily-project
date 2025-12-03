@@ -72,7 +72,6 @@ CREATE TABLE IF NOT EXISTS fafi (
 -- =====================================
 CREATE TABLE IF NOT EXISTS personne (
     idPersonne SERIAL PRIMARY KEY,
-    numerofafi VACHAR (100),
     nom VARCHAR(100) NOT NULL,
     prenom VARCHAR(100) NOT NULL,
     totem VARCHAR(50),
@@ -89,7 +88,7 @@ CREATE TABLE IF NOT EXISTS personne (
     idSecteur INTEGER,
     idSection INTEGER,
     idAndraikitra INTEGER,
-    idFivondronana INTEGER,
+    idVondrona INTEGER,
     idFivondronana INTEGER,
     CONSTRAINT fk_type_personne FOREIGN KEY (idTypePersonne)
         REFERENCES type_personne(idTypePersonne),
