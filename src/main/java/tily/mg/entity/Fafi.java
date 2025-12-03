@@ -22,16 +22,20 @@ public class Fafi {
     @Column(name = "statut", length = 20)
     private String statut;
 
+    @Column(name = "numerofafi", length = 50)
+    private String numeroFafi;
+
     @OneToOne(mappedBy = "fafi")
     private Personne personne;
 
     // Constructors
     public Fafi() {}
 
-    public Fafi(LocalDate datePaiement, BigDecimal montant, String statut) {
+    public Fafi(LocalDate datePaiement, BigDecimal montant, String statut, String numeroFafi) {
         this.datePaiement = datePaiement;
         this.montant = montant;
         this.statut = statut;
+        this.numeroFafi = numeroFafi;
     }
 
     // Getters and Setters
@@ -73,5 +77,13 @@ public class Fafi {
 
     public void setPersonne(Personne personne) {
         this.personne = personne;
+    }
+
+    public String getNumeroFafi() {
+        return numeroFafi;
+    }
+
+    public void setNumeroFafi(String numeroFafi) {
+        this.numeroFafi = numeroFafi;
     }
 }

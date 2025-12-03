@@ -110,9 +110,9 @@
                                 <th class="sortable" onclick="sortTable(6)">Finday <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(7)">Faritra <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(8)">Andraikitra <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(9)">Vondrona <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(10)" th:if="${isAdmin}">Fivondronana <i class="fas fa-sort"></i></th>
-                                <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(11)' : 'sortTable(10)'">Fanekena <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(9)" th:if="${isAdmin}">Fivondronana <i class="fas fa-sort"></i></th>
+                                <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(10)' : 'sortTable(9)'">Fanekena <i class="fas fa-sort"></i></th>
+                                <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(11)' : 'sortTable(10)'">Laharana FAFI <i class="fas fa-sort"></i></th>
                                 <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(12)' : 'sortTable(11)'">FAFI <i class="fas fa-sort"></i></th>
                                 <th>Asa</th>
                             </tr>
@@ -141,9 +141,8 @@
                                 th:data-secteurid="${resp.secteur != null ? resp.secteur.id : ''}"
                                 th:data-andraikitra="${resp.andraikitra != null ? resp.andraikitra.nom : ''}"
                                 th:data-andraikitraid="${resp.andraikitra != null ? resp.andraikitra.id : ''}"
-                                th:data-vondrona="${resp.vondrona != null ? resp.vondrona.nom : ''}"
-                                th:data-vondronaid="${resp.vondrona != null ? resp.vondrona.id : ''}"
                                 th:data-fivondronana="${resp.fivondronana != null ? resp.fivondronana.nom : ''}"
+                                th:data-fivondronanaid="${resp.fivondronana != null ? resp.fivondronana.id : ''}"
                                 th:data-fafi="${resp.fafi != null && resp.fafi.statut == 'Active' ? 'Eny' : 'Tsia'}">
                                 <td>
                                     <img th:if="${resp.image != null and !resp.image.isEmpty()}" th:src="${resp.image}" class="avatar" alt="Photo">
@@ -159,15 +158,22 @@
                                 <td th:text="${resp.numeroTelephone}">-</td>
                                 <td th:text="${resp.secteur != null ? resp.secteur.nom : '-'}">-</td>
                                 <td th:text="${resp.andraikitra != null ? resp.andraikitra.nom : '-'}">-</td>
-                                <td th:text="${resp.vondrona != null ? resp.vondrona.nom : '-'}">-</td>
                                 <td th:if="${isAdmin}" th:text="${resp.fivondronana != null ? resp.fivondronana.nom : '-'}">-</td>
                                 <td th:text="${resp.dateFanekena != null ? #temporals.format(resp.dateFanekena, 'dd/MM/yyyy') : '-'}">-</td>
+                                <td th:text="${resp.fafi != null && resp.fafi.numeroFafi != null ? resp.fafi.numeroFafi : '-'}">-</td>
                                 <td>
                                     <span th:if="${resp.fafi != null && resp.fafi.statut == 'Active'}" class="status-badge delivered">Eny</span>
                                     <span th:unless="${resp.fafi != null && resp.fafi.statut == 'Active'}" class="status-badge pending">Tsia</span>
                                 </td>
                                 <td class="actions-cell">
                                     <button class="btn-icon edit-btn" title="Hanova" th:data-id="${resp.id}"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon fafi-btn" title="Hanova FAFI" th:data-id="${resp.id}" 
+                                            th:data-datepaiement="${resp.fafi != null && resp.fafi.datePaiement != null ? #temporals.format(resp.fafi.datePaiement, 'yyyy-MM-dd') : ''}"
+                                            th:data-montant="${resp.fafi != null && resp.fafi.montant != null ? resp.fafi.montant : ''}"
+                                            th:data-statut="${resp.fafi != null && resp.fafi.statut != null ? resp.fafi.statut : 'Inactive'}"
+                                            th:data-numerofafi="${resp.fafi != null && resp.fafi.numeroFafi != null ? resp.fafi.numeroFafi : ''}">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                    </button>
                                     <form th:action="@{/responsables/supprimer}" method="post" style="display: inline;">
                                         <input type="hidden" name="id" th:value="${resp.id}">
                                         <button type="submit" class="btn-icon danger" title="Hamafa" onclick="return confirm('Azo antoka ve ianao fa te-hamafa ity Mpiandraikitra ity ?')"><i class="fas fa-trash"></i></button>
@@ -232,6 +238,10 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
+                            <label for="numeroCin">Laharana CIN</label>
+                            <input type="text" id="numeroCin" name="numeroCin" placeholder="Ohatra: 101 251 456 789">
+                        </div>
+                        <div class="form-group">
                             <label for="numeroTelephone">Finday</label>
                             <input type="text" id="numeroTelephone" name="numeroTelephone" placeholder="Ohatra: 034 12 345 67">
                         </div>
@@ -263,13 +273,6 @@
                         </div>
                     </div>
                     <div class="form-row">
-                        <div class="form-group">
-                            <label for="vondronaId">Vondrona</label>
-                            <select id="vondronaId" name="vondronaId">
-                                <option value="">-- Mifidy --</option>
-                                <option th:each="v : ${vondrona}" th:value="${v.id}" th:text="${v.nom}"></option>
-                            </select>
-                        </div>
                         <div class="form-group">
                             <label for="dateFanekena">Daty Fanekena</label>
                             <input type="date" id="dateFanekena" name="dateFanekena">
@@ -356,13 +359,6 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="editVondronaId">Vondrona</label>
-                            <select id="editVondronaId" name="vondronaId">
-                                <option value="">-- Mifidy --</option>
-                                <option th:each="v : ${vondrona}" th:value="${v.id}" th:text="${v.nom}"></option>
-                            </select>
-                        </div>
-                        <div class="form-group">
                             <label for="editDateFanekena">Daty Fanekena</label>
                             <input type="date" id="editDateFanekena" name="dateFanekena">
                         </div>
@@ -370,6 +366,53 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" onclick="closeEditModal()">
+                        <i class="fas fa-times"></i> Hanafoana
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i> Tehirizina
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Modifier FAFI -->
+    <div id="fafiModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-money-bill-wave"></i> Hanova FAFI</h2>
+                <button class="modal-close" onclick="closeFafiModal()">&times;</button>
+            </div>
+            <form th:action="@{/responsables/modifier-fafi}" method="post">
+                <input type="hidden" id="fafiPersonneId" name="personneId">
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fafiDatePaiement">Daty fandoavana</label>
+                            <input type="date" id="fafiDatePaiement" name="datePaiement">
+                        </div>
+                        <div class="form-group">
+                            <label for="fafiMontant">Vola</label>
+                            <input type="number" id="fafiMontant" name="montant" step="0.01" min="0" placeholder="Ohatra: 8000.00">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fafiStatut">Sata</label>
+                            <select id="fafiStatut" name="statut">
+                                <option th:each="statut : ${fafiStatuts}" 
+                                        th:value="${statut}" 
+                                        th:text="${statut == 'Active' ? 'Active (Eny)' : (statut == 'Inactive' ? 'Inactive (Tsia)' : statut)}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="fafiNumero">Laharana FAFI</label>
+                            <input type="text" id="fafiNumero" name="numeroFafi" placeholder="Ohatra: FAFI-2024-001">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeFafiModal()">
                         <i class="fas fa-times"></i> Hanafoana
                     </button>
                     <button type="submit" class="btn-primary">
@@ -434,6 +477,13 @@
                 btn.addEventListener('click', function() {
                     const row = this.closest('tr');
                     openEditModal(row);
+                });
+            });
+
+            // Attach FAFI button listeners
+            document.querySelectorAll('.fafi-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    openFafiModal(this);
                 });
             });
         });
@@ -546,7 +596,6 @@
             document.getElementById('editDateFanekena').value = row.dataset.datefanekena || '';
             document.getElementById('editSecteurId').value = row.dataset.secteurid || '';
             document.getElementById('editAndraikitraId').value = row.dataset.andraikitraid || '';
-            document.getElementById('editVondronaId').value = row.dataset.vondronaid || '';
             
             document.getElementById('editModal').classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -557,6 +606,29 @@
             document.body.style.overflow = '';
         }
 
+        // Modal FAFI functions
+        function openFafiModal(button) {
+            const personneId = button.dataset.id;
+            const datePaiement = button.dataset.datepaiement || '';
+            const montant = button.dataset.montant || '';
+            const statut = button.dataset.statut || 'Inactive';
+            const numeroFafi = button.dataset.numerofafi || '';
+            
+            document.getElementById('fafiPersonneId').value = personneId;
+            document.getElementById('fafiDatePaiement').value = datePaiement;
+            document.getElementById('fafiMontant').value = montant;
+            document.getElementById('fafiStatut').value = statut;
+            document.getElementById('fafiNumero').value = numeroFafi;
+            
+            document.getElementById('fafiModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeFafiModal() {
+            document.getElementById('fafiModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
         // Close modals on outside click
         document.getElementById('addModal').addEventListener('click', function(e) {
             if (e.target === this) closeAddModal();
@@ -564,12 +636,16 @@
         document.getElementById('editModal').addEventListener('click', function(e) {
             if (e.target === this) closeEditModal();
         });
+        document.getElementById('fafiModal').addEventListener('click', function(e) {
+            if (e.target === this) closeFafiModal();
+        });
 
         // Close modals on Escape key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeAddModal();
                 closeEditModal();
+                closeFafiModal();
             }
         });
 
@@ -649,14 +725,22 @@
                                 <th>Faritra</th>
                                 <th>Andraikitra</th>
                                 <th>Fanekena</th>
+                                <th>Laharana FAFI</th>
                                 <th>FAFI</th>
                             </tr>
                         </thead>
                         <tbody>
             `;
             
+            // Déterminer si admin (colonne Fivondronana présente)
+            const isAdmin = document.getElementById('filterFivondronana') !== null;
+            
             visibleRows.forEach(row => {
                 const cells = row.querySelectorAll('td');
+                // Indices des colonnes selon admin ou non
+                const fanekenaIdx = isAdmin ? 10 : 9;
+                const numeroFafiIdx = isAdmin ? 11 : 10;
+                const fafiIdx = isAdmin ? 12 : 11;
                 printContent += `
                     <tr>
                         <td>${cells[1].textContent}</td>
@@ -667,8 +751,9 @@
                         <td>${cells[6].textContent}</td>
                         <td>${cells[7].textContent}</td>
                         <td>${cells[8].textContent}</td>
-                        <td>${cells[9].textContent}</td>
-                        <td>${cells[10].textContent}</td>
+                        <td>${cells[fanekenaIdx].textContent}</td>
+                        <td>${cells[numeroFafiIdx].textContent}</td>
+                        <td>${cells[fafiIdx].textContent}</td>
                     </tr>
                 `;
             });

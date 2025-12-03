@@ -31,7 +31,7 @@ INSERT INTO secteur (nom) VALUES ('Sompitra');
 -- =====================================
 -- Sections pour les Beazina (Élèves)
 INSERT INTO section (nom) VALUES ('Mavo');
-INSERT INTO section (nom) VALUES ('Maintso');
+INSERT INTO section (nom) VALUES ('Maitso');
 INSERT INTO section (nom) VALUES ('Mena');
 INSERT INTO section (nom) VALUES ('Menafify');
 INSERT INTO section (nom) VALUES ('Sompitra');

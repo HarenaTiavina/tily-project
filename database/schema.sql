@@ -64,7 +64,8 @@ CREATE TABLE IF NOT EXISTS fafi (
     idFafi SERIAL PRIMARY KEY,
     datePaiement DATE,
     montant NUMERIC(10,2),
-    statut VARCHAR(20)
+    statut VARCHAR(20),
+    numeroFafi VARCHAR(50)
 );
 
 -- =====================================

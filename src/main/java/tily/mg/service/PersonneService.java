@@ -34,9 +34,6 @@ public class PersonneService {
     private FafiRepository fafiRepository;
 
     @Autowired
-    private VondronaRepository vondronaRepository;
-
-    @Autowired
     private FivondronanaRepository fivondronanaRepository;
 
     // CRUD Operations
@@ -83,12 +80,12 @@ public class PersonneService {
     }
 
     // Filter pour admin (fivondronanaId optionnel)
-    public List<Personne> filterResponsables(Integer fivondronanaId, Integer secteurId, Integer andraikitraId, Integer vondronaId, Boolean hasFafi) {
-        return personneRepository.filterResponsables(fivondronanaId, secteurId, andraikitraId, vondronaId, hasFafi);
+    public List<Personne> filterResponsables(Integer fivondronanaId, Integer secteurId, Integer andraikitraId, Boolean hasFafi) {
+        return personneRepository.filterResponsables(fivondronanaId, secteurId, andraikitraId, hasFafi);
     }
 
-    public List<Personne> filterEleves(Integer fivondronanaId, Integer secteurId, Integer fizaranaId, Integer vondronaId, String ambaratonga, Boolean hasFafi) {
-        return personneRepository.filterEleves(fivondronanaId, secteurId, fizaranaId, vondronaId, ambaratonga, hasFafi);
+    public List<Personne> filterEleves(Integer fivondronanaId, Integer secteurId, Integer fizaranaId, String ambaratonga, Boolean hasFafi) {
+        return personneRepository.filterEleves(fivondronanaId, secteurId, fizaranaId, ambaratonga, hasFafi);
     }
 
     // ========== FIVONDRONANA: Personnes par Fivondronana ==========
@@ -118,12 +115,12 @@ public class PersonneService {
     }
 
     // Filter par Fivondronana (pour non-admin)
-    public List<Personne> filterResponsablesByFivondronana(Integer fivondronanaId, Integer secteurId, Integer andraikitraId, Integer vondronaId, Boolean hasFafi) {
-        return personneRepository.filterResponsablesByFivondronana(fivondronanaId, secteurId, andraikitraId, vondronaId, hasFafi);
+    public List<Personne> filterResponsablesByFivondronana(Integer fivondronanaId, Integer secteurId, Integer andraikitraId, Boolean hasFafi) {
+        return personneRepository.filterResponsablesByFivondronana(fivondronanaId, secteurId, andraikitraId, hasFafi);
     }
 
-    public List<Personne> filterElevesByFivondronana(Integer fivondronanaId, Integer secteurId, Integer fizaranaId, Integer vondronaId, String ambaratonga, Boolean hasFafi) {
-        return personneRepository.filterElevesByFivondronana(fivondronanaId, secteurId, fizaranaId, vondronaId, ambaratonga, hasFafi);
+    public List<Personne> filterElevesByFivondronana(Integer fivondronanaId, Integer secteurId, Integer fizaranaId, String ambaratonga, Boolean hasFafi) {
+        return personneRepository.filterElevesByFivondronana(fivondronanaId, secteurId, fizaranaId, ambaratonga, hasFafi);
     }
 
     // Reference data
@@ -141,10 +138,6 @@ public class PersonneService {
 
     public List<Andraikitra> findAllAndraikitra() {
         return andraikitraRepository.findAll();
-    }
-
-    public List<Vondrona> findAllVondrona() {
-        return vondronaRepository.findAll();
     }
 
     public List<Fivondronana> findAllFivondronana() {
@@ -188,16 +181,12 @@ public class PersonneService {
         return andraikitraRepository.findById(id);
     }
 
-    public Optional<Vondrona> findVondronaById(Integer id) {
-        return vondronaRepository.findById(id);
-    }
-
     public Optional<Fivondronana> findFivondronanaById(Integer id) {
         return fivondronanaRepository.findById(id);
     }
 
     // Create new Responsable avec Fivondronana
-    public Personne createResponsable(Personne personne, Integer secteurId, Integer andraikitraId, Integer vondronaId, Integer fivondronanaId) {
+    public Personne createResponsable(Personne personne, Integer secteurId, Integer andraikitraId, Integer fivondronanaId) {
         // Set type to Responsable
         typePersonneRepository.findByNom("Responsable").ifPresent(personne::setTypePersonne);
         
@@ -209,11 +198,6 @@ public class PersonneService {
         // Set andraikitra if provided
         if (andraikitraId != null) {
             andraikitraRepository.findById(andraikitraId).ifPresent(personne::setAndraikitra);
-        }
-        
-        // Set vondrona if provided
-        if (vondronaId != null) {
-            vondronaRepository.findById(vondronaId).ifPresent(personne::setVondrona);
         }
         
         // Set fivondronana (obligatoire pour les non-admin)
@@ -228,7 +212,7 @@ public class PersonneService {
     }
 
     // Create new Eleve (Beazina) avec Fivondronana
-    public Personne createEleve(Personne personne, Integer secteurId, Integer fizaranaId, Integer vondronaId, Integer fivondronanaId) {
+    public Personne createEleve(Personne personne, Integer secteurId, Integer fizaranaId, Integer fivondronanaId) {
         // Set type to Eleve
         typePersonneRepository.findByNom("Eleve").ifPresent(personne::setTypePersonne);
         
@@ -240,11 +224,6 @@ public class PersonneService {
         // Set fizarana if provided
         if (fizaranaId != null) {
             fizaranaRepository.findById(fizaranaId).ifPresent(personne::setFizarana);
-        }
-        
-        // Set vondrona if provided
-        if (vondronaId != null) {
-            vondronaRepository.findById(vondronaId).ifPresent(personne::setVondrona);
         }
         
         // Set fivondronana (obligatoire pour les non-admin)
@@ -261,7 +240,7 @@ public class PersonneService {
     }
 
     // Mettre à jour ou créer le FAFI d'une personne
-    public void updateFafi(Integer personneId, LocalDate datePaiement, BigDecimal montant, String statut) {
+    public void updateFafi(Integer personneId, LocalDate datePaiement, BigDecimal montant, String statut, String numeroFafi) {
         // Récupérer la personne avec son Fafi chargé explicitement
         Optional<Personne> personneOpt = personneRepository.findByIdWithFafi(personneId);
         if (personneOpt.isPresent()) {
@@ -278,6 +257,9 @@ public class PersonneService {
                     fafi.setMontant(montant);
                 }
                 fafi.setStatut(statut != null && !statut.isEmpty() ? statut : "Inactive");
+                if (numeroFafi != null && !numeroFafi.isEmpty()) {
+                    fafi.setNumeroFafi(numeroFafi);
+                }
                 // Sauvegarder le Fafi
                 fafi = fafiRepository.saveAndFlush(fafi);
                 // Associer le Fafi à la personne
@@ -294,6 +276,9 @@ public class PersonneService {
                 }
                 if (statut != null && !statut.isEmpty()) {
                     fafi.setStatut(statut);
+                }
+                if (numeroFafi != null && !numeroFafi.isEmpty()) {
+                    fafi.setNumeroFafi(numeroFafi);
                 }
                 // Sauvegarder le Fafi mis à jour avec flush pour forcer la persistance
                 fafiRepository.saveAndFlush(fafi);

@@ -28,7 +28,6 @@ public interface PersonneRepository extends JpaRepository<Personne, Integer> {
            "LEFT JOIN FETCH p.secteur " +
            "LEFT JOIN FETCH p.andraikitra " +
            "LEFT JOIN FETCH p.typePersonne " +
-           "LEFT JOIN FETCH p.vondrona " +
            "LEFT JOIN FETCH p.fivondronana " +
            "WHERE p.typePersonne.nom = 'Responsable'")
     List<Personne> findAllResponsables();
@@ -39,7 +38,6 @@ public interface PersonneRepository extends JpaRepository<Personne, Integer> {
            "LEFT JOIN FETCH p.secteur " +
            "LEFT JOIN FETCH p.fizarana " +
            "LEFT JOIN FETCH p.typePersonne " +
-           "LEFT JOIN FETCH p.vondrona " +
            "LEFT JOIN FETCH p.fivondronana " +
            "WHERE p.typePersonne.nom = 'Eleve'")
     List<Personne> findAllEleves();
@@ -52,7 +50,6 @@ public interface PersonneRepository extends JpaRepository<Personne, Integer> {
            "LEFT JOIN FETCH p.secteur " +
            "LEFT JOIN FETCH p.andraikitra " +
            "LEFT JOIN FETCH p.typePersonne " +
-           "LEFT JOIN FETCH p.vondrona " +
            "LEFT JOIN FETCH p.fivondronana " +
            "WHERE p.typePersonne.nom = 'Responsable' " +
            "AND p.fivondronana.id = :fivondronanaId")
@@ -64,7 +61,6 @@ public interface PersonneRepository extends JpaRepository<Personne, Integer> {
            "LEFT JOIN FETCH p.secteur " +
            "LEFT JOIN FETCH p.fizarana " +
            "LEFT JOIN FETCH p.typePersonne " +
-           "LEFT JOIN FETCH p.vondrona " +
            "LEFT JOIN FETCH p.fivondronana " +
            "WHERE p.typePersonne.nom = 'Eleve' " +
            "AND p.fivondronana.id = :fivondronanaId")
@@ -118,13 +114,11 @@ public interface PersonneRepository extends JpaRepository<Personne, Integer> {
            "LEFT JOIN FETCH p.secteur " +
            "LEFT JOIN FETCH p.andraikitra " +
            "LEFT JOIN FETCH p.typePersonne " +
-           "LEFT JOIN FETCH p.vondrona " +
            "LEFT JOIN FETCH p.fivondronana " +
            "WHERE p.typePersonne.nom = 'Responsable' " +
            "AND (:fivondronanaId IS NULL OR p.fivondronana.id = :fivondronanaId) " +
            "AND (:secteurId IS NULL OR p.secteur.id = :secteurId) " +
            "AND (:andraikitraId IS NULL OR p.andraikitra.id = :andraikitraId) " +
-           "AND (:vondronaId IS NULL OR p.vondrona.id = :vondronaId) " +
            "AND (:hasFafi IS NULL OR " +
            "(:hasFafi = true AND p.fafi IS NOT NULL AND p.fafi.statut = 'Active') OR " +
            "(:hasFafi = false AND (p.fafi IS NULL OR p.fafi.statut != 'Active')))")
@@ -132,7 +126,6 @@ public interface PersonneRepository extends JpaRepository<Personne, Integer> {
         @Param("fivondronanaId") Integer fivondronanaId,
         @Param("secteurId") Integer secteurId,
         @Param("andraikitraId") Integer andraikitraId,
-        @Param("vondronaId") Integer vondronaId,
         @Param("hasFafi") Boolean hasFafi
     );
     
@@ -142,13 +135,11 @@ public interface PersonneRepository extends JpaRepository<Personne, Integer> {
            "LEFT JOIN FETCH p.secteur " +
            "LEFT JOIN FETCH p.fizarana " +
            "LEFT JOIN FETCH p.typePersonne " +
-           "LEFT JOIN FETCH p.vondrona " +
            "LEFT JOIN FETCH p.fivondronana " +
            "WHERE p.typePersonne.nom = 'Eleve' " +
            "AND (:fivondronanaId IS NULL OR p.fivondronana.id = :fivondronanaId) " +
            "AND (:secteurId IS NULL OR p.secteur.id = :secteurId) " +
            "AND (:fizaranaId IS NULL OR p.fizarana.id = :fizaranaId) " +
-           "AND (:vondronaId IS NULL OR p.vondrona.id = :vondronaId) " +
            "AND (:ambaratonga IS NULL OR p.ambaratonga = :ambaratonga) " +
            "AND (:hasFafi IS NULL OR " +
            "(:hasFafi = true AND p.fafi IS NOT NULL AND p.fafi.statut = 'Active') OR " +
@@ -157,7 +148,6 @@ public interface PersonneRepository extends JpaRepository<Personne, Integer> {
         @Param("fivondronanaId") Integer fivondronanaId,
         @Param("secteurId") Integer secteurId,
         @Param("fizaranaId") Integer fizaranaId,
-        @Param("vondronaId") Integer vondronaId,
         @Param("ambaratonga") String ambaratonga,
         @Param("hasFafi") Boolean hasFafi
     );
@@ -170,13 +160,11 @@ public interface PersonneRepository extends JpaRepository<Personne, Integer> {
            "LEFT JOIN FETCH p.secteur " +
            "LEFT JOIN FETCH p.andraikitra " +
            "LEFT JOIN FETCH p.typePersonne " +
-           "LEFT JOIN FETCH p.vondrona " +
            "LEFT JOIN FETCH p.fivondronana " +
            "WHERE p.typePersonne.nom = 'Responsable' " +
            "AND p.fivondronana.id = :fivondronanaId " +
            "AND (:secteurId IS NULL OR p.secteur.id = :secteurId) " +
            "AND (:andraikitraId IS NULL OR p.andraikitra.id = :andraikitraId) " +
-           "AND (:vondronaId IS NULL OR p.vondrona.id = :vondronaId) " +
            "AND (:hasFafi IS NULL OR " +
            "(:hasFafi = true AND p.fafi IS NOT NULL AND p.fafi.statut = 'Active') OR " +
            "(:hasFafi = false AND (p.fafi IS NULL OR p.fafi.statut != 'Active')))")
@@ -184,7 +172,6 @@ public interface PersonneRepository extends JpaRepository<Personne, Integer> {
         @Param("fivondronanaId") Integer fivondronanaId,
         @Param("secteurId") Integer secteurId,
         @Param("andraikitraId") Integer andraikitraId,
-        @Param("vondronaId") Integer vondronaId,
         @Param("hasFafi") Boolean hasFafi
     );
     
@@ -194,13 +181,11 @@ public interface PersonneRepository extends JpaRepository<Personne, Integer> {
            "LEFT JOIN FETCH p.secteur " +
            "LEFT JOIN FETCH p.fizarana " +
            "LEFT JOIN FETCH p.typePersonne " +
-           "LEFT JOIN FETCH p.vondrona " +
            "LEFT JOIN FETCH p.fivondronana " +
            "WHERE p.typePersonne.nom = 'Eleve' " +
            "AND p.fivondronana.id = :fivondronanaId " +
            "AND (:secteurId IS NULL OR p.secteur.id = :secteurId) " +
            "AND (:fizaranaId IS NULL OR p.fizarana.id = :fizaranaId) " +
-           "AND (:vondronaId IS NULL OR p.vondrona.id = :vondronaId) " +
            "AND (:ambaratonga IS NULL OR p.ambaratonga = :ambaratonga) " +
            "AND (:hasFafi IS NULL OR " +
            "(:hasFafi = true AND p.fafi IS NOT NULL AND p.fafi.statut = 'Active') OR " +
@@ -209,7 +194,6 @@ public interface PersonneRepository extends JpaRepository<Personne, Integer> {
         @Param("fivondronanaId") Integer fivondronanaId,
         @Param("secteurId") Integer secteurId,
         @Param("fizaranaId") Integer fizaranaId,
-        @Param("vondronaId") Integer vondronaId,
         @Param("ambaratonga") String ambaratonga,
         @Param("hasFafi") Boolean hasFafi
     );

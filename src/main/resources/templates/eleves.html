@@ -118,10 +118,10 @@
                                 <th class="sortable" onclick="sortTable(6)">Anaran'ny Reny <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(7)">Faritra <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(8)">Sampana <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(9)">Vondrona <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(10)" th:if="${isAdmin}">Fivondronana <i class="fas fa-sort"></i></th>
-                                <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(11)' : 'sortTable(10)'">Ambaratonga <i class="fas fa-sort"></i></th>
-                                <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(12)' : 'sortTable(11)'">Fanekena <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(9)" th:if="${isAdmin}">Fivondronana <i class="fas fa-sort"></i></th>
+                                <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(10)' : 'sortTable(9)'">Ambaratonga <i class="fas fa-sort"></i></th>
+                                <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(11)' : 'sortTable(10)'">Fanekena <i class="fas fa-sort"></i></th>
+                                <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(12)' : 'sortTable(11)'">Laharana FAFI <i class="fas fa-sort"></i></th>
                                 <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(13)' : 'sortTable(12)'">FAFI <i class="fas fa-sort"></i></th>
                                 <th>Asa</th>
                             </tr>
@@ -129,7 +129,7 @@
                         <tbody>
                             <!-- Message si aucune donnée -->
                             <tr th:if="${#lists.isEmpty(eleves)}">
-                                <td colspan="15" class="empty-message">
+                                <td colspan="16" class="empty-message">
                                     <i class="fas fa-inbox"></i>
                                     <p>Tsy misy Beazina hita</p>
                                 </td>
@@ -148,8 +148,6 @@
                                 th:data-secteurid="${eleve.secteur != null ? eleve.secteur.id : ''}"
                                 th:data-fizarana="${eleve.fizarana != null ? eleve.fizarana.nom : ''}"
                                 th:data-fizaranaid="${eleve.fizarana != null ? eleve.fizarana.id : ''}"
-                                th:data-vondrona="${eleve.vondrona != null ? eleve.vondrona.nom : ''}"
-                                th:data-vondronaid="${eleve.vondrona != null ? eleve.vondrona.id : ''}"
                                 th:data-fivondronana="${eleve.fivondronana != null ? eleve.fivondronana.nom : ''}"
                                 th:data-fivondronanaid="${eleve.fivondronana != null ? eleve.fivondronana.id : ''}"
                                 th:data-ambaratonga="${eleve.ambaratonga}"
@@ -168,10 +166,10 @@
                                 <td th:text="${eleve.nomMere}">-</td>
                                 <td th:text="${eleve.secteur != null ? eleve.secteur.nom : '-'}">-</td>
                                 <td th:text="${eleve.fizarana != null ? eleve.fizarana.nom : '-'}">-</td>
-                                <td th:text="${eleve.vondrona != null ? eleve.vondrona.nom : '-'}">-</td>
                                 <td th:if="${isAdmin}" th:text="${eleve.fivondronana != null ? eleve.fivondronana.nom : '-'}">-</td>
                                 <td th:text="${eleve.ambaratonga != null ? eleve.ambaratonga : '-'}">-</td>
                                 <td th:text="${eleve.dateFanekena != null ? #temporals.format(eleve.dateFanekena, 'dd/MM/yyyy') : '-'}">-</td>
+                                <td th:text="${eleve.fafi != null && eleve.fafi.numeroFafi != null ? eleve.fafi.numeroFafi : '-'}">-</td>
                                 <td>
                                     <span th:if="${eleve.fafi != null && eleve.fafi.statut == 'Active'}" class="status-badge delivered">Eny</span>
                                     <span th:unless="${eleve.fafi != null && eleve.fafi.statut == 'Active'}" class="status-badge pending">Tsia</span>
@@ -181,7 +179,8 @@
                                     <button class="btn-icon fafi-btn" title="Hanova FAFI" th:data-id="${eleve.id}" 
                                             th:data-datepaiement="${eleve.fafi != null && eleve.fafi.datePaiement != null ? #temporals.format(eleve.fafi.datePaiement, 'yyyy-MM-dd') : ''}"
                                             th:data-montant="${eleve.fafi != null && eleve.fafi.montant != null ? eleve.fafi.montant : ''}"
-                                            th:data-statut="${eleve.fafi != null && eleve.fafi.statut != null ? eleve.fafi.statut : 'Inactive'}">
+                                            th:data-statut="${eleve.fafi != null && eleve.fafi.statut != null ? eleve.fafi.statut : 'Inactive'}"
+                                            th:data-numerofafi="${eleve.fafi != null && eleve.fafi.numeroFafi != null ? eleve.fafi.numeroFafi : ''}">
                                         <i class="fas fa-money-bill-wave"></i>
                                     </button>
                                     <form th:action="@{/eleves/supprimer}" method="post" style="display: inline;">
@@ -274,18 +273,9 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="vondronaId">Vondrona</label>
-                            <select id="vondronaId" name="vondronaId">
-                                <option value="">-- Mifidy --</option>
-                                <option th:each="v : ${vondrona}" th:value="${v.id}" th:text="${v.nom}"></option>
-                            </select>
-                        </div>
-                        <div class="form-group">
                             <label for="ambaratonga">Ambaratonga</label>
                             <input type="text" id="ambaratonga" name="ambaratonga">
                         </div>
-                    </div>
-                    <div class="form-row">
                         <div class="form-group">
                             <label for="dateFanekena">Daty Fanekena</label>
                             <input type="date" id="dateFanekena" name="dateFanekena">
@@ -362,18 +352,9 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="editVondronaId">Vondrona</label>
-                            <select id="editVondronaId" name="vondronaId">
-                                <option value="">-- Mifidy --</option>
-                                <option th:each="v : ${vondrona}" th:value="${v.id}" th:text="${v.nom}"></option>
-                            </select>
-                        </div>
-                        <div class="form-group">
                             <label for="editAmbaratonga">Ambaratonga</label>
                             <input type="text" id="editAmbaratonga" name="ambaratonga">
                         </div>
-                    </div>
-                    <div class="form-row">
                         <div class="form-group">
                             <label for="editDateFanekena">Daty Fanekena</label>
                             <input type="date" id="editDateFanekena" name="dateFanekena">
@@ -420,6 +401,10 @@
                                         th:value="${statut}" 
                                         th:text="${statut == 'Active' ? 'Active (Eny)' : (statut == 'Inactive' ? 'Inactive (Tsia)' : statut)}"></option>
                             </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="fafiNumero">Laharana FAFI</label>
+                            <input type="text" id="fafiNumero" name="numeroFafi" placeholder="Ohatra: FAFI-2024-001">
                         </div>
                     </div>
                 </div>
@@ -603,7 +588,6 @@
             document.getElementById('editDateFanekena').value = row.dataset.datefanekena || '';
             document.getElementById('editSecteurId').value = row.dataset.secteurid || '';
             document.getElementById('editFizaranaId').value = row.dataset.fizaranaid || '';
-            document.getElementById('editVondronaId').value = row.dataset.vondronaid || '';
             document.getElementById('editAmbaratonga').value = row.dataset.ambaratonga || '';
             
             document.getElementById('editModal').classList.add('active');
@@ -638,11 +622,13 @@
             const datePaiement = button.dataset.datepaiement || '';
             const montant = button.dataset.montant || '';
             const statut = button.dataset.statut || 'Inactive';
+            const numeroFafi = button.dataset.numerofafi || '';
             
             document.getElementById('fafiPersonneId').value = personneId;
             document.getElementById('fafiDatePaiement').value = datePaiement;
             document.getElementById('fafiMontant').value = montant;
             document.getElementById('fafiStatut').value = statut;
+            document.getElementById('fafiNumero').value = numeroFafi;
             
             document.getElementById('fafiModal').classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -740,14 +726,24 @@
                                 <th>Faritra</th>
                                 <th>Sampana</th>
                                 <th>Ambaratonga</th>
+                                <th>Fanekena</th>
+                                <th>Laharana FAFI</th>
                                 <th>FAFI</th>
                             </tr>
                         </thead>
                         <tbody>
             `;
             
+            // Déterminer si admin (colonne Fivondronana présente)
+            const isAdmin = document.getElementById('filterFivondronana') !== null;
+            
             visibleRows.forEach(row => {
                 const cells = row.querySelectorAll('td');
+                // Indices des colonnes selon admin ou non
+                const ambaratongaIdx = isAdmin ? 10 : 9;
+                const fanekenaIdx = isAdmin ? 11 : 10;
+                const numeroFafiIdx = isAdmin ? 12 : 11;
+                const fafiIdx = isAdmin ? 13 : 12;
                 printContent += `
                     <tr>
                         <td>${cells[1].textContent}</td>
@@ -758,8 +754,10 @@
                         <td>${cells[6].textContent}</td>
                         <td>${cells[7].textContent}</td>
                         <td>${cells[8].textContent}</td>
-                        <td>${cells[9].textContent}</td>
-                        <td>${cells[11].textContent}</td>
+                        <td>${cells[ambaratongaIdx].textContent}</td>
+                        <td>${cells[fanekenaIdx].textContent}</td>
+                        <td>${cells[numeroFafiIdx].textContent}</td>
+                        <td>${cells[fafiIdx].textContent}</td>
                     </tr>
                 `;
             });

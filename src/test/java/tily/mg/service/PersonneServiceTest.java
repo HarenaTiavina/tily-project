@@ -42,9 +42,6 @@ class PersonneServiceTest {
     private FafiRepository fafiRepository;
 
     @Mock
-    private VondronaRepository VondronaRepository;
-
-    @Mock
     private FivondronanaRepository fivondronanaRepository;
 
     @InjectMocks
@@ -56,7 +53,6 @@ class PersonneServiceTest {
     private Secteur secteur;
     private Fizarana fizarana;
     private Andraikitra andraikitra;
-    private Vondronana vondronana;
     private Fivondronana fivondronana;
 
     @BeforeEach
@@ -84,11 +80,6 @@ class PersonneServiceTest {
         andraikitra = new Andraikitra();
         andraikitra.setId(1);
         andraikitra.setNom("Mpitandrina lehibe");
-
-        // Setup Fivondronana
-        Vondrona = new Vondrona();
-        Vondrona.setId(1);
-        Vondrona.setNom("Vondrona 1");
 
         // Setup Fivondronana
         fivondronana = new Fivondronana();
@@ -235,12 +226,11 @@ class PersonneServiceTest {
         when(typePersonneRepository.findByNom("Responsable")).thenReturn(Optional.of(typeResponsable));
         when(secteurRepository.findById(1)).thenReturn(Optional.of(secteur));
         when(andraikitraRepository.findById(1)).thenReturn(Optional.of(andraikitra));
-        when(VondronaRepository.findById(1)).thenReturn(Optional.of(Vondronana));
         when(fivondronanaRepository.findById(1)).thenReturn(Optional.of(fivondronana));
         when(personneRepository.save(any(Personne.class))).thenReturn(personne);
 
         // When
-        Personne result = personneService.createResponsable(personne, 1, 1, 1, 1);
+        Personne result = personneService.createResponsable(personne, 1, 1, 1);
 
         // Then
         assertNotNull(result);
@@ -248,12 +238,10 @@ class PersonneServiceTest {
         assertEquals(secteur, personne.getSecteur());
         assertEquals(andraikitra, personne.getAndraikitra());
         assertEquals(fivondronana, personne.getFivondronana());
-        assertEquals(fivondronana, personne.getFivondronana());
         assertNull(personne.getAmbaratonga()); // Pas de niveau pour les responsables
         verify(typePersonneRepository, times(1)).findByNom("Responsable");
         verify(secteurRepository, times(1)).findById(1);
         verify(andraikitraRepository, times(1)).findById(1);
-        verify(VondronaRepository, times(1)).findById(1);
         verify(fivondronanaRepository, times(1)).findById(1);
         verify(personneRepository, times(1)).save(personne);
     }
@@ -265,7 +253,7 @@ class PersonneServiceTest {
         when(personneRepository.save(any(Personne.class))).thenReturn(personne);
 
         // When
-        Personne result = personneService.createResponsable(personne, null, null, null, null);
+        Personne result = personneService.createResponsable(personne, null, null, null);
 
         // Then
         assertNotNull(result);
@@ -273,12 +261,10 @@ class PersonneServiceTest {
         assertNull(personne.getSecteur());
         assertNull(personne.getAndraikitra());
         assertNull(personne.getFivondronana());
-        assertNull(personne.getFivondronana());
         assertNull(personne.getAmbaratonga());
         verify(typePersonneRepository, times(1)).findByNom("Responsable");
         verify(secteurRepository, never()).findById(anyInt());
         verify(andraikitraRepository, never()).findById(anyInt());
-        verify(VodronaRepository, never()).findById(anyInt());
         verify(fivondronanaRepository, never()).findById(anyInt());
     }
 
@@ -288,12 +274,11 @@ class PersonneServiceTest {
         when(typePersonneRepository.findByNom("Eleve")).thenReturn(Optional.of(typeEleve));
         when(secteurRepository.findById(1)).thenReturn(Optional.of(secteur));
         when(fizaranaRepository.findById(1)).thenReturn(Optional.of(fizarana));
-        when(VodronaRepository.findById(1)).thenReturn(Optional.of(Vondrona));
         when(fivondronanaRepository.findById(1)).thenReturn(Optional.of(fivondronana));
         when(personneRepository.save(any(Personne.class))).thenReturn(personne);
 
         // When
-        Personne result = personneService.createEleve(personne, 1, 1, 1, 1);
+        Personne result = personneService.createEleve(personne, 1, 1, 1);
 
         // Then
         assertNotNull(result);
@@ -301,11 +286,9 @@ class PersonneServiceTest {
         assertEquals(secteur, personne.getSecteur());
         assertEquals(fizarana, personne.getFizarana());
         assertEquals(fivondronana, personne.getFivondronana());
-        assertEquals(fivondronana, personne.getFivondronana());
         verify(typePersonneRepository, times(1)).findByNom("Eleve");
         verify(secteurRepository, times(1)).findById(1);
         verify(fizaranaRepository, times(1)).findById(1);
-        verify(VondronaRepository, times(1)).findById(1);
         verify(fivondronanaRepository, times(1)).findById(1);
         verify(personneRepository, times(1)).save(personne);
     }
@@ -315,15 +298,15 @@ class PersonneServiceTest {
         // Given
         personne.setTypePersonne(typeResponsable);
         List<Personne> responsables = Arrays.asList(personne);
-        when(personneRepository.filterResponsables(1, 1, 1, 1, true)).thenReturn(responsables);
+        when(personneRepository.filterResponsables(1, 1, 1, true)).thenReturn(responsables);
 
         // When
-        List<Personne> result = personneService.filterResponsables(1, 1, 1, 1, true);
+        List<Personne> result = personneService.filterResponsables(1, 1, 1, true);
 
         // Then
         assertNotNull(result);
         assertEquals(1, result.size());
-        verify(personneRepository, times(1)).filterResponsables(1, 1, 1, 1, true);
+        verify(personneRepository, times(1)).filterResponsables(1, 1, 1, true);
     }
 
     @Test
@@ -331,15 +314,15 @@ class PersonneServiceTest {
         // Given
         personne.setTypePersonne(typeEleve);
         List<Personne> eleves = Arrays.asList(personne);
-        when(personneRepository.filterEleves(1, 1, 1, 1, "Louveteau", true)).thenReturn(eleves);
+        when(personneRepository.filterEleves(1, 1, 1, "Louveteau", true)).thenReturn(eleves);
 
         // When
-        List<Personne> result = personneService.filterEleves(1, 1, 1, 1, "Louveteau", true);
+        List<Personne> result = personneService.filterEleves(1, 1, 1, "Louveteau", true);
 
         // Then
         assertNotNull(result);
         assertEquals(1, result.size());
-        verify(personneRepository, times(1)).filterEleves(1, 1, 1, 1, "Louveteau", true);
+        verify(personneRepository, times(1)).filterEleves(1, 1, 1, "Louveteau", true);
     }
 
     @Test

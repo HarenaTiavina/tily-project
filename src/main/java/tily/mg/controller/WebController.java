@@ -145,7 +145,6 @@ public class WebController {
             @RequestParam(required = false) Integer fivondronanaId,
             @RequestParam(required = false) Integer secteurId,
             @RequestParam(required = false) Integer andraikitraId,
-            @RequestParam(required = false) Integer vondronaId,
             @RequestParam(required = false) Boolean hasFafi
     ) {
         addCommonAttributes(model);
@@ -158,8 +157,8 @@ public class WebController {
 
         if (admin) {
             // Admin peut filtrer par Fivondronana ou voir tout
-            if (fivondronanaId != null || secteurId != null || andraikitraId != null || vondronaId != null || hasFafi != null) {
-                responsables = personneService.filterResponsables(fivondronanaId, secteurId, andraikitraId, vondronaId, hasFafi);
+            if (fivondronanaId != null || secteurId != null || andraikitraId != null || hasFafi != null) {
+                responsables = personneService.filterResponsables(fivondronanaId, secteurId, andraikitraId, hasFafi);
             } else {
                 responsables = personneService.findAllResponsables();
             }
@@ -167,8 +166,8 @@ public class WebController {
             model.addAttribute("fivondronana", personneService.findAllFivondronana());
         } else {
             // Utilisateur Fivondronana voit seulement son Fivondronana
-            if (secteurId != null || andraikitraId != null || vondronaId != null || hasFafi != null) {
-                responsables = personneService.filterResponsablesByFivondronana(userFivondronanaId, secteurId, andraikitraId, vondronaId, hasFafi);
+            if (secteurId != null || andraikitraId != null || hasFafi != null) {
+                responsables = personneService.filterResponsablesByFivondronana(userFivondronanaId, secteurId, andraikitraId, hasFafi);
             } else {
                 responsables = personneService.findResponsablesByFivondronana(userFivondronanaId);
             }
@@ -180,7 +179,7 @@ public class WebController {
         // Reference data for filters and form
         model.addAttribute("secteurs", personneService.findAllSecteurs());
         model.addAttribute("andraikitra", personneService.findAllAndraikitra());
-        model.addAttribute("vondrona", personneService.findAllVondrona());
+        model.addAttribute("fafiStatuts", personneService.findAllFafiStatuts());
 
         return "responsables";
     }
@@ -198,7 +197,6 @@ public class WebController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFanekena,
             @RequestParam(required = false) Integer secteurId,
             @RequestParam(required = false) Integer andraikitraId,
-            @RequestParam(required = false) Integer vondronaId,
             @RequestParam(required = false) Integer fivondronanaId,
             RedirectAttributes redirectAttributes
     ) {
@@ -222,7 +220,7 @@ public class WebController {
                 effectiveFivondronanaId = getCurrentUserFivondronanaId();
             }
 
-            personneService.createResponsable(personne, secteurId, andraikitraId, vondronaId, effectiveFivondronanaId);
+            personneService.createResponsable(personne, secteurId, andraikitraId, effectiveFivondronanaId);
             
             redirectAttributes.addFlashAttribute("successMessage", "Tafiditra mpiandraikitra !");
         } catch (Exception e) {
@@ -246,7 +244,6 @@ public class WebController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFanekena,
             @RequestParam(required = false) Integer secteurId,
             @RequestParam(required = false) Integer andraikitraId,
-            @RequestParam(required = false) Integer vondronaId,
             RedirectAttributes redirectAttributes
     ) {
         try {
@@ -281,12 +278,6 @@ public class WebController {
                     personneService.findAndraikitraById(andraikitraId).ifPresent(personne::setAndraikitra);
                 } else {
                     personne.setAndraikitra(null);
-                }
-
-                if (vondronaId != null) {
-                    personneService.findVondronaById(vondronaId).ifPresent(personne::setVondrona);
-                } else {
-                    personne.setVondrona(null);
                 }
 
                 personneService.save(personne);
@@ -330,7 +321,6 @@ public class WebController {
             @RequestParam(required = false) Integer fivondronanaId,
             @RequestParam(required = false) Integer secteurId,
             @RequestParam(required = false) Integer fizaranaId,
-            @RequestParam(required = false) Integer vondronaId,
             @RequestParam(required = false) String ambaratonga,
             @RequestParam(required = false) Boolean hasFafi
     ) {
@@ -344,8 +334,8 @@ public class WebController {
 
         if (admin) {
             // Admin peut filtrer par Fivondronana ou voir tout
-            if (fivondronanaId != null || secteurId != null || fizaranaId != null || vondronaId != null || ambaratonga != null || hasFafi != null) {
-                eleves = personneService.filterEleves(fivondronanaId, secteurId, fizaranaId, vondronaId, ambaratonga, hasFafi);
+            if (fivondronanaId != null || secteurId != null || fizaranaId != null || ambaratonga != null || hasFafi != null) {
+                eleves = personneService.filterEleves(fivondronanaId, secteurId, fizaranaId, ambaratonga, hasFafi);
             } else {
                 eleves = personneService.findAllEleves();
             }
@@ -353,8 +343,8 @@ public class WebController {
             model.addAttribute("fivondronana", personneService.findAllFivondronana());
         } else {
             // Utilisateur Fivondronana voit seulement son Fivondronana
-            if (secteurId != null || fizaranaId != null || vondronaId != null || ambaratonga != null || hasFafi != null) {
-                eleves = personneService.filterElevesByFivondronana(userFivondronanaId, secteurId, fizaranaId, vondronaId, ambaratonga, hasFafi);
+            if (secteurId != null || fizaranaId != null || ambaratonga != null || hasFafi != null) {
+                eleves = personneService.filterElevesByFivondronana(userFivondronanaId, secteurId, fizaranaId, ambaratonga, hasFafi);
             } else {
                 eleves = personneService.findElevesByFivondronana(userFivondronanaId);
             }
@@ -366,7 +356,6 @@ public class WebController {
         // Reference data for filters and form
         model.addAttribute("secteurs", personneService.findAllSecteurs());
         model.addAttribute("fizarana", personneService.findAllFizarana());
-        model.addAttribute("vondrona", personneService.findAllVondrona());
         model.addAttribute("fafiStatuts", personneService.findAllFafiStatuts());
 
         return "eleves";
@@ -384,7 +373,6 @@ public class WebController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFanekena,
             @RequestParam(required = false) Integer secteurId,
             @RequestParam(required = false) Integer fizaranaId,
-            @RequestParam(required = false) Integer vondronaId,
             @RequestParam(required = false) Integer fivondronanaId,
             RedirectAttributes redirectAttributes
     ) {
@@ -407,7 +395,7 @@ public class WebController {
                 effectiveFivondronanaId = getCurrentUserFivondronanaId();
             }
 
-            personneService.createEleve(personne, secteurId, fizaranaId, vondronaId, effectiveFivondronanaId);
+            personneService.createEleve(personne, secteurId, fizaranaId, effectiveFivondronanaId);
             
             redirectAttributes.addFlashAttribute("successMessage", "Tafiditra soa ny Beazina!");
         } catch (Exception e) {
@@ -430,7 +418,6 @@ public class WebController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFanekena,
             @RequestParam(required = false) Integer secteurId,
             @RequestParam(required = false) Integer fizaranaId,
-            @RequestParam(required = false) Integer vondronaId,
             RedirectAttributes redirectAttributes
     ) {
         try {
@@ -463,12 +450,6 @@ public class WebController {
                     personneService.findFizaranaById(fizaranaId).ifPresent(personne::setFizarana);
                 } else {
                     personne.setFizarana(null);
-                }
-
-                if (vondronaId != null) {
-                    personneService.findVondronaById(vondronaId).ifPresent(personne::setVondrona);
-                } else {
-                    personne.setVondrona(null);
                 }
 
                 personneService.save(personne);
@@ -513,6 +494,7 @@ public class WebController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate datePaiement,
             @RequestParam(required = false) BigDecimal montant,
             @RequestParam(required = false) String statut,
+            @RequestParam(required = false) String numeroFafi,
             RedirectAttributes redirectAttributes
     ) {
         try {
@@ -525,7 +507,7 @@ public class WebController {
                 }
             }
 
-            personneService.updateFafi(personneId, datePaiement, montant, statut);
+            personneService.updateFafi(personneId, datePaiement, montant, statut, numeroFafi);
             redirectAttributes.addFlashAttribute("successMessage", "FAFI novaina soa!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Nisy tsy nety: " + e.getMessage());
@@ -540,6 +522,7 @@ public class WebController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate datePaiement,
             @RequestParam(required = false) BigDecimal montant,
             @RequestParam(required = false) String statut,
+            @RequestParam(required = false) String numeroFafi,
             RedirectAttributes redirectAttributes
     ) {
         try {
@@ -552,7 +535,7 @@ public class WebController {
                 }
             }
 
-            personneService.updateFafi(personneId, datePaiement, montant, statut);
+            personneService.updateFafi(personneId, datePaiement, montant, statut, numeroFafi);
             redirectAttributes.addFlashAttribute("successMessage", "FAFI novaina soa!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Nisy tsy nety: " + e.getMessage());

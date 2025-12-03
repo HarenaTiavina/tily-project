@@ -36,9 +36,6 @@ public class ExcelImportService {
     private AndraikitraRepository andraikitraRepository;
 
     @Autowired
-    private VondronaRepository vondronaRepository;
-
-    @Autowired
     private FivondronanaRepository fivondronanaRepository;
 
     // Fivondronana courant pour l'import (null = admin sans restriction)
@@ -328,13 +325,6 @@ public class ExcelImportService {
             personne.setDateFanekena(dateFanekena);
         }
         
-        // Vondrona (Groupe) - optionnel
-        String vondronaNom = getCellValueAsString(row, columnMap.get("vondrona"));
-        if (vondronaNom != null && !vondronaNom.trim().isEmpty()) {
-            vondronaRepository.findByNom(vondronaNom.trim())
-                .ifPresent(personne::setVondrona);
-        }
-        
         // FAFI n'est PAS importé depuis Excel - ne pas créer de FAFI
         // Le FAFI sera géré séparément via l'interface d'administration
         personne.setFafi(null);
@@ -440,13 +430,6 @@ public class ExcelImportService {
         LocalDate dateFanekena = getCellValueAsDate(row, columnMap.get("datefanekena"));
         if (dateFanekena != null) {
             personne.setDateFanekena(dateFanekena);
-        }
-        
-        // Vondrona (Groupe) - optionnel
-        String vondronaNom = getCellValueAsString(row, columnMap.get("vondrona"));
-        if (vondronaNom != null && !vondronaNom.trim().isEmpty()) {
-            vondronaRepository.findByNom(vondronaNom.trim())
-                .ifPresent(personne::setVondrona);
         }
         
         // FAFI n'est PAS importé depuis Excel - ne pas créer de FAFI
@@ -852,13 +835,6 @@ public class ExcelImportService {
             personne.setDateFanekena(dateFanekena);
         }
         
-        // Vondrona (Groupe) - optionnel
-        String vondronaNom = getArrayValue(values, columnMap.get("vondrona"));
-        if (vondronaNom != null && !vondronaNom.trim().isEmpty()) {
-            vondronaRepository.findByNom(vondronaNom.trim())
-                .ifPresent(personne::setVondrona);
-        }
-        
         // FAFI n'est PAS importé depuis Excel - ne pas créer de FAFI
         // Le FAFI sera géré séparément via l'interface d'administration
         personne.setFafi(null);
@@ -965,13 +941,6 @@ public class ExcelImportService {
         LocalDate dateFanekena = parseDate(getArrayValue(values, columnMap.get("datefanekena")));
         if (dateFanekena != null) {
             personne.setDateFanekena(dateFanekena);
-        }
-        
-        // Vondrona (Groupe) - optionnel
-        String vondronaNom = getArrayValue(values, columnMap.get("vondrona"));
-        if (vondronaNom != null && !vondronaNom.trim().isEmpty()) {
-            vondronaRepository.findByNom(vondronaNom.trim())
-                .ifPresent(personne::setVondrona);
         }
         
         // FAFI n'est PAS importé depuis Excel - ne pas créer de FAFI
