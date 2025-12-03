@@ -110,7 +110,6 @@
                         <thead>
                             <tr>
                                 <th class="sortable" onclick="sortTable(0)">Sary</th>
-                                 <th class="sortable" onclick="sortTable(1)">Laharana FAFI <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(1)">Anarana <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(2)">Fanampin'anarana <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(3)">Totem <i class="fas fa-sort"></i></th>
@@ -119,7 +118,7 @@
                                 <th class="sortable" onclick="sortTable(6)">Anaran'ny Reny <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(7)">Faritra <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(8)">Sampana <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(9)">Fivondronana <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(9)">Vondrona <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(10)" th:if="${isAdmin}">Fivondronana <i class="fas fa-sort"></i></th>
                                 <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(11)' : 'sortTable(10)'">Ambaratonga <i class="fas fa-sort"></i></th>
                                 <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(12)' : 'sortTable(11)'">Fanekena <i class="fas fa-sort"></i></th>
@@ -138,7 +137,6 @@
                             <!-- Données dynamiques -->
                             <tr th:each="eleve : ${eleves}" 
                                 th:data-id="${eleve.id}"
-                                th:data-nom="${eleve.numerofafi}"
                                 th:data-nom="${eleve.nom}"
                                 th:data-prenom="${eleve.prenom}"
                                 th:data-totem="${eleve.totem}"
@@ -150,8 +148,8 @@
                                 th:data-secteurid="${eleve.secteur != null ? eleve.secteur.id : ''}"
                                 th:data-fizarana="${eleve.fizarana != null ? eleve.fizarana.nom : ''}"
                                 th:data-fizaranaid="${eleve.fizarana != null ? eleve.fizarana.id : ''}"
-                                th:data-vondrona="${eleve.fivondronana != null ? eleve.fivondronana.nom : ''}"
-                                th:data-vondronaid="${eleve.fivondronana != null ? eleve.fivondronana.id : ''}"
+                                th:data-vondrona="${eleve.Vondrona != null ? eleve.Vondrona.nom : ''}"
+                                th:data-vondronaid="${eleve.Vondrona != null ? eleve.Vondrona.id : ''}"
                                 th:data-fivondronana="${eleve.fivondronana != null ? eleve.fivondronana.nom : ''}"
                                 th:data-ambaratonga="${eleve.ambaratonga}"
                                 th:data-fafi="${eleve.fafi != null ? eleve.fafi.statut : 'Inactive'}">
@@ -161,7 +159,6 @@
                                          th:src="'https://ui-avatars.com/api/?name=' + ${eleve.prenom} + '+' + ${eleve.nom} + '&background=4facfe&color=fff'" 
                                          class="avatar" alt="Photo">
                                 </td>
-                                <td th:text="${eleve.numerofafi}">-</td>
                                 <td th:text="${eleve.nom}">-</td>
                                 <td th:text="${eleve.prenom}">-</td>
                                 <td th:text="${eleve.totem}">-</td>
@@ -170,7 +167,7 @@
                                 <td th:text="${eleve.nomMere}">-</td>
                                 <td th:text="${eleve.secteur != null ? eleve.secteur.nom : '-'}">-</td>
                                 <td th:text="${eleve.fizarana != null ? eleve.fizarana.nom : '-'}">-</td>
-                                <td th:text="${eleve.fivondronana != null ? eleve.fivondronana.nom : '-'}">-</td>
+                                <td th:text="${eleve.vondrona != null ? eleve.vondrona.nom : '-'}">-</td>
                                 <td th:if="${isAdmin}" th:text="${eleve.fivondronana != null ? eleve.fivondronana.nom : '-'}">-</td>
                                 <td th:text="${eleve.ambaratonga != null ? eleve.ambaratonga : '-'}">-</td>
                                 <td th:text="${eleve.dateFanekena != null ? #temporals.format(eleve.dateFanekena, 'dd/MM/yyyy') : '-'}">-</td>
@@ -229,10 +226,6 @@
             <form th:action="@{/eleves/ajouter}" method="post">
                 <div class="modal-body">
                     <div class="form-row">
-                       <div class="form-group">
-                            <label for="nom">Laharana FAFI <span class="required">*</span></label>
-                            <input type="text" id="nom" name="numerofafi" required placeholder="Ohatra:BZMV001">
-                        </div>
                         <div class="form-group">
                             <label for="nom">Anarana <span class="required">*</span></label>
                             <input type="text" id="nom" name="nom" required placeholder="Ohatra: RAKOTO">
@@ -280,8 +273,8 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="fivondronanaId">Fivondrona</label>
-                            <select id="FivondronanaId" name="FivondronanaId">
+                            <label for="vondronaId">Vondrona</label>
+                            <select id="vondronaId" name="vondronaId">
                                 <option value="">-- Mifidy --</option>
                                 <option th:each="v : ${vondrona}" th:value="${v.id}" th:text="${v.nom}"></option>
                             </select>
@@ -321,10 +314,6 @@
                 <input type="hidden" id="editId" name="id">
                 <div class="modal-body">
                     <div class="form-row">
-                        <div class="form-group">
-                            <label for="nom">Laharana FAFI <span class="required">*</span></label>
-                            <input type="text" id="nom" name="numerofafi" required placeholder="Ohatra: BZMV001">
-                        </div>
                         <div class="form-group">
                             <label for="editNom">Anarana <span class="required">*</span></label>
                             <input type="text" id="editNom" name="nom" required>
@@ -372,8 +361,8 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="editFivondronanaId">Fivondronana</label>
-                            <select id="editFivondronanaId" name="FivondronanaId">
+                            <label for="editVondronaId">Vondrona</label>
+                            <select id="editVondronaId" name="VondronaId">
                                 <option value="">-- Mifidy --</option>
                                 <option th:each="v : ${vondrona}" th:value="${v.id}" th:text="${v.nom}"></option>
                             </select>
