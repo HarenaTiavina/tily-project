@@ -42,7 +42,7 @@ class PersonneServiceTest {
     private FafiRepository fafiRepository;
 
     @Mock
-    private FiondronanaRepository fivondronanaRepository;
+    private VondronaRepository VondronaRepository;
 
     @Mock
     private FivondronanaRepository fivondronanaRepository;
@@ -56,7 +56,7 @@ class PersonneServiceTest {
     private Secteur secteur;
     private Fizarana fizarana;
     private Andraikitra andraikitra;
-    private Fivondronana fivondronana;
+    private Vondronana vondronana;
     private Fivondronana fivondronana;
 
     @BeforeEach
@@ -86,9 +86,9 @@ class PersonneServiceTest {
         andraikitra.setNom("Mpitandrina lehibe");
 
         // Setup Fivondronana
-        fivondronana = new Fivondronana();
-        fivondronana.setId(1);
-        fivondronana.setNom("Vondrona 1");
+        Vondrona = new Vondrona();
+        Vondrona.setId(1);
+        Vondrona.setNom("Vondrona 1");
 
         // Setup Fivondronana
         fivondronana = new Fivondronana();
@@ -235,7 +235,7 @@ class PersonneServiceTest {
         when(typePersonneRepository.findByNom("Responsable")).thenReturn(Optional.of(typeResponsable));
         when(secteurRepository.findById(1)).thenReturn(Optional.of(secteur));
         when(andraikitraRepository.findById(1)).thenReturn(Optional.of(andraikitra));
-        when(fivondronanaRepository.findById(1)).thenReturn(Optional.of(fivondronana));
+        when(VondronaRepository.findById(1)).thenReturn(Optional.of(Vondronana));
         when(fivondronanaRepository.findById(1)).thenReturn(Optional.of(fivondronana));
         when(personneRepository.save(any(Personne.class))).thenReturn(personne);
 
@@ -253,7 +253,7 @@ class PersonneServiceTest {
         verify(typePersonneRepository, times(1)).findByNom("Responsable");
         verify(secteurRepository, times(1)).findById(1);
         verify(andraikitraRepository, times(1)).findById(1);
-        verify(fivondronanaRepository, times(1)).findById(1);
+        verify(VondronaRepository, times(1)).findById(1);
         verify(fivondronanaRepository, times(1)).findById(1);
         verify(personneRepository, times(1)).save(personne);
     }
@@ -278,7 +278,7 @@ class PersonneServiceTest {
         verify(typePersonneRepository, times(1)).findByNom("Responsable");
         verify(secteurRepository, never()).findById(anyInt());
         verify(andraikitraRepository, never()).findById(anyInt());
-        verify(fivondronanaRepository, never()).findById(anyInt());
+        verify(VodronaRepository, never()).findById(anyInt());
         verify(fivondronanaRepository, never()).findById(anyInt());
     }
 
@@ -288,7 +288,7 @@ class PersonneServiceTest {
         when(typePersonneRepository.findByNom("Eleve")).thenReturn(Optional.of(typeEleve));
         when(secteurRepository.findById(1)).thenReturn(Optional.of(secteur));
         when(fizaranaRepository.findById(1)).thenReturn(Optional.of(fizarana));
-        when(fivondronanaRepository.findById(1)).thenReturn(Optional.of(fivondronana));
+        when(VodronaRepository.findById(1)).thenReturn(Optional.of(Vondrona));
         when(fivondronanaRepository.findById(1)).thenReturn(Optional.of(fivondronana));
         when(personneRepository.save(any(Personne.class))).thenReturn(personne);
 
@@ -305,7 +305,7 @@ class PersonneServiceTest {
         verify(typePersonneRepository, times(1)).findByNom("Eleve");
         verify(secteurRepository, times(1)).findById(1);
         verify(fizaranaRepository, times(1)).findById(1);
-        verify(fivondronanaRepository, times(1)).findById(1);
+        verify(VondronaRepository, times(1)).findById(1);
         verify(fivondronanaRepository, times(1)).findById(1);
         verify(personneRepository, times(1)).save(personne);
     }
