@@ -20,13 +20,55 @@ public interface PersonneRepository extends JpaRepository<Personne, Integer> {
     @Query("SELECT p FROM Personne p LEFT JOIN FETCH p.fafi WHERE p.id = :id")
     Optional<Personne> findByIdWithFafi(@Param("id") Integer id);
     
-    // Find responsables
-    @Query("SELECT p FROM Personne p LEFT JOIN FETCH p.fafi WHERE p.typePersonne.nom = 'Responsable'")
+    // ========== ADMIN: Toutes les personnes ==========
+    
+    // Find ALL responsables (admin)
+    @Query("SELECT DISTINCT p FROM Personne p " +
+           "LEFT JOIN FETCH p.fafi " +
+           "LEFT JOIN FETCH p.secteur " +
+           "LEFT JOIN FETCH p.andraikitra " +
+           "LEFT JOIN FETCH p.typePersonne " +
+           "LEFT JOIN FETCH p.vondrona " +
+           "LEFT JOIN FETCH p.fivondronana " +
+           "WHERE p.typePersonne.nom = 'Responsable'")
     List<Personne> findAllResponsables();
     
-    // Find eleves
-    @Query("SELECT p FROM Personne p LEFT JOIN FETCH p.fafi WHERE p.typePersonne.nom = 'Eleve'")
+    // Find ALL eleves (admin)
+    @Query("SELECT DISTINCT p FROM Personne p " +
+           "LEFT JOIN FETCH p.fafi " +
+           "LEFT JOIN FETCH p.secteur " +
+           "LEFT JOIN FETCH p.fizarana " +
+           "LEFT JOIN FETCH p.typePersonne " +
+           "LEFT JOIN FETCH p.vondrona " +
+           "LEFT JOIN FETCH p.fivondronana " +
+           "WHERE p.typePersonne.nom = 'Eleve'")
     List<Personne> findAllEleves();
+    
+    // ========== FIVONDRONANA: Personnes par Fivondronana ==========
+    
+    // Find responsables par Fivondronana
+    @Query("SELECT DISTINCT p FROM Personne p " +
+           "LEFT JOIN FETCH p.fafi " +
+           "LEFT JOIN FETCH p.secteur " +
+           "LEFT JOIN FETCH p.andraikitra " +
+           "LEFT JOIN FETCH p.typePersonne " +
+           "LEFT JOIN FETCH p.vondrona " +
+           "LEFT JOIN FETCH p.fivondronana " +
+           "WHERE p.typePersonne.nom = 'Responsable' " +
+           "AND p.fivondronana.id = :fivondronanaId")
+    List<Personne> findResponsablesByFivondronana(@Param("fivondronanaId") Integer fivondronanaId);
+    
+    // Find eleves par Fivondronana
+    @Query("SELECT DISTINCT p FROM Personne p " +
+           "LEFT JOIN FETCH p.fafi " +
+           "LEFT JOIN FETCH p.secteur " +
+           "LEFT JOIN FETCH p.fizarana " +
+           "LEFT JOIN FETCH p.typePersonne " +
+           "LEFT JOIN FETCH p.vondrona " +
+           "LEFT JOIN FETCH p.fivondronana " +
+           "WHERE p.typePersonne.nom = 'Eleve' " +
+           "AND p.fivondronana.id = :fivondronanaId")
+    List<Personne> findElevesByFivondronana(@Param("fivondronanaId") Integer fivondronanaId);
     
     // Find by secteur
     List<Personne> findBySecteurId(Integer secteurId);
@@ -41,13 +83,25 @@ public interface PersonneRepository extends JpaRepository<Personne, Integer> {
     @Query("SELECT COUNT(p) FROM Personne p WHERE p.typePersonne.nom = :typeName")
     Long countByTypePersonneNom(@Param("typeName") String typeName);
     
+    // Count by type and fivondronana
+    @Query("SELECT COUNT(p) FROM Personne p WHERE p.typePersonne.nom = :typeName AND p.fivondronana.id = :fivondronanaId")
+    Long countByTypePersonneNomAndFivondronana(@Param("typeName") String typeName, @Param("fivondronanaId") Integer fivondronanaId);
+    
     // Count responsables with fafi
     @Query("SELECT COUNT(p) FROM Personne p WHERE p.typePersonne.nom = 'Responsable' AND p.fafi IS NOT NULL AND p.fafi.statut = 'Active'")
     Long countResponsablesWithFafi();
     
+    // Count responsables with fafi by fivondronana
+    @Query("SELECT COUNT(p) FROM Personne p WHERE p.typePersonne.nom = 'Responsable' AND p.fafi IS NOT NULL AND p.fafi.statut = 'Active' AND p.fivondronana.id = :fivondronanaId")
+    Long countResponsablesWithFafiByFivondronana(@Param("fivondronanaId") Integer fivondronanaId);
+    
     // Count eleves with fafi
     @Query("SELECT COUNT(p) FROM Personne p WHERE p.typePersonne.nom = 'Eleve' AND p.fafi IS NOT NULL AND p.fafi.statut = 'Active'")
     Long countElevesWithFafi();
+    
+    // Count eleves with fafi by fivondronana
+    @Query("SELECT COUNT(p) FROM Personne p WHERE p.typePersonne.nom = 'Eleve' AND p.fafi IS NOT NULL AND p.fafi.statut = 'Active' AND p.fivondronana.id = :fivondronanaId")
+    Long countElevesWithFafiByFivondronana(@Param("fivondronanaId") Integer fivondronanaId);
     
     // Search
     @Query("SELECT p FROM Personne p WHERE " +
@@ -56,32 +110,107 @@ public interface PersonneRepository extends JpaRepository<Personne, Integer> {
            "LOWER(p.totem) LIKE LOWER(CONCAT('%', :search, '%'))")
     List<Personne> search(@Param("search") String search);
     
-    // Filter responsables (pas de niveau, utilise andraikitra au lieu de section)
-    @Query("SELECT DISTINCT p FROM Personne p LEFT JOIN FETCH p.fafi WHERE p.typePersonne.nom = 'Responsable' " +
+    // ========== ADMIN: Filter avec option Fivondronana ==========
+    
+    // Filter responsables (admin - avec filtre fivondronana optionnel)
+    @Query("SELECT DISTINCT p FROM Personne p " +
+           "LEFT JOIN FETCH p.fafi " +
+           "LEFT JOIN FETCH p.secteur " +
+           "LEFT JOIN FETCH p.andraikitra " +
+           "LEFT JOIN FETCH p.typePersonne " +
+           "LEFT JOIN FETCH p.vondrona " +
+           "LEFT JOIN FETCH p.fivondronana " +
+           "WHERE p.typePersonne.nom = 'Responsable' " +
+           "AND (:fivondronanaId IS NULL OR p.fivondronana.id = :fivondronanaId) " +
            "AND (:secteurId IS NULL OR p.secteur.id = :secteurId) " +
            "AND (:andraikitraId IS NULL OR p.andraikitra.id = :andraikitraId) " +
+           "AND (:vondronaId IS NULL OR p.vondrona.id = :vondronaId) " +
            "AND (:hasFafi IS NULL OR " +
            "(:hasFafi = true AND p.fafi IS NOT NULL AND p.fafi.statut = 'Active') OR " +
            "(:hasFafi = false AND (p.fafi IS NULL OR p.fafi.statut != 'Active')))")
     List<Personne> filterResponsables(
+        @Param("fivondronanaId") Integer fivondronanaId,
         @Param("secteurId") Integer secteurId,
         @Param("andraikitraId") Integer andraikitraId,
+        @Param("vondronaId") Integer vondronaId,
         @Param("hasFafi") Boolean hasFafi
     );
     
-    // Filter eleves (Beazina)
-    @Query("SELECT DISTINCT p FROM Personne p LEFT JOIN FETCH p.fafi WHERE p.typePersonne.nom = 'Eleve' " +
+    // Filter eleves (admin - avec filtre fivondronana optionnel)
+    @Query("SELECT DISTINCT p FROM Personne p " +
+           "LEFT JOIN FETCH p.fafi " +
+           "LEFT JOIN FETCH p.secteur " +
+           "LEFT JOIN FETCH p.fizarana " +
+           "LEFT JOIN FETCH p.typePersonne " +
+           "LEFT JOIN FETCH p.vondrona " +
+           "LEFT JOIN FETCH p.fivondronana " +
+           "WHERE p.typePersonne.nom = 'Eleve' " +
+           "AND (:fivondronanaId IS NULL OR p.fivondronana.id = :fivondronanaId) " +
            "AND (:secteurId IS NULL OR p.secteur.id = :secteurId) " +
            "AND (:fizaranaId IS NULL OR p.fizarana.id = :fizaranaId) " +
+           "AND (:vondronaId IS NULL OR p.vondrona.id = :vondronaId) " +
            "AND (:ambaratonga IS NULL OR p.ambaratonga = :ambaratonga) " +
            "AND (:hasFafi IS NULL OR " +
            "(:hasFafi = true AND p.fafi IS NOT NULL AND p.fafi.statut = 'Active') OR " +
            "(:hasFafi = false AND (p.fafi IS NULL OR p.fafi.statut != 'Active')))")
     List<Personne> filterEleves(
+        @Param("fivondronanaId") Integer fivondronanaId,
         @Param("secteurId") Integer secteurId,
         @Param("fizaranaId") Integer fizaranaId,
+        @Param("vondronaId") Integer vondronaId,
+        @Param("ambaratonga") String ambaratonga,
+        @Param("hasFafi") Boolean hasFafi
+    );
+    
+    // ========== FIVONDRONANA: Filter par Fivondronana (non-admin) ==========
+    
+    // Filter responsables par Fivondronana
+    @Query("SELECT DISTINCT p FROM Personne p " +
+           "LEFT JOIN FETCH p.fafi " +
+           "LEFT JOIN FETCH p.secteur " +
+           "LEFT JOIN FETCH p.andraikitra " +
+           "LEFT JOIN FETCH p.typePersonne " +
+           "LEFT JOIN FETCH p.vondrona " +
+           "LEFT JOIN FETCH p.fivondronana " +
+           "WHERE p.typePersonne.nom = 'Responsable' " +
+           "AND p.fivondronana.id = :fivondronanaId " +
+           "AND (:secteurId IS NULL OR p.secteur.id = :secteurId) " +
+           "AND (:andraikitraId IS NULL OR p.andraikitra.id = :andraikitraId) " +
+           "AND (:vondronaId IS NULL OR p.vondrona.id = :vondronaId) " +
+           "AND (:hasFafi IS NULL OR " +
+           "(:hasFafi = true AND p.fafi IS NOT NULL AND p.fafi.statut = 'Active') OR " +
+           "(:hasFafi = false AND (p.fafi IS NULL OR p.fafi.statut != 'Active')))")
+    List<Personne> filterResponsablesByFivondronana(
+        @Param("fivondronanaId") Integer fivondronanaId,
+        @Param("secteurId") Integer secteurId,
+        @Param("andraikitraId") Integer andraikitraId,
+        @Param("vondronaId") Integer vondronaId,
+        @Param("hasFafi") Boolean hasFafi
+    );
+    
+    // Filter eleves par Fivondronana
+    @Query("SELECT DISTINCT p FROM Personne p " +
+           "LEFT JOIN FETCH p.fafi " +
+           "LEFT JOIN FETCH p.secteur " +
+           "LEFT JOIN FETCH p.fizarana " +
+           "LEFT JOIN FETCH p.typePersonne " +
+           "LEFT JOIN FETCH p.vondrona " +
+           "LEFT JOIN FETCH p.fivondronana " +
+           "WHERE p.typePersonne.nom = 'Eleve' " +
+           "AND p.fivondronana.id = :fivondronanaId " +
+           "AND (:secteurId IS NULL OR p.secteur.id = :secteurId) " +
+           "AND (:fizaranaId IS NULL OR p.fizarana.id = :fizaranaId) " +
+           "AND (:vondronaId IS NULL OR p.vondrona.id = :vondronaId) " +
+           "AND (:ambaratonga IS NULL OR p.ambaratonga = :ambaratonga) " +
+           "AND (:hasFafi IS NULL OR " +
+           "(:hasFafi = true AND p.fafi IS NOT NULL AND p.fafi.statut = 'Active') OR " +
+           "(:hasFafi = false AND (p.fafi IS NULL OR p.fafi.statut != 'Active')))")
+    List<Personne> filterElevesByFivondronana(
+        @Param("fivondronanaId") Integer fivondronanaId,
+        @Param("secteurId") Integer secteurId,
+        @Param("fizaranaId") Integer fizaranaId,
+        @Param("vondronaId") Integer vondronaId,
         @Param("ambaratonga") String ambaratonga,
         @Param("hasFafi") Boolean hasFafi
     );
 }
-

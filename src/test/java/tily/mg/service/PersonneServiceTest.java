@@ -41,6 +41,12 @@ class PersonneServiceTest {
     @Mock
     private FafiRepository fafiRepository;
 
+    @Mock
+    private VondronaRepository vondronaRepository;
+
+    @Mock
+    private FivondronanaRepository fivondronanaRepository;
+
     @InjectMocks
     private PersonneService personneService;
 
@@ -50,6 +56,8 @@ class PersonneServiceTest {
     private Secteur secteur;
     private Fizarana fizarana;
     private Andraikitra andraikitra;
+    private Vondrona vondrona;
+    private Fivondronana fivondronana;
 
     @BeforeEach
     void setUp() {
@@ -76,6 +84,17 @@ class PersonneServiceTest {
         andraikitra = new Andraikitra();
         andraikitra.setId(1);
         andraikitra.setNom("Mpitandrina lehibe");
+
+        // Setup Vondrona
+        vondrona = new Vondrona();
+        vondrona.setId(1);
+        vondrona.setNom("Vondrona 1");
+
+        // Setup Fivondronana
+        fivondronana = new Fivondronana();
+        fivondronana.setId(1);
+        fivondronana.setNom("Antananarivo Renivohitra");
+        fivondronana.setCode("ANT-R");
 
         // Setup Personne
         personne = new Personne();
@@ -216,41 +235,51 @@ class PersonneServiceTest {
         when(typePersonneRepository.findByNom("Responsable")).thenReturn(Optional.of(typeResponsable));
         when(secteurRepository.findById(1)).thenReturn(Optional.of(secteur));
         when(andraikitraRepository.findById(1)).thenReturn(Optional.of(andraikitra));
+        when(vondronaRepository.findById(1)).thenReturn(Optional.of(vondrona));
+        when(fivondronanaRepository.findById(1)).thenReturn(Optional.of(fivondronana));
         when(personneRepository.save(any(Personne.class))).thenReturn(personne);
 
         // When
-        Personne result = personneService.createResponsable(personne, 1, 1);
+        Personne result = personneService.createResponsable(personne, 1, 1, 1, 1);
 
         // Then
         assertNotNull(result);
         assertEquals(typeResponsable, personne.getTypePersonne());
         assertEquals(secteur, personne.getSecteur());
         assertEquals(andraikitra, personne.getAndraikitra());
+        assertEquals(vondrona, personne.getVondrona());
+        assertEquals(fivondronana, personne.getFivondronana());
         assertNull(personne.getAmbaratonga()); // Pas de niveau pour les responsables
         verify(typePersonneRepository, times(1)).findByNom("Responsable");
         verify(secteurRepository, times(1)).findById(1);
         verify(andraikitraRepository, times(1)).findById(1);
+        verify(vondronaRepository, times(1)).findById(1);
+        verify(fivondronanaRepository, times(1)).findById(1);
         verify(personneRepository, times(1)).save(personne);
     }
 
     @Test
-    void testCreateResponsableWithoutSecteurAndAndraikitra() {
+    void testCreateResponsableWithoutOptionalFields() {
         // Given
         when(typePersonneRepository.findByNom("Responsable")).thenReturn(Optional.of(typeResponsable));
         when(personneRepository.save(any(Personne.class))).thenReturn(personne);
 
         // When
-        Personne result = personneService.createResponsable(personne, null, null);
+        Personne result = personneService.createResponsable(personne, null, null, null, null);
 
         // Then
         assertNotNull(result);
         assertEquals(typeResponsable, personne.getTypePersonne());
         assertNull(personne.getSecteur());
         assertNull(personne.getAndraikitra());
+        assertNull(personne.getVondrona());
+        assertNull(personne.getFivondronana());
         assertNull(personne.getAmbaratonga());
         verify(typePersonneRepository, times(1)).findByNom("Responsable");
         verify(secteurRepository, never()).findById(anyInt());
         verify(andraikitraRepository, never()).findById(anyInt());
+        verify(vondronaRepository, never()).findById(anyInt());
+        verify(fivondronanaRepository, never()).findById(anyInt());
     }
 
     @Test
@@ -259,19 +288,25 @@ class PersonneServiceTest {
         when(typePersonneRepository.findByNom("Eleve")).thenReturn(Optional.of(typeEleve));
         when(secteurRepository.findById(1)).thenReturn(Optional.of(secteur));
         when(fizaranaRepository.findById(1)).thenReturn(Optional.of(fizarana));
+        when(vondronaRepository.findById(1)).thenReturn(Optional.of(vondrona));
+        when(fivondronanaRepository.findById(1)).thenReturn(Optional.of(fivondronana));
         when(personneRepository.save(any(Personne.class))).thenReturn(personne);
 
         // When
-        Personne result = personneService.createEleve(personne, 1, 1);
+        Personne result = personneService.createEleve(personne, 1, 1, 1, 1);
 
         // Then
         assertNotNull(result);
         assertEquals(typeEleve, personne.getTypePersonne());
         assertEquals(secteur, personne.getSecteur());
         assertEquals(fizarana, personne.getFizarana());
+        assertEquals(vondrona, personne.getVondrona());
+        assertEquals(fivondronana, personne.getFivondronana());
         verify(typePersonneRepository, times(1)).findByNom("Eleve");
         verify(secteurRepository, times(1)).findById(1);
         verify(fizaranaRepository, times(1)).findById(1);
+        verify(vondronaRepository, times(1)).findById(1);
+        verify(fivondronanaRepository, times(1)).findById(1);
         verify(personneRepository, times(1)).save(personne);
     }
 
@@ -280,15 +315,15 @@ class PersonneServiceTest {
         // Given
         personne.setTypePersonne(typeResponsable);
         List<Personne> responsables = Arrays.asList(personne);
-        when(personneRepository.filterResponsables(1, 1, true)).thenReturn(responsables);
+        when(personneRepository.filterResponsables(1, 1, 1, 1, true)).thenReturn(responsables);
 
         // When
-        List<Personne> result = personneService.filterResponsables(1, 1, true);
+        List<Personne> result = personneService.filterResponsables(1, 1, 1, 1, true);
 
         // Then
         assertNotNull(result);
         assertEquals(1, result.size());
-        verify(personneRepository, times(1)).filterResponsables(1, 1, true);
+        verify(personneRepository, times(1)).filterResponsables(1, 1, 1, 1, true);
     }
 
     @Test
@@ -296,15 +331,49 @@ class PersonneServiceTest {
         // Given
         personne.setTypePersonne(typeEleve);
         List<Personne> eleves = Arrays.asList(personne);
-        when(personneRepository.filterEleves(1, 1, "Louveteau", true)).thenReturn(eleves);
+        when(personneRepository.filterEleves(1, 1, 1, 1, "Louveteau", true)).thenReturn(eleves);
 
         // When
-        List<Personne> result = personneService.filterEleves(1, 1, "Louveteau", true);
+        List<Personne> result = personneService.filterEleves(1, 1, 1, 1, "Louveteau", true);
 
         // Then
         assertNotNull(result);
         assertEquals(1, result.size());
-        verify(personneRepository, times(1)).filterEleves(1, 1, "Louveteau", true);
+        verify(personneRepository, times(1)).filterEleves(1, 1, 1, 1, "Louveteau", true);
+    }
+
+    @Test
+    void testFindResponsablesByFivondronana() {
+        // Given
+        personne.setTypePersonne(typeResponsable);
+        personne.setFivondronana(fivondronana);
+        List<Personne> responsables = Arrays.asList(personne);
+        when(personneRepository.findResponsablesByFivondronana(1)).thenReturn(responsables);
+
+        // When
+        List<Personne> result = personneService.findResponsablesByFivondronana(1);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        verify(personneRepository, times(1)).findResponsablesByFivondronana(1);
+    }
+
+    @Test
+    void testFindElevesByFivondronana() {
+        // Given
+        personne.setTypePersonne(typeEleve);
+        personne.setFivondronana(fivondronana);
+        List<Personne> eleves = Arrays.asList(personne);
+        when(personneRepository.findElevesByFivondronana(1)).thenReturn(eleves);
+
+        // When
+        List<Personne> result = personneService.findElevesByFivondronana(1);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        verify(personneRepository, times(1)).findElevesByFivondronana(1);
     }
 
     @Test
@@ -335,6 +404,21 @@ class PersonneServiceTest {
         assertNotNull(result);
         assertEquals(1, result.size());
         verify(andraikitraRepository, times(1)).findAll();
+    }
+
+    @Test
+    void testFindAllFivondronana() {
+        // Given
+        List<Fivondronana> fivondronanaList = Arrays.asList(fivondronana);
+        when(fivondronanaRepository.findAll()).thenReturn(fivondronanaList);
+
+        // When
+        List<Fivondronana> result = personneService.findAllFivondronana();
+
+        // Then
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        verify(fivondronanaRepository, times(1)).findAll();
     }
 
     @Test
@@ -431,5 +515,59 @@ class PersonneServiceTest {
         assertEquals(andraikitra, result.get());
         verify(andraikitraRepository, times(1)).findById(1);
     }
-}
 
+    @Test
+    void testFindFivondronanaById() {
+        // Given
+        when(fivondronanaRepository.findById(1)).thenReturn(Optional.of(fivondronana));
+
+        // When
+        Optional<Fivondronana> result = personneService.findFivondronanaById(1);
+
+        // Then
+        assertTrue(result.isPresent());
+        assertEquals(fivondronana, result.get());
+        verify(fivondronanaRepository, times(1)).findById(1);
+    }
+
+    @Test
+    void testPersonneAppartientAFivondronana() {
+        // Given
+        personne.setFivondronana(fivondronana);
+        when(personneRepository.findById(1)).thenReturn(Optional.of(personne));
+
+        // When
+        boolean result = personneService.personneAppartientAFivondronana(1, 1);
+
+        // Then
+        assertTrue(result);
+        verify(personneRepository, times(1)).findById(1);
+    }
+
+    @Test
+    void testPersonneAppartientAFivondronanaDifferentFivondronana() {
+        // Given
+        personne.setFivondronana(fivondronana);
+        when(personneRepository.findById(1)).thenReturn(Optional.of(personne));
+
+        // When
+        boolean result = personneService.personneAppartientAFivondronana(1, 2);
+
+        // Then
+        assertFalse(result);
+        verify(personneRepository, times(1)).findById(1);
+    }
+
+    @Test
+    void testPersonneAppartientAFivondronanaPersonneNotFound() {
+        // Given
+        when(personneRepository.findById(999)).thenReturn(Optional.empty());
+
+        // When
+        boolean result = personneService.personneAppartientAFivondronana(999, 1);
+
+        // Then
+        assertFalse(result);
+        verify(personneRepository, times(1)).findById(999);
+    }
+}

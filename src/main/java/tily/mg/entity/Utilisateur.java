@@ -30,9 +30,9 @@ public class Utilisateur {
     @Column(name = "derniereconnexion")
     private LocalDateTime derniereConnexion;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "idpersonne")
-    private Personne personne;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idfivondronana")
+    private Fivondronana fivondronana;
 
     // Constructors
     public Utilisateur() {
@@ -104,18 +104,18 @@ public class Utilisateur {
         this.derniereConnexion = derniereConnexion;
     }
 
-    public Personne getPersonne() {
-        return personne;
+    public Fivondronana getFivondronana() {
+        return fivondronana;
     }
 
-    public void setPersonne(Personne personne) {
-        this.personne = personne;
+    public void setFivondronana(Fivondronana fivondronana) {
+        this.fivondronana = fivondronana;
     }
 
     // Helper methods
     public String getNomComplet() {
-        if (personne != null) {
-            return personne.getPrenom() + " " + personne.getNom();
+        if (fivondronana != null) {
+            return fivondronana.getNom();
         }
         return email;
     }
@@ -124,11 +124,8 @@ public class Utilisateur {
         return "ADMIN".equals(role);
     }
 
-    public String getTypePersonne() {
-        if (personne != null && personne.getTypePersonne() != null) {
-            return personne.getTypePersonne().getNom();
-        }
-        return null;
+    public Integer getFivondronanaId() {
+        return fivondronana != null ? fivondronana.getId() : null;
     }
 }
 

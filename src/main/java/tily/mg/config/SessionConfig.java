@@ -3,25 +3,21 @@ package tily.mg.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.SchedulingConfigurer;
-import org.springframework.scheduling.config.ScheduledTaskRegistrar;
-import org.springframework.session.jdbc.config.annotation.web.http.EnableJdbcHttpSession;
 
 /**
- * Configuration pour Spring Session JDBC
- * Permet de mieux gérer les erreurs lors du nettoyage automatique des sessions
+ * Configuration pour Spring Session
+ * Spring Session JDBC est temporairement désactivé pour éviter les conflits de transactions
+ * Les sessions utilisent maintenant le stockage par défaut (mémoire)
+ * 
+ * TODO: Reconfigurer Spring Session JDBC avec un DataSourceTransactionManager séparé
  */
 @Configuration
-@EnableJdbcHttpSession
-public class SessionConfig implements SchedulingConfigurer {
+public class SessionConfig {
     
     private static final Logger logger = LoggerFactory.getLogger(SessionConfig.class);
     
-    @Override
-    public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
-        // La configuration du nettoyage des sessions est gérée automatiquement par Spring Session
-        // Cette classe permet de personnaliser si nécessaire
-        logger.info("Spring Session JDBC configuration initialized");
+    public SessionConfig() {
+        logger.info("Spring Session configuration initialized (in-memory sessions)");
     }
 }
 

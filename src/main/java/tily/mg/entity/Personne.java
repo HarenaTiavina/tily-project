@@ -65,6 +65,14 @@ public class Personne {
     @JoinColumn(name = "idandraikitra")
     private Andraikitra andraikitra; // Andraikitra en malgache - postes pour les Mpiandraikitra
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idvondrona")
+    private Vondrona vondrona; // Vondrona = Groupe en malgache - pour les Beazina et Mpiandraikitra
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idfivondronana")
+    private Fivondronana fivondronana; // Fivondronana = District en malgache - chaque personne appartient à un Fivondronana
+
     // Constructors
     public Personne() {}
 
@@ -203,6 +211,22 @@ public class Personne {
 
     public void setAndraikitra(Andraikitra andraikitra) {
         this.andraikitra = andraikitra;
+    }
+
+    public Vondrona getVondrona() {
+        return vondrona;
+    }
+
+    public void setVondrona(Vondrona vondrona) {
+        this.vondrona = vondrona;
+    }
+
+    public Fivondronana getFivondronana() {
+        return fivondronana;
+    }
+
+    public void setFivondronana(Fivondronana fivondronana) {
+        this.fivondronana = fivondronana;
     }
 
     // Helper methods

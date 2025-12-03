@@ -40,12 +40,12 @@ public class SecurityConfig {
             .authorizeHttpRequests(authorize -> authorize
                 // Resources publiques
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/fonts/**").permitAll()
-                // Pages d'authentification accessibles à tous
-                .requestMatchers("/login", "/inscription", "/auth/**", "/access-denied").permitAll()
-                // Pages réservées aux ADMIN uniquement
-                .requestMatchers("/dashboard", "/", "/responsables/**", "/eleves/**").hasRole("ADMIN")
-                // Page profil accessible aux USER et ADMIN
-                .requestMatchers("/profil/**").hasAnyRole("USER", "ADMIN")
+                // Pages d'authentification et erreurs accessibles à tous
+                .requestMatchers("/login", "/auth/**", "/access-denied", "/error").permitAll()
+                // Pages admin uniquement
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                // Pages accessibles aux ADMIN et USER (Fivondronana)
+                .requestMatchers("/dashboard", "/", "/responsables/**", "/eleves/**").hasAnyRole("ADMIN", "USER")
                 // Toutes les autres requêtes nécessitent une authentification
                 .anyRequest().authenticated()
             )
@@ -53,14 +53,8 @@ public class SecurityConfig {
                 .loginPage("/login")
                 .loginProcessingUrl("/auth/login")
                 .successHandler((request, response, authentication) -> {
-                    // Redirection basée sur le rôle
-                    boolean isAdmin = authentication.getAuthorities().stream()
-                            .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-                    if (isAdmin) {
-                        response.sendRedirect("/dashboard");
-                    } else {
-                        response.sendRedirect("/profil");
-                    }
+                    // Tous les utilisateurs (ADMIN et USER) vont au dashboard
+                    response.sendRedirect("/dashboard");
                 })
                 .failureUrl("/login?error=true")
                 .usernameParameter("email")

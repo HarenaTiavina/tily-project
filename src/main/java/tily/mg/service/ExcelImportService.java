@@ -11,7 +11,6 @@ import tily.mg.repository.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -37,8 +36,13 @@ public class ExcelImportService {
     private AndraikitraRepository andraikitraRepository;
 
     @Autowired
-    private FafiRepository fafiRepository;
+    private VondronaRepository vondronaRepository;
 
+    @Autowired
+    private FivondronanaRepository fivondronanaRepository;
+
+    // Fivondronana courant pour l'import (null = admin sans restriction)
+    private Integer currentFivondronanaId;
 
     public static class ImportResult {
         private int totalRows;
@@ -59,8 +63,10 @@ public class ExcelImportService {
 
     /**
      * Importer des Beazina depuis un fichier Excel ou CSV
+     * @param fivondronanaId L'ID du Fivondronana pour les personnes importées (null pour admin)
      */
-    public ImportResult importBeazina(MultipartFile file) throws IOException {
+    public ImportResult importBeazina(MultipartFile file, Integer fivondronanaId) throws IOException {
+        this.currentFivondronanaId = fivondronanaId;
         ImportResult result = new ImportResult();
         
         String fileName = file.getOriginalFilename().toLowerCase();
@@ -101,6 +107,20 @@ public class ExcelImportService {
                 Row row = sheet.getRow(i);
                 if (row == null) continue;
                 
+                // Vérifier si la ligne est vide (toutes les cellules sont vides)
+                boolean isEmptyRow = true;
+                for (int j = 0; j < row.getLastCellNum(); j++) {
+                    Cell cell = row.getCell(j);
+                    if (cell != null && cell.getCellType() != CellType.BLANK) {
+                        String value = getCellValueAsString(row, j);
+                        if (value != null && !value.trim().isEmpty()) {
+                            isEmptyRow = false;
+                            break;
+                        }
+                    }
+                }
+                if (isEmptyRow) continue;
+                
                 try {
                     Personne personne = parseBeazinaRow(row, columnMap, i + 1);
                     if (personne != null) {
@@ -110,7 +130,8 @@ public class ExcelImportService {
                     }
                 } catch (Exception e) {
                     result.setErrorCount(result.getErrorCount() + 1);
-                    result.getErrors().add("Ligne " + (i + 1) + ": " + e.getMessage());
+                    String errorMsg = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+                    result.getErrors().add("Ligne " + (i + 1) + ": " + errorMsg);
                 }
             }
         }
@@ -120,8 +141,10 @@ public class ExcelImportService {
 
     /**
      * Importer des Mpiandraikitra depuis un fichier Excel ou CSV
+     * @param fivondronanaId L'ID du Fivondronana pour les personnes importées (null pour admin)
      */
-    public ImportResult importMpiandraikitra(MultipartFile file) throws IOException {
+    public ImportResult importMpiandraikitra(MultipartFile file, Integer fivondronanaId) throws IOException {
+        this.currentFivondronanaId = fivondronanaId;
         ImportResult result = new ImportResult();
         
         String fileName = file.getOriginalFilename().toLowerCase();
@@ -165,6 +188,20 @@ public class ExcelImportService {
                 Row row = sheet.getRow(i);
                 if (row == null) continue;
                 
+                // Vérifier si la ligne est vide (toutes les cellules sont vides)
+                boolean isEmptyRow = true;
+                for (int j = 0; j < row.getLastCellNum(); j++) {
+                    Cell cell = row.getCell(j);
+                    if (cell != null && cell.getCellType() != CellType.BLANK) {
+                        String value = getCellValueAsString(row, j);
+                        if (value != null && !value.trim().isEmpty()) {
+                            isEmptyRow = false;
+                            break;
+                        }
+                    }
+                }
+                if (isEmptyRow) continue;
+                
                 try {
                     Personne personne = parseMpiandraikitraRow(row, columnMap, i + 1);
                     if (personne != null) {
@@ -174,7 +211,8 @@ public class ExcelImportService {
                     }
                 } catch (Exception e) {
                     result.setErrorCount(result.getErrorCount() + 1);
-                    result.getErrors().add("Ligne " + (i + 1) + ": " + e.getMessage());
+                    String errorMsg = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+                    result.getErrors().add("Ligne " + (i + 1) + ": " + errorMsg);
                 }
             }
         }
@@ -185,13 +223,24 @@ public class ExcelImportService {
     private Map<String, Integer> mapColumns(Row headerRow) {
         Map<String, Integer> columnMap = new HashMap<>();
         for (Cell cell : headerRow) {
-            if (cell != null && cell.getCellType() == CellType.STRING) {
-                String columnName = cell.getStringCellValue().trim().toLowerCase()
-                    .replace(" ", "")
-                    .replace("é", "e")
-                    .replace("è", "e")
-                    .replace("ê", "e");
-                columnMap.put(columnName, cell.getColumnIndex());
+            if (cell != null) {
+                String columnName = getCellValueAsString(headerRow, cell.getColumnIndex());
+                if (columnName != null) {
+                    // Normaliser le nom de colonne : minuscule, supprimer espaces et accents
+                    columnName = columnName.trim().toLowerCase()
+                        .replace(" ", "")
+                        .replace("_", "")
+                        .replace("-", "")
+                        .replace("é", "e")
+                        .replace("è", "e")
+                        .replace("ê", "e")
+                        .replace("à", "a")
+                        .replace("â", "a")
+                        .replace("ô", "o")
+                        .replace("ù", "u")
+                        .replace("û", "u");
+                    columnMap.put(columnName, cell.getColumnIndex());
+                }
             }
         }
         return columnMap;
@@ -223,19 +272,19 @@ public class ExcelImportService {
         personne.setPrenom(prenom.trim());
         
         // Type Personne = Eleve (Beazina)
-        typePersonneRepository.findByNom("Eleve")
+        TypePersonne typeEleve = typePersonneRepository.findByNom("Eleve")
             .orElseThrow(() -> new Exception("Type 'Eleve' non trouvé dans la base"));
-        typePersonneRepository.findByNom("Eleve").ifPresent(personne::setTypePersonne);
+        personne.setTypePersonne(typeEleve);
         
         // Secteur
-        secteurRepository.findByNom(secteurNom.trim())
+        Secteur secteur = secteurRepository.findByNom(secteurNom.trim())
             .orElseThrow(() -> new Exception("Secteur '" + secteurNom + "' non trouvé"));
-        secteurRepository.findByNom(secteurNom.trim()).ifPresent(personne::setSecteur);
+        personne.setSecteur(secteur);
         
         // Fizarana (Sampana)
-        fizaranaRepository.findByNom(sampanaNom.trim())
+        Fizarana fizarana = fizaranaRepository.findByNom(sampanaNom.trim())
             .orElseThrow(() -> new Exception("Sampana '" + sampanaNom + "' non trouvé"));
-        fizaranaRepository.findByNom(sampanaNom.trim()).ifPresent(personne::setFizarana);
+        personne.setFizarana(fizarana);
         
         // Ambaratonga (Niveau) - obligatoire pour Beazina
         String ambaratonga = getCellValueAsString(row, columnMap.get("ambaratonga"));
@@ -279,25 +328,36 @@ public class ExcelImportService {
             personne.setDateFanekena(dateFanekena);
         }
         
-        // FAFI optionnel
-        String fafiStatut = getCellValueAsString(row, columnMap.get("fafistatut"));
-        if (fafiStatut != null && !fafiStatut.trim().isEmpty()) {
-            Fafi fafi = new Fafi();
-            LocalDate fafiDatePaiement = getCellValueAsDate(row, columnMap.get("fafidatepaiement"));
-            if (fafiDatePaiement != null) {
-                fafi.setDatePaiement(fafiDatePaiement);
-            }
-            BigDecimal fafiMontant = getCellValueAsBigDecimal(row, columnMap.get("fafimontant"));
-            if (fafiMontant != null) {
-                fafi.setMontant(fafiMontant);
-            }
-            fafi.setStatut(fafiStatut.trim());
-            fafi = fafiRepository.save(fafi);
-            personne.setFafi(fafi);
+        // Vondrona (Groupe) - optionnel
+        String vondronaNom = getCellValueAsString(row, columnMap.get("vondrona"));
+        if (vondronaNom != null && !vondronaNom.trim().isEmpty()) {
+            vondronaRepository.findByNom(vondronaNom.trim())
+                .ifPresent(personne::setVondrona);
         }
+        
+        // FAFI n'est PAS importé depuis Excel - ne pas créer de FAFI
+        // Le FAFI sera géré séparément via l'interface d'administration
+        personne.setFafi(null);
         
         // S'assurer qu'andraikitra est null pour Beazina
         personne.setAndraikitra(null);
+        
+        // Affecter le Fivondronana si défini
+        if (currentFivondronanaId != null) {
+            fivondronanaRepository.findById(currentFivondronanaId)
+                .ifPresent(personne::setFivondronana);
+        }
+        
+        // Validation finale
+        if (personne.getTypePersonne() == null) {
+            throw new Exception("Type de personne non défini");
+        }
+        if (personne.getSecteur() == null) {
+            throw new Exception("Secteur non défini");
+        }
+        if (personne.getFizarana() == null) {
+            throw new Exception("Fizarana (Sampana) non défini");
+        }
         
         return personne;
     }
@@ -328,19 +388,19 @@ public class ExcelImportService {
         personne.setPrenom(prenom.trim());
         
         // Type Personne = Responsable (Mpiandraikitra)
-        typePersonneRepository.findByNom("Responsable")
+        TypePersonne typeResponsable = typePersonneRepository.findByNom("Responsable")
             .orElseThrow(() -> new Exception("Type 'Responsable' non trouvé dans la base"));
-        typePersonneRepository.findByNom("Responsable").ifPresent(personne::setTypePersonne);
+        personne.setTypePersonne(typeResponsable);
         
         // Secteur
-        secteurRepository.findByNom(secteurNom.trim())
+        Secteur secteur = secteurRepository.findByNom(secteurNom.trim())
             .orElseThrow(() -> new Exception("Secteur '" + secteurNom + "' non trouvé"));
-        secteurRepository.findByNom(secteurNom.trim()).ifPresent(personne::setSecteur);
+        personne.setSecteur(secteur);
         
         // Andraikitra
-        andraikitraRepository.findByNom(andraikitraNom.trim())
+        Andraikitra andraikitra = andraikitraRepository.findByNom(andraikitraNom.trim())
             .orElseThrow(() -> new Exception("Andraikitra '" + andraikitraNom + "' non trouvé"));
-        andraikitraRepository.findByNom(andraikitraNom.trim()).ifPresent(personne::setAndraikitra);
+        personne.setAndraikitra(andraikitra);
         
         // S'assurer qu'ambaratonga et fizarana sont null pour Mpiandraikitra
         personne.setAmbaratonga(null);
@@ -382,21 +442,32 @@ public class ExcelImportService {
             personne.setDateFanekena(dateFanekena);
         }
         
-        // FAFI optionnel
-        String fafiStatut = getCellValueAsString(row, columnMap.get("fafistatut"));
-        if (fafiStatut != null && !fafiStatut.trim().isEmpty()) {
-            Fafi fafi = new Fafi();
-            LocalDate fafiDatePaiement = getCellValueAsDate(row, columnMap.get("fafidatepaiement"));
-            if (fafiDatePaiement != null) {
-                fafi.setDatePaiement(fafiDatePaiement);
-            }
-            BigDecimal fafiMontant = getCellValueAsBigDecimal(row, columnMap.get("fafimontant"));
-            if (fafiMontant != null) {
-                fafi.setMontant(fafiMontant);
-            }
-            fafi.setStatut(fafiStatut.trim());
-            fafi = fafiRepository.save(fafi);
-            personne.setFafi(fafi);
+        // Vondrona (Groupe) - optionnel
+        String vondronaNom = getCellValueAsString(row, columnMap.get("vondrona"));
+        if (vondronaNom != null && !vondronaNom.trim().isEmpty()) {
+            vondronaRepository.findByNom(vondronaNom.trim())
+                .ifPresent(personne::setVondrona);
+        }
+        
+        // FAFI n'est PAS importé depuis Excel - ne pas créer de FAFI
+        // Le FAFI sera géré séparément via l'interface d'administration
+        personne.setFafi(null);
+        
+        // Affecter le Fivondronana si défini
+        if (currentFivondronanaId != null) {
+            fivondronanaRepository.findById(currentFivondronanaId)
+                .ifPresent(personne::setFivondronana);
+        }
+        
+        // Validation finale
+        if (personne.getTypePersonne() == null) {
+            throw new Exception("Type de personne non défini");
+        }
+        if (personne.getSecteur() == null) {
+            throw new Exception("Secteur non défini");
+        }
+        if (personne.getAndraikitra() == null) {
+            throw new Exception("Andraikitra non défini");
         }
         
         return personne;
@@ -407,27 +478,55 @@ public class ExcelImportService {
         Cell cell = row.getCell(columnIndex);
         if (cell == null) return null;
         
-        switch (cell.getCellType()) {
-            case STRING:
-                return cell.getStringCellValue();
-            case NUMERIC:
-                if (DateUtil.isCellDateFormatted(cell)) {
-                    return cell.getDateCellValue().toString();
-                } else {
-                    // Éviter les décimales inutiles pour les entiers
-                    double numValue = cell.getNumericCellValue();
-                    if (numValue == (long) numValue) {
-                        return String.valueOf((long) numValue);
+        try {
+            switch (cell.getCellType()) {
+                case STRING:
+                    String strValue = cell.getStringCellValue();
+                    return (strValue != null && !strValue.trim().isEmpty()) ? strValue.trim() : null;
+                case NUMERIC:
+                    if (DateUtil.isCellDateFormatted(cell)) {
+                        return cell.getDateCellValue().toString();
                     } else {
-                        return String.valueOf(numValue);
+                        // Éviter les décimales inutiles pour les entiers
+                        double numValue = cell.getNumericCellValue();
+                        if (numValue == (long) numValue) {
+                            return String.valueOf((long) numValue);
+                        } else {
+                            return String.valueOf(numValue);
+                        }
                     }
-                }
-            case BOOLEAN:
-                return String.valueOf(cell.getBooleanCellValue());
-            case FORMULA:
-                return cell.getCellFormula();
-            default:
-                return null;
+                case BOOLEAN:
+                    return String.valueOf(cell.getBooleanCellValue());
+                case FORMULA:
+                    // Pour les formules, essayer d'obtenir la valeur évaluée
+                    try {
+                        switch (cell.getCachedFormulaResultType()) {
+                            case STRING:
+                                return cell.getStringCellValue();
+                            case NUMERIC:
+                                double numValue = cell.getNumericCellValue();
+                                if (numValue == (long) numValue) {
+                                    return String.valueOf((long) numValue);
+                                } else {
+                                    return String.valueOf(numValue);
+                                }
+                            case BOOLEAN:
+                                return String.valueOf(cell.getBooleanCellValue());
+                            default:
+                                return null;
+                        }
+                    } catch (Exception e) {
+                        return null;
+                    }
+                case BLANK:
+                case _NONE:
+                    return null;
+                default:
+                    return null;
+            }
+        } catch (Exception e) {
+            // En cas d'erreur, retourner null plutôt que de planter
+            return null;
         }
     }
 
@@ -437,45 +536,56 @@ public class ExcelImportService {
         if (cell == null) return null;
         
         try {
-            if (cell.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(cell)) {
-                Date date = cell.getDateCellValue();
-                return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            } else if (cell.getCellType() == CellType.STRING) {
+            CellType cellType = cell.getCellType();
+            
+            // Gérer les formules
+            if (cellType == CellType.FORMULA) {
+                cellType = cell.getCachedFormulaResultType();
+                if (cellType == CellType.NUMERIC && DateUtil.isCellDateFormatted(cell)) {
+                    Date date = cell.getDateCellValue();
+                    return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                } else if (cellType == CellType.STRING) {
+                    String dateStr = cell.getStringCellValue().trim();
+                    if (dateStr.isEmpty()) return null;
+                    return parseDateString(dateStr);
+                }
+            }
+            
+            // Gérer les dates numériques
+            if (cellType == CellType.NUMERIC) {
+                if (DateUtil.isCellDateFormatted(cell)) {
+                    Date date = cell.getDateCellValue();
+                    return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                }
+            }
+            
+            // Gérer les dates en texte
+            if (cellType == CellType.STRING) {
                 String dateStr = cell.getStringCellValue().trim();
                 if (dateStr.isEmpty()) return null;
-                // Essayer différents formats de date
-                String[] formats = {"yyyy-MM-dd", "dd/MM/yyyy", "dd-MM-yyyy", "yyyy/MM/dd"};
-                for (String format : formats) {
-                    try {
-                        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat(format);
-                        Date date = sdf.parse(dateStr);
-                        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-                    } catch (Exception e) {
-                        // Continuer avec le format suivant
-                    }
-                }
+                return parseDateString(dateStr);
             }
         } catch (Exception e) {
             // Retourner null si la conversion échoue
         }
         return null;
     }
-
-    private BigDecimal getCellValueAsBigDecimal(Row row, Integer columnIndex) {
-        if (columnIndex == null) return null;
-        Cell cell = row.getCell(columnIndex);
-        if (cell == null) return null;
+    
+    private LocalDate parseDateString(String dateStr) {
+        if (dateStr == null || dateStr.trim().isEmpty()) return null;
+        dateStr = dateStr.trim();
         
-        try {
-            if (cell.getCellType() == CellType.NUMERIC) {
-                return BigDecimal.valueOf(cell.getNumericCellValue());
-            } else if (cell.getCellType() == CellType.STRING) {
-                String value = cell.getStringCellValue().trim();
-                if (value.isEmpty()) return null;
-                return new BigDecimal(value.replace(",", "."));
+        // Essayer différents formats de date
+        String[] formats = {"yyyy-MM-dd", "dd/MM/yyyy", "dd-MM-yyyy", "yyyy/MM/dd", "d/M/yyyy", "d-M-yyyy"};
+        for (String format : formats) {
+            try {
+                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat(format);
+                sdf.setLenient(false);
+                Date date = sdf.parse(dateStr);
+                return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            } catch (Exception e) {
+                // Continuer avec le format suivant
             }
-        } catch (Exception e) {
-            // Retourner null si la conversion échoue
         }
         return null;
     }
@@ -501,9 +611,16 @@ public class ExcelImportService {
             for (int i = 0; i < headers.length; i++) {
                 String header = headers[i].trim().toLowerCase()
                     .replace(" ", "")
+                    .replace("_", "")
+                    .replace("-", "")
                     .replace("é", "e")
                     .replace("è", "e")
-                    .replace("ê", "e");
+                    .replace("ê", "e")
+                    .replace("à", "a")
+                    .replace("â", "a")
+                    .replace("ô", "o")
+                    .replace("ù", "u")
+                    .replace("û", "u");
                 columnMap.put(header, i);
             }
             
@@ -538,7 +655,8 @@ public class ExcelImportService {
                     }
                 } catch (Exception e) {
                     result.setErrorCount(result.getErrorCount() + 1);
-                    result.getErrors().add("Ligne " + lineNumber + ": " + e.getMessage());
+                    String errorMsg = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+                    result.getErrors().add("Ligne " + lineNumber + ": " + errorMsg);
                 }
             }
             
@@ -569,9 +687,16 @@ public class ExcelImportService {
             for (int i = 0; i < headers.length; i++) {
                 String header = headers[i].trim().toLowerCase()
                     .replace(" ", "")
+                    .replace("_", "")
+                    .replace("-", "")
                     .replace("é", "e")
                     .replace("è", "e")
-                    .replace("ê", "e");
+                    .replace("ê", "e")
+                    .replace("à", "a")
+                    .replace("â", "a")
+                    .replace("ô", "o")
+                    .replace("ù", "u")
+                    .replace("û", "u");
                 columnMap.put(header, i);
             }
             
@@ -606,7 +731,8 @@ public class ExcelImportService {
                     }
                 } catch (Exception e) {
                     result.setErrorCount(result.getErrorCount() + 1);
-                    result.getErrors().add("Ligne " + lineNumber + ": " + e.getMessage());
+                    String errorMsg = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+                    result.getErrors().add("Ligne " + lineNumber + ": " + errorMsg);
                 }
             }
             
@@ -670,17 +796,19 @@ public class ExcelImportService {
         personne.setPrenom(prenom.trim());
         
         // Type Personne = Eleve (Beazina)
-        typePersonneRepository.findByNom("Eleve").ifPresent(personne::setTypePersonne);
+        TypePersonne typeEleve = typePersonneRepository.findByNom("Eleve")
+            .orElseThrow(() -> new Exception("Type 'Eleve' non trouvé dans la base"));
+        personne.setTypePersonne(typeEleve);
         
         // Secteur
-        secteurRepository.findByNom(secteurNom.trim())
+        Secteur secteur = secteurRepository.findByNom(secteurNom.trim())
             .orElseThrow(() -> new Exception("Secteur '" + secteurNom + "' non trouvé"));
-        secteurRepository.findByNom(secteurNom.trim()).ifPresent(personne::setSecteur);
+        personne.setSecteur(secteur);
         
         // Fizarana (Sampana)
-        fizaranaRepository.findByNom(sampanaNom.trim())
+        Fizarana fizarana = fizaranaRepository.findByNom(sampanaNom.trim())
             .orElseThrow(() -> new Exception("Sampana '" + sampanaNom + "' non trouvé"));
-        fizaranaRepository.findByNom(sampanaNom.trim()).ifPresent(personne::setFizarana);
+        personne.setFizarana(fizarana);
         
         // Ambaratonga (Niveau)
         String ambaratonga = getArrayValue(values, columnMap.get("ambaratonga"));
@@ -724,28 +852,35 @@ public class ExcelImportService {
             personne.setDateFanekena(dateFanekena);
         }
         
-        // FAFI optionnel
-        String fafiStatut = getArrayValue(values, columnMap.get("fafistatut"));
-        if (fafiStatut != null && !fafiStatut.trim().isEmpty()) {
-            Fafi fafi = new Fafi();
-            LocalDate fafiDatePaiement = parseDate(getArrayValue(values, columnMap.get("fafidatepaiement")));
-            if (fafiDatePaiement != null) {
-                fafi.setDatePaiement(fafiDatePaiement);
-            }
-            String fafiMontantStr = getArrayValue(values, columnMap.get("fafimontant"));
-            if (fafiMontantStr != null && !fafiMontantStr.trim().isEmpty()) {
-                try {
-                    fafi.setMontant(new BigDecimal(fafiMontantStr.trim().replace(",", ".")));
-                } catch (NumberFormatException e) {
-                    // Ignorer si le montant n'est pas valide
-                }
-            }
-            fafi.setStatut(fafiStatut.trim());
-            fafi = fafiRepository.save(fafi);
-            personne.setFafi(fafi);
+        // Vondrona (Groupe) - optionnel
+        String vondronaNom = getArrayValue(values, columnMap.get("vondrona"));
+        if (vondronaNom != null && !vondronaNom.trim().isEmpty()) {
+            vondronaRepository.findByNom(vondronaNom.trim())
+                .ifPresent(personne::setVondrona);
         }
         
+        // FAFI n'est PAS importé depuis Excel - ne pas créer de FAFI
+        // Le FAFI sera géré séparément via l'interface d'administration
+        personne.setFafi(null);
+        
         personne.setAndraikitra(null);
+        
+        // Affecter le Fivondronana si défini
+        if (currentFivondronanaId != null) {
+            fivondronanaRepository.findById(currentFivondronanaId)
+                .ifPresent(personne::setFivondronana);
+        }
+        
+        // Validation finale
+        if (personne.getTypePersonne() == null) {
+            throw new Exception("Type de personne non défini");
+        }
+        if (personne.getSecteur() == null) {
+            throw new Exception("Secteur non défini");
+        }
+        if (personne.getFizarana() == null) {
+            throw new Exception("Fizarana (Sampana) non défini");
+        }
         
         return personne;
     }
@@ -779,17 +914,19 @@ public class ExcelImportService {
         personne.setPrenom(prenom.trim());
         
         // Type Personne = Responsable (Mpiandraikitra)
-        typePersonneRepository.findByNom("Responsable").ifPresent(personne::setTypePersonne);
+        TypePersonne typeResponsable = typePersonneRepository.findByNom("Responsable")
+            .orElseThrow(() -> new Exception("Type 'Responsable' non trouvé dans la base"));
+        personne.setTypePersonne(typeResponsable);
         
         // Secteur
-        secteurRepository.findByNom(secteurNom.trim())
+        Secteur secteur = secteurRepository.findByNom(secteurNom.trim())
             .orElseThrow(() -> new Exception("Secteur '" + secteurNom + "' non trouvé"));
-        secteurRepository.findByNom(secteurNom.trim()).ifPresent(personne::setSecteur);
+        personne.setSecteur(secteur);
         
         // Andraikitra
-        andraikitraRepository.findByNom(andraikitraNom.trim())
+        Andraikitra andraikitra = andraikitraRepository.findByNom(andraikitraNom.trim())
             .orElseThrow(() -> new Exception("Andraikitra '" + andraikitraNom + "' non trouvé"));
-        andraikitraRepository.findByNom(andraikitraNom.trim()).ifPresent(personne::setAndraikitra);
+        personne.setAndraikitra(andraikitra);
         
         personne.setAmbaratonga(null);
         personne.setFizarana(null);
@@ -830,25 +967,32 @@ public class ExcelImportService {
             personne.setDateFanekena(dateFanekena);
         }
         
-        // FAFI optionnel
-        String fafiStatut = getArrayValue(values, columnMap.get("fafistatut"));
-        if (fafiStatut != null && !fafiStatut.trim().isEmpty()) {
-            Fafi fafi = new Fafi();
-            LocalDate fafiDatePaiement = parseDate(getArrayValue(values, columnMap.get("fafidatepaiement")));
-            if (fafiDatePaiement != null) {
-                fafi.setDatePaiement(fafiDatePaiement);
-            }
-            String fafiMontantStr = getArrayValue(values, columnMap.get("fafimontant"));
-            if (fafiMontantStr != null && !fafiMontantStr.trim().isEmpty()) {
-                try {
-                    fafi.setMontant(new BigDecimal(fafiMontantStr.trim().replace(",", ".")));
-                } catch (NumberFormatException e) {
-                    // Ignorer si le montant n'est pas valide
-                }
-            }
-            fafi.setStatut(fafiStatut.trim());
-            fafi = fafiRepository.save(fafi);
-            personne.setFafi(fafi);
+        // Vondrona (Groupe) - optionnel
+        String vondronaNom = getArrayValue(values, columnMap.get("vondrona"));
+        if (vondronaNom != null && !vondronaNom.trim().isEmpty()) {
+            vondronaRepository.findByNom(vondronaNom.trim())
+                .ifPresent(personne::setVondrona);
+        }
+        
+        // FAFI n'est PAS importé depuis Excel - ne pas créer de FAFI
+        // Le FAFI sera géré séparément via l'interface d'administration
+        personne.setFafi(null);
+        
+        // Affecter le Fivondronana si défini
+        if (currentFivondronanaId != null) {
+            fivondronanaRepository.findById(currentFivondronanaId)
+                .ifPresent(personne::setFivondronana);
+        }
+        
+        // Validation finale
+        if (personne.getTypePersonne() == null) {
+            throw new Exception("Type de personne non défini");
+        }
+        if (personne.getSecteur() == null) {
+            throw new Exception("Secteur non défini");
+        }
+        if (personne.getAndraikitra() == null) {
+            throw new Exception("Andraikitra non défini");
         }
         
         return personne;
@@ -863,21 +1007,7 @@ public class ExcelImportService {
     }
 
     private LocalDate parseDate(String dateStr) {
-        if (dateStr == null || dateStr.trim().isEmpty()) {
-            return null;
-        }
-        dateStr = dateStr.trim();
-        String[] formats = {"yyyy-MM-dd", "dd/MM/yyyy", "dd-MM-yyyy", "yyyy/MM/dd"};
-        for (String format : formats) {
-            try {
-                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat(format);
-                java.util.Date date = sdf.parse(dateStr);
-                return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            } catch (Exception e) {
-                // Continuer avec le format suivant
-            }
-        }
-        return null;
+        return parseDateString(dateStr);
     }
 }
 

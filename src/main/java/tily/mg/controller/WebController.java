@@ -40,41 +40,93 @@ public class WebController {
     @Autowired
     private ExcelImportService excelImportService;
 
-    private String getCurrentUserName() {
+    /**
+     * Récupère l'utilisateur connecté
+     */
+    private Optional<Utilisateur> getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.isAuthenticated()) {
-            String email = auth.getName();
-            return authService.findByEmail(email)
-                    .map(Utilisateur::getNomComplet)
-                    .orElse("Utilisateur");
+        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) {
+            return authService.findByEmail(auth.getName());
         }
-        return "Utilisateur";
+        return Optional.empty();
+    }
+
+    /**
+     * Vérifie si l'utilisateur connecté est admin
+     */
+    private boolean isAdmin() {
+        return getCurrentUser().map(Utilisateur::isAdmin).orElse(false);
+    }
+
+    /**
+     * Récupère l'ID du Fivondronana de l'utilisateur connecté (null pour admin)
+     */
+    private Integer getCurrentUserFivondronanaId() {
+        return getCurrentUser().map(Utilisateur::getFivondronanaId).orElse(null);
+    }
+
+    private String getCurrentUserName() {
+        return getCurrentUser().map(Utilisateur::getNomComplet).orElse("Utilisateur");
+    }
+
+    private void addCommonAttributes(Model model) {
+        model.addAttribute("userName", getCurrentUserName());
+        model.addAttribute("isAdmin", isAdmin());
+        getCurrentUser().ifPresent(user -> {
+            model.addAttribute("currentUser", user);
+            if (user.getFivondronana() != null) {
+                model.addAttribute("currentFivondronana", user.getFivondronana());
+            }
+        });
     }
 
     @GetMapping({"/", "/dashboard"})
     public String dashboard(Model model) {
-        model.addAttribute("userName", getCurrentUserName());
+        addCommonAttributes(model);
         model.addAttribute("pageTitle", "Dashboard Overview");
 
+        Integer fivondronanaId = getCurrentUserFivondronanaId();
+        boolean admin = isAdmin();
+
         // Responsables stats
-        Long totalResponsables = dashboardService.getTotalResponsables();
-        Long responsablesWithFafi = dashboardService.getResponsablesWithFafi();
-        Long responsablesWithoutFafi = dashboardService.getResponsablesWithoutFafi();
+        Long totalResponsables;
+        Long responsablesWithFafi;
+        Long responsablesWithoutFafi;
+
+        // Eleves stats
+        Long totalEleves;
+        Long elevesWithFafi;
+        Long elevesWithoutFafi;
+
+        if (admin) {
+            // Admin voit tout
+            totalResponsables = dashboardService.getTotalResponsables();
+            responsablesWithFafi = dashboardService.getResponsablesWithFafi();
+            responsablesWithoutFafi = dashboardService.getResponsablesWithoutFafi();
+
+            totalEleves = dashboardService.getTotalEleves();
+            elevesWithFafi = dashboardService.getElevesWithFafi();
+            elevesWithoutFafi = dashboardService.getElevesWithoutFafi();
+        } else {
+            // Utilisateur Fivondronana voit seulement son Fivondronana
+            totalResponsables = personneService.countResponsablesByFivondronana(fivondronanaId);
+            responsablesWithFafi = personneService.countResponsablesWithFafiByFivondronana(fivondronanaId);
+            responsablesWithoutFafi = totalResponsables - responsablesWithFafi;
+
+            totalEleves = personneService.countElevesByFivondronana(fivondronanaId);
+            elevesWithFafi = personneService.countElevesWithFafiByFivondronana(fivondronanaId);
+            elevesWithoutFafi = totalEleves - elevesWithFafi;
+        }
 
         model.addAttribute("totalResponsables", totalResponsables);
         model.addAttribute("responsablesWithFafi", responsablesWithFafi);
         model.addAttribute("responsablesWithoutFafi", responsablesWithoutFafi);
 
-        // Eleves stats
-        Long totalEleves = dashboardService.getTotalEleves();
-        Long elevesWithFafi = dashboardService.getElevesWithFafi();
-        Long elevesWithoutFafi = dashboardService.getElevesWithoutFafi();
-
         model.addAttribute("totalEleves", totalEleves);
         model.addAttribute("elevesWithFafi", elevesWithFafi);
         model.addAttribute("elevesWithoutFafi", elevesWithoutFafi);
 
-        // FAFI Total stats
+        // FAFI Total stats (admin seulement pour le total global)
         NumberFormat formatter = NumberFormat.getInstance(Locale.FRANCE);
         String totalFafi = formatter.format(dashboardService.getTotalFafiMontant()) + " Ar";
         Long paidFafi = dashboardService.getTotalPaidFafi();
@@ -90,19 +142,36 @@ public class WebController {
     @GetMapping("/responsables")
     public String responsables(
             Model model,
+            @RequestParam(required = false) Integer fivondronanaId,
             @RequestParam(required = false) Integer secteurId,
             @RequestParam(required = false) Integer andraikitraId,
+            @RequestParam(required = false) Integer vondronaId,
             @RequestParam(required = false) Boolean hasFafi
     ) {
-        model.addAttribute("userName", getCurrentUserName());
+        addCommonAttributes(model);
         model.addAttribute("pageTitle", "Responsables");
 
-        // Get filtered or all responsables
+        boolean admin = isAdmin();
+        Integer userFivondronanaId = getCurrentUserFivondronanaId();
+
         List<Personne> responsables;
-        if (secteurId != null || andraikitraId != null || hasFafi != null) {
-            responsables = personneService.filterResponsables(secteurId, andraikitraId, hasFafi);
+
+        if (admin) {
+            // Admin peut filtrer par Fivondronana ou voir tout
+            if (fivondronanaId != null || secteurId != null || andraikitraId != null || vondronaId != null || hasFafi != null) {
+                responsables = personneService.filterResponsables(fivondronanaId, secteurId, andraikitraId, vondronaId, hasFafi);
+            } else {
+                responsables = personneService.findAllResponsables();
+            }
+            // Admin peut voir la liste des Fivondronana pour filtrer
+            model.addAttribute("fivondronana", personneService.findAllFivondronana());
         } else {
-            responsables = personneService.findAllResponsables();
+            // Utilisateur Fivondronana voit seulement son Fivondronana
+            if (secteurId != null || andraikitraId != null || vondronaId != null || hasFafi != null) {
+                responsables = personneService.filterResponsablesByFivondronana(userFivondronanaId, secteurId, andraikitraId, vondronaId, hasFafi);
+            } else {
+                responsables = personneService.findResponsablesByFivondronana(userFivondronanaId);
+            }
         }
 
         model.addAttribute("responsables", responsables);
@@ -111,6 +180,7 @@ public class WebController {
         // Reference data for filters and form
         model.addAttribute("secteurs", personneService.findAllSecteurs());
         model.addAttribute("andraikitra", personneService.findAllAndraikitra());
+        model.addAttribute("vondrona", personneService.findAllVondrona());
 
         return "responsables";
     }
@@ -128,6 +198,8 @@ public class WebController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFanekena,
             @RequestParam(required = false) Integer secteurId,
             @RequestParam(required = false) Integer andraikitraId,
+            @RequestParam(required = false) Integer vondronaId,
+            @RequestParam(required = false) Integer fivondronanaId,
             RedirectAttributes redirectAttributes
     ) {
         try {
@@ -136,14 +208,21 @@ public class WebController {
             personne.setPrenom(prenom);
             personne.setTotem(totem);
             personne.setDateNaissance(dateNaissance);
-            // Pas de niveau pour les responsables
             personne.setNumeroTelephone(numeroTelephone);
             personne.setNumeroCin(numeroCin);
             personne.setNomPere(nomPere);
             personne.setNomMere(nomMere);
             personne.setDateFanekena(dateFanekena);
 
-            personneService.createResponsable(personne, secteurId, andraikitraId);
+            // Pour les non-admin, forcer le Fivondronana de l'utilisateur
+            Integer effectiveFivondronanaId;
+            if (isAdmin()) {
+                effectiveFivondronanaId = fivondronanaId;
+            } else {
+                effectiveFivondronanaId = getCurrentUserFivondronanaId();
+            }
+
+            personneService.createResponsable(personne, secteurId, andraikitraId, vondronaId, effectiveFivondronanaId);
             
             redirectAttributes.addFlashAttribute("successMessage", "Tafiditra mpiandraikitra !");
         } catch (Exception e) {
@@ -167,15 +246,24 @@ public class WebController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFanekena,
             @RequestParam(required = false) Integer secteurId,
             @RequestParam(required = false) Integer andraikitraId,
+            @RequestParam(required = false) Integer vondronaId,
             RedirectAttributes redirectAttributes
     ) {
         try {
+            // Vérifier les permissions
+            if (!isAdmin()) {
+                Integer userFivondronanaId = getCurrentUserFivondronanaId();
+                if (!personneService.personneAppartientAFivondronana(id, userFivondronanaId)) {
+                    redirectAttributes.addFlashAttribute("errorMessage", "Vous n'avez pas la permission de modifier cette personne");
+                    return "redirect:/responsables";
+                }
+            }
+
             personneService.findById(id).ifPresent(personne -> {
                 personne.setNom(nom);
                 personne.setPrenom(prenom);
                 personne.setTotem(totem);
                 personne.setDateNaissance(dateNaissance);
-                // Pas d'ambaratonga pour les responsables
                 personne.setAmbaratonga(null);
                 personne.setNumeroTelephone(numeroTelephone);
                 personne.setNumeroCin(numeroCin);
@@ -195,6 +283,12 @@ public class WebController {
                     personne.setAndraikitra(null);
                 }
 
+                if (vondronaId != null) {
+                    personneService.findVondronaById(vondronaId).ifPresent(personne::setVondrona);
+                } else {
+                    personne.setVondrona(null);
+                }
+
                 personneService.save(personne);
             });
             
@@ -212,6 +306,15 @@ public class WebController {
             RedirectAttributes redirectAttributes
     ) {
         try {
+            // Vérifier les permissions
+            if (!isAdmin()) {
+                Integer userFivondronanaId = getCurrentUserFivondronanaId();
+                if (!personneService.personneAppartientAFivondronana(id, userFivondronanaId)) {
+                    redirectAttributes.addFlashAttribute("errorMessage", "Vous n'avez pas la permission de supprimer cette personne");
+                    return "redirect:/responsables";
+                }
+            }
+
             personneService.delete(id);
             redirectAttributes.addFlashAttribute("successMessage", "Responsable supprimé avec succès !");
         } catch (Exception e) {
@@ -224,20 +327,37 @@ public class WebController {
     @GetMapping("/eleves")
     public String eleves(
             Model model,
+            @RequestParam(required = false) Integer fivondronanaId,
             @RequestParam(required = false) Integer secteurId,
             @RequestParam(required = false) Integer fizaranaId,
+            @RequestParam(required = false) Integer vondronaId,
             @RequestParam(required = false) String ambaratonga,
             @RequestParam(required = false) Boolean hasFafi
     ) {
-        model.addAttribute("userName", getCurrentUserName());
+        addCommonAttributes(model);
         model.addAttribute("pageTitle", "Élèves");
 
-        // Get filtered or all eleves
+        boolean admin = isAdmin();
+        Integer userFivondronanaId = getCurrentUserFivondronanaId();
+
         List<Personne> eleves;
-        if (secteurId != null || fizaranaId != null || ambaratonga != null || hasFafi != null) {
-            eleves = personneService.filterEleves(secteurId, fizaranaId, ambaratonga, hasFafi);
+
+        if (admin) {
+            // Admin peut filtrer par Fivondronana ou voir tout
+            if (fivondronanaId != null || secteurId != null || fizaranaId != null || vondronaId != null || ambaratonga != null || hasFafi != null) {
+                eleves = personneService.filterEleves(fivondronanaId, secteurId, fizaranaId, vondronaId, ambaratonga, hasFafi);
+            } else {
+                eleves = personneService.findAllEleves();
+            }
+            // Admin peut voir la liste des Fivondronana pour filtrer
+            model.addAttribute("fivondronana", personneService.findAllFivondronana());
         } else {
-            eleves = personneService.findAllEleves();
+            // Utilisateur Fivondronana voit seulement son Fivondronana
+            if (secteurId != null || fizaranaId != null || vondronaId != null || ambaratonga != null || hasFafi != null) {
+                eleves = personneService.filterElevesByFivondronana(userFivondronanaId, secteurId, fizaranaId, vondronaId, ambaratonga, hasFafi);
+            } else {
+                eleves = personneService.findElevesByFivondronana(userFivondronanaId);
+            }
         }
 
         model.addAttribute("eleves", eleves);
@@ -246,6 +366,7 @@ public class WebController {
         // Reference data for filters and form
         model.addAttribute("secteurs", personneService.findAllSecteurs());
         model.addAttribute("fizarana", personneService.findAllFizarana());
+        model.addAttribute("vondrona", personneService.findAllVondrona());
         model.addAttribute("fafiStatuts", personneService.findAllFafiStatuts());
 
         return "eleves";
@@ -263,6 +384,8 @@ public class WebController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFanekena,
             @RequestParam(required = false) Integer secteurId,
             @RequestParam(required = false) Integer fizaranaId,
+            @RequestParam(required = false) Integer vondronaId,
+            @RequestParam(required = false) Integer fivondronanaId,
             RedirectAttributes redirectAttributes
     ) {
         try {
@@ -276,7 +399,15 @@ public class WebController {
             personne.setNomMere(nomMere);
             personne.setDateFanekena(dateFanekena);
 
-            personneService.createEleve(personne, secteurId, fizaranaId);
+            // Pour les non-admin, forcer le Fivondronana de l'utilisateur
+            Integer effectiveFivondronanaId;
+            if (isAdmin()) {
+                effectiveFivondronanaId = fivondronanaId;
+            } else {
+                effectiveFivondronanaId = getCurrentUserFivondronanaId();
+            }
+
+            personneService.createEleve(personne, secteurId, fizaranaId, vondronaId, effectiveFivondronanaId);
             
             redirectAttributes.addFlashAttribute("successMessage", "Tafiditra soa ny Beazina!");
         } catch (Exception e) {
@@ -299,9 +430,19 @@ public class WebController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFanekena,
             @RequestParam(required = false) Integer secteurId,
             @RequestParam(required = false) Integer fizaranaId,
+            @RequestParam(required = false) Integer vondronaId,
             RedirectAttributes redirectAttributes
     ) {
         try {
+            // Vérifier les permissions
+            if (!isAdmin()) {
+                Integer userFivondronanaId = getCurrentUserFivondronanaId();
+                if (!personneService.personneAppartientAFivondronana(id, userFivondronanaId)) {
+                    redirectAttributes.addFlashAttribute("errorMessage", "Vous n'avez pas la permission de modifier cette personne");
+                    return "redirect:/eleves";
+                }
+            }
+
             personneService.findById(id).ifPresent(personne -> {
                 personne.setNom(nom);
                 personne.setPrenom(prenom);
@@ -324,6 +465,12 @@ public class WebController {
                     personne.setFizarana(null);
                 }
 
+                if (vondronaId != null) {
+                    personneService.findVondronaById(vondronaId).ifPresent(personne::setVondrona);
+                } else {
+                    personne.setVondrona(null);
+                }
+
                 personneService.save(personne);
             });
             
@@ -341,6 +488,15 @@ public class WebController {
             RedirectAttributes redirectAttributes
     ) {
         try {
+            // Vérifier les permissions
+            if (!isAdmin()) {
+                Integer userFivondronanaId = getCurrentUserFivondronanaId();
+                if (!personneService.personneAppartientAFivondronana(id, userFivondronanaId)) {
+                    redirectAttributes.addFlashAttribute("errorMessage", "Vous n'avez pas la permission de supprimer cette personne");
+                    return "redirect:/eleves";
+                }
+            }
+
             personneService.delete(id);
             redirectAttributes.addFlashAttribute("successMessage", "Élève supprimé avec succès !");
         } catch (Exception e) {
@@ -350,128 +506,7 @@ public class WebController {
         return "redirect:/eleves";
     }
 
-    @GetMapping("/profil")
-    public String profil(Model model) {
-        model.addAttribute("userName", getCurrentUserName());
-        model.addAttribute("pageTitle", "Mon Profil");
-
-        // Récupérer l'utilisateur connecté avec ses détails
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.isAuthenticated()) {
-            String email = auth.getName();
-            authService.findByEmail(email).ifPresent(utilisateur -> {
-                model.addAttribute("utilisateur", utilisateur);
-                model.addAttribute("personne", utilisateur.getPersonne());
-            });
-        }
-
-        // Reference data pour les selects
-        model.addAttribute("secteurs", personneService.findAllSecteurs());
-        model.addAttribute("fizarana", personneService.findAllFizarana());
-        model.addAttribute("andraikitra", personneService.findAllAndraikitra());
-        model.addAttribute("fafiStatuts", personneService.findAllFafiStatuts());
-
-        return "profil";
-    }
-
-    @PostMapping("/profil/modifier")
-    public String modifierProfil(
-            @RequestParam String nom,
-            @RequestParam String prenom,
-            @RequestParam(required = false) String totem,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateNaissance,
-            @RequestParam(required = false) String ambaratonga,
-            @RequestParam(required = false) String numeroTelephone,
-            @RequestParam(required = false) String numeroCin,
-            @RequestParam(required = false) String nomPere,
-            @RequestParam(required = false) String nomMere,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFanekena,
-            @RequestParam(required = false) Integer secteurId,
-            @RequestParam(required = false) Integer fizaranaId,
-            @RequestParam(required = false) Integer andraikitraId,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fafiDatePaiement,
-            @RequestParam(required = false) BigDecimal fafiMontant,
-            @RequestParam(required = false) String fafiStatut,
-            RedirectAttributes redirectAttributes
-    ) {
-        try {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) {
-                String email = auth.getName();
-                Optional<Utilisateur> utilisateurOpt = authService.findByEmail(email);
-                if (utilisateurOpt.isPresent()) {
-                    Utilisateur utilisateur = utilisateurOpt.get();
-                    Personne personne = utilisateur.getPersonne();
-                    if (personne != null) {
-                        personne.setNom(nom);
-                        personne.setPrenom(prenom);
-                        personne.setTotem(totem);
-                        personne.setDateNaissance(dateNaissance);
-                        personne.setNumeroTelephone(numeroTelephone);
-                        personne.setNumeroCin(numeroCin);
-                        personne.setNomPere(nomPere);
-                        personne.setNomMere(nomMere);
-                        personne.setDateFanekena(dateFanekena);
-
-                        // Si c'est un Beazina, utiliser ambaratonga et fizarana
-                        // Si c'est un Mpiandraikitra, utiliser andraikitra (pas d'ambaratonga)
-                        if (personne.isBeazina()) {
-                            personne.setAmbaratonga(ambaratonga);
-                        } else if (personne.isMpiandraikitra()) {
-                            personne.setAmbaratonga(null);
-                        }
-
-                        // Update secteur
-                        if (secteurId != null) {
-                            personneService.findSecteurById(secteurId).ifPresent(personne::setSecteur);
-                        } else {
-                            personne.setSecteur(null);
-                        }
-
-                        // Update fizarana pour Beazina
-                        if (personne.isBeazina()) {
-                            if (fizaranaId != null) {
-                                personneService.findFizaranaById(fizaranaId).ifPresent(personne::setFizarana);
-                            } else {
-                                personne.setFizarana(null);
-                            }
-                            personne.setAndraikitra(null);
-                        }
-
-                        // Update andraikitra pour Mpiandraikitra
-                        if (personne.isMpiandraikitra()) {
-                            if (andraikitraId != null) {
-                                personneService.findAndraikitraById(andraikitraId).ifPresent(personne::setAndraikitra);
-                            } else {
-                                personne.setAndraikitra(null);
-                            }
-                            personne.setFizarana(null);
-                        }
-
-                        // Sauvegarder les modifications de la personne
-                        personneService.save(personne);
-                        
-                        // Mettre à jour le FAFI si les paramètres sont fournis
-                        personneService.updateFafi(personne.getId(), fafiDatePaiement, fafiMontant, fafiStatut);
-                        
-                        redirectAttributes.addFlashAttribute("successMessage", "Voaray ny fihovana");
-                    } else {
-                        redirectAttributes.addFlashAttribute("errorMessage", "Tsy hita ny mombamomba ny olona");
-                    }
-                } else {
-                    redirectAttributes.addFlashAttribute("errorMessage", "Tsy hita ny mpampiasa");
-                }
-            } else {
-                redirectAttributes.addFlashAttribute("errorMessage", "Tsy voaantoka ny mpampiasa");
-            }
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Nisy olana : " + e.getMessage());
-        }
-
-        return "redirect:/profil";
-    }
-
-    // Endpoint pour modifier le FAFI d'un élève (admin)
+    // Endpoint pour modifier le FAFI d'un élève (admin ou utilisateur du même Fivondronana)
     @PostMapping("/eleves/modifier-fafi")
     public String modifierFafiEleve(
             @RequestParam Integer personneId,
@@ -481,6 +516,15 @@ public class WebController {
             RedirectAttributes redirectAttributes
     ) {
         try {
+            // Vérifier les permissions
+            if (!isAdmin()) {
+                Integer userFivondronanaId = getCurrentUserFivondronanaId();
+                if (!personneService.personneAppartientAFivondronana(personneId, userFivondronanaId)) {
+                    redirectAttributes.addFlashAttribute("errorMessage", "Vous n'avez pas la permission de modifier le FAFI de cette personne");
+                    return "redirect:/eleves";
+                }
+            }
+
             personneService.updateFafi(personneId, datePaiement, montant, statut);
             redirectAttributes.addFlashAttribute("successMessage", "FAFI novaina soa!");
         } catch (Exception e) {
@@ -489,38 +533,31 @@ public class WebController {
         return "redirect:/eleves";
     }
 
-    // Endpoint pour modifier le FAFI depuis le profil (utilisateur)
-    @PostMapping("/profil/modifier-fafi")
-    public String modifierFafiProfil(
+    // Endpoint pour modifier le FAFI d'un responsable
+    @PostMapping("/responsables/modifier-fafi")
+    public String modifierFafiResponsable(
+            @RequestParam Integer personneId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate datePaiement,
             @RequestParam(required = false) BigDecimal montant,
             @RequestParam(required = false) String statut,
             RedirectAttributes redirectAttributes
     ) {
         try {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) {
-                String email = auth.getName();
-                Optional<Utilisateur> utilisateurOpt = authService.findByEmail(email);
-                if (utilisateurOpt.isPresent()) {
-                    Utilisateur utilisateur = utilisateurOpt.get();
-                    Personne personne = utilisateur.getPersonne();
-                    if (personne != null) {
-                        personneService.updateFafi(personne.getId(), datePaiement, montant, statut);
-                        redirectAttributes.addFlashAttribute("successMessage", "FAFI novaina soa!");
-                    } else {
-                        redirectAttributes.addFlashAttribute("errorMessage", "Tsy hita ny mombamomba ny olona");
-                    }
-                } else {
-                    redirectAttributes.addFlashAttribute("errorMessage", "Tsy hita ny mpampiasa amin'ny email: " + email);
+            // Vérifier les permissions
+            if (!isAdmin()) {
+                Integer userFivondronanaId = getCurrentUserFivondronanaId();
+                if (!personneService.personneAppartientAFivondronana(personneId, userFivondronanaId)) {
+                    redirectAttributes.addFlashAttribute("errorMessage", "Vous n'avez pas la permission de modifier le FAFI de cette personne");
+                    return "redirect:/responsables";
                 }
-            } else {
-                redirectAttributes.addFlashAttribute("errorMessage", "Tsy voaantoka ny mpampiasa");
             }
+
+            personneService.updateFafi(personneId, datePaiement, montant, statut);
+            redirectAttributes.addFlashAttribute("successMessage", "FAFI novaina soa!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Nisy tsy nety: " + e.getMessage());
         }
-        return "redirect:/profil";
+        return "redirect:/responsables";
     }
 
     // Endpoint pour importer des Beazina depuis Excel
@@ -541,7 +578,10 @@ public class WebController {
         }
 
         try {
-            ExcelImportService.ImportResult result = excelImportService.importBeazina(file);
+            // Récupérer le Fivondronana de l'utilisateur pour l'import
+            Integer fivondronanaId = isAdmin() ? null : getCurrentUserFivondronanaId();
+            
+            ExcelImportService.ImportResult result = excelImportService.importBeazina(file, fivondronanaId);
             
             if (result.getErrorCount() == 0) {
                 redirectAttributes.addFlashAttribute("successMessage", 
@@ -578,7 +618,10 @@ public class WebController {
         }
 
         try {
-            ExcelImportService.ImportResult result = excelImportService.importMpiandraikitra(file);
+            // Récupérer le Fivondronana de l'utilisateur pour l'import
+            Integer fivondronanaId = isAdmin() ? null : getCurrentUserFivondronanaId();
+            
+            ExcelImportService.ImportResult result = excelImportService.importMpiandraikitra(file, fivondronanaId);
             
             if (result.getErrorCount() == 0) {
                 redirectAttributes.addFlashAttribute("successMessage", 
@@ -595,5 +638,80 @@ public class WebController {
         }
 
         return "redirect:/responsables";
+    }
+
+    // ========== ADMIN: Gestion des utilisateurs Fivondronana ==========
+
+    @GetMapping("/admin/utilisateurs")
+    public String gestionUtilisateurs(Model model) {
+        if (!isAdmin()) {
+            return "redirect:/access-denied";
+        }
+
+        addCommonAttributes(model);
+        model.addAttribute("pageTitle", "Gestion des Utilisateurs");
+        model.addAttribute("utilisateurs", authService.findAllNonAdminUsers());
+        model.addAttribute("fivondronana", personneService.findAllFivondronana());
+
+        return "admin/utilisateurs";
+    }
+
+    @PostMapping("/admin/utilisateurs/ajouter")
+    public String ajouterUtilisateurFivondronana(
+            @RequestParam String email,
+            @RequestParam String motDePasse,
+            @RequestParam Integer fivondronanaId,
+            RedirectAttributes redirectAttributes
+    ) {
+        if (!isAdmin()) {
+            return "redirect:/access-denied";
+        }
+
+        try {
+            authService.creerCompteFivondronana(email, motDePasse, fivondronanaId);
+            redirectAttributes.addFlashAttribute("successMessage", "Utilisateur créé avec succès !");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Erreur : " + e.getMessage());
+        }
+
+        return "redirect:/admin/utilisateurs";
+    }
+
+    @PostMapping("/admin/utilisateurs/toggle")
+    public String toggleUtilisateur(
+            @RequestParam Integer userId,
+            RedirectAttributes redirectAttributes
+    ) {
+        if (!isAdmin()) {
+            return "redirect:/access-denied";
+        }
+
+        try {
+            authService.toggleUserActif(userId);
+            redirectAttributes.addFlashAttribute("successMessage", "Statut modifié avec succès !");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Erreur : " + e.getMessage());
+        }
+
+        return "redirect:/admin/utilisateurs";
+    }
+
+    @PostMapping("/admin/utilisateurs/supprimer")
+    public String supprimerUtilisateur(
+            @RequestParam Integer userId,
+            RedirectAttributes redirectAttributes
+    ) {
+        if (!isAdmin()) {
+            return "redirect:/access-denied";
+        }
+
+        try {
+            authService.deleteUser(userId);
+            redirectAttributes.addFlashAttribute("successMessage", "Utilisateur supprimé avec succès !");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Erreur : " + e.getMessage());
+        }
+
+        return "redirect:/admin/utilisateurs";
     }
 }

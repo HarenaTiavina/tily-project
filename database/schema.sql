@@ -41,6 +41,23 @@ CREATE TABLE IF NOT EXISTS andraikitra (
 );
 
 -- =====================================
+-- TABLE : vondrona (Vondrona en malgache - groupe pour les Beazina et Mpiandraikitra)
+-- =====================================
+CREATE TABLE IF NOT EXISTS vondrona (
+    idVondrona SERIAL PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL
+);
+
+-- =====================================
+-- TABLE : fivondronana (District - pour la gestion des accès)
+-- =====================================
+CREATE TABLE IF NOT EXISTS fivondronana (
+    idFivondronana SERIAL PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL,
+    code VARCHAR(20)
+);
+
+-- =====================================
 -- TABLE : fafi (FAFI en malgache - remplace assurance)
 -- =====================================
 CREATE TABLE IF NOT EXISTS fafi (
@@ -71,6 +88,8 @@ CREATE TABLE IF NOT EXISTS personne (
     idSecteur INTEGER,
     idSection INTEGER,
     idAndraikitra INTEGER,
+    idVondrona INTEGER,
+    idFivondronana INTEGER,
     CONSTRAINT fk_type_personne FOREIGN KEY (idTypePersonne)
         REFERENCES type_personne(idTypePersonne),
     CONSTRAINT fk_fafi FOREIGN KEY (idFafi)
@@ -80,11 +99,16 @@ CREATE TABLE IF NOT EXISTS personne (
     CONSTRAINT fk_section FOREIGN KEY (idSection)
         REFERENCES section(idSection),
     CONSTRAINT fk_andraikitra FOREIGN KEY (idAndraikitra)
-        REFERENCES andraikitra(idAndraikitra)
+        REFERENCES andraikitra(idAndraikitra),
+    CONSTRAINT fk_vondrona FOREIGN KEY (idVondrona)
+        REFERENCES vondrona(idVondrona),
+    CONSTRAINT fk_fivondronana FOREIGN KEY (idFivondronana)
+        REFERENCES fivondronana(idFivondronana)
 );
 
 -- =====================================
 -- TABLE : utilisateur
+-- Lié à un Fivondronana (sauf admin qui a fivondronana = NULL)
 -- =====================================
 CREATE TABLE IF NOT EXISTS utilisateur (
     idUtilisateur SERIAL PRIMARY KEY,
@@ -94,9 +118,9 @@ CREATE TABLE IF NOT EXISTS utilisateur (
     actif BOOLEAN DEFAULT TRUE,
     dateCreation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     derniereConnexion TIMESTAMP,
-    idPersonne INTEGER,
-    CONSTRAINT fk_utilisateur_personne FOREIGN KEY (idPersonne)
-        REFERENCES personne(idPersonne) ON DELETE SET NULL
+    idFivondronana INTEGER,
+    CONSTRAINT fk_utilisateur_fivondronana FOREIGN KEY (idFivondronana)
+        REFERENCES fivondronana(idFivondronana) ON DELETE SET NULL
 );
 
 -- Index pour améliorer les performances
@@ -105,8 +129,10 @@ CREATE INDEX IF NOT EXISTS idx_personne_secteur ON personne(idSecteur);
 CREATE INDEX IF NOT EXISTS idx_personne_section ON personne(idSection);
 CREATE INDEX IF NOT EXISTS idx_personne_andraikitra ON personne(idAndraikitra);
 CREATE INDEX IF NOT EXISTS idx_personne_fafi ON personne(idFafi);
+CREATE INDEX IF NOT EXISTS idx_personne_vondrona ON personne(idVondrona);
+CREATE INDEX IF NOT EXISTS idx_personne_fivondronana ON personne(idFivondronana);
 CREATE INDEX IF NOT EXISTS idx_utilisateur_email ON utilisateur(email);
-CREATE INDEX IF NOT EXISTS idx_utilisateur_personne ON utilisateur(idPersonne);
+CREATE INDEX IF NOT EXISTS idx_utilisateur_fivondronana ON utilisateur(idFivondronana);
 
 -- =====================================
 -- TABLES SPRING SESSION
@@ -133,4 +159,3 @@ CREATE TABLE IF NOT EXISTS spring_session_attributes (
     CONSTRAINT spring_session_attributes_pk PRIMARY KEY (session_primary_id, attribute_name),
     CONSTRAINT spring_session_attributes_fk FOREIGN KEY (session_primary_id) REFERENCES spring_session(primary_id) ON DELETE CASCADE
 );
-

@@ -9,27 +9,25 @@
         </button>
     </div>
     <nav class="sidebar-nav">
+        <!-- Menu commun (ADMIN et USER) -->
+        <a th:href="@{/dashboard}" class="nav-item" th:classappend="${activePage == 'dashboard'} ? 'active'" data-tooltip="Dashboard">
+            <i class="fas fa-home"></i>
+            <span class="nav-text">Dashboard</span>
+        </a>
+        <a th:href="@{/responsables}" class="nav-item" th:classappend="${activePage == 'responsables'} ? 'active'" data-tooltip="Mpiandraikitra">
+            <i class="fas fa-user-tie"></i>
+            <span class="nav-text">Mpiandraikitra</span>
+        </a>
+        <a th:href="@{/eleves}" class="nav-item" th:classappend="${activePage == 'eleves'} ? 'active'" data-tooltip="Beazina">
+            <i class="fas fa-user-graduate"></i>
+            <span class="nav-text">Beazina</span>
+        </a>
+        
         <!-- Menu ADMIN uniquement -->
         <div sec:authorize="hasRole('ADMIN')">
-            <a th:href="@{/dashboard}" class="nav-item" th:classappend="${activePage == 'dashboard'} ? 'active'" data-tooltip="Dashboard">
-                <i class="fas fa-home"></i>
-                <span class="nav-text">Dashboard</span>
-            </a>
-            <a th:href="@{/responsables}" class="nav-item" th:classappend="${activePage == 'responsables'} ? 'active'" data-tooltip="Mpiandraikitra">
-                <i class="fas fa-user-tie"></i>
-                <span class="nav-text">Mpiandraikitra</span>
-            </a>
-            <a th:href="@{/eleves}" class="nav-item" th:classappend="${activePage == 'eleves'} ? 'active'" data-tooltip="Beazina">
-                <i class="fas fa-user-graduate"></i>
-                <span class="nav-text">Beazina</span>
-            </a>
-        </div>
-        
-        <!-- Menu USER uniquement -->
-        <div sec:authorize="hasRole('USER')">
-            <a th:href="@{/profil}" class="nav-item" th:classappend="${activePage == 'profil'} ? 'active'" data-tooltip="Ny mombamomba ahy">
-                <i class="fas fa-user-circle"></i>
-                <span class="nav-text">Ny mombamomba ahy</span>
+            <a th:href="@{/admin/utilisateurs}" class="nav-item" th:classappend="${activePage == 'utilisateurs'} ? 'active'" data-tooltip="Mpampiasa">
+                <i class="fas fa-users-cog"></i>
+                <span class="nav-text">Mpampiasa</span>
             </a>
         </div>
     </nav>

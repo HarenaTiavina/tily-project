@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="mg" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitantanana Mpampiasa - Tily</title>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Styles supplémentaires pour la page utilisateurs */
+        .card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .btn-primary-custom {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary-custom:hover {
+            background: #7040e0;
+        }
+
+        .btn-success-custom {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-danger-custom {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-warning-custom {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.75rem;
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .users-table th, .users-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .users-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+        }
+
+        .users-table tr:hover {
+            background: #f8fafc;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-inactive {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            padding: 1.25rem 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.625rem 0.875rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.875rem;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(137, 81, 255, 0.1);
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar existant -->
+    <div th:replace="~{fragments/sidebar :: sidebar('utilisateurs')}"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Topbar -->
+        <div th:replace="~{fragments/topbar :: topbar('Fitantanana Mpampiasa', ${userName})}"></div>
+
+        <!-- Page Content -->
+        <div class="dashboard-content">
+            <!-- Hafatra fanazavana -->
+            <div th:if="${successMessage}" class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                <span th:text="${successMessage}"></span>
+                <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span th:text="${errorMessage}"></span>
+                <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+            </div>
+
+            <!-- Karatra Mpampiasa -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Kaonty Fivondronana</h2>
+                    <button class="btn btn-primary-custom" onclick="openAddModal()">
+                        <i class="fas fa-plus"></i>
+                        Hanampy kaonty
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="users-table" th:if="${utilisateurs != null && !utilisateurs.isEmpty()}">
+                        <thead>
+                            <tr>
+                                <th>Mailaka</th>
+                                <th>Fivondronana</th>
+                                <th>Daty namoronana</th>
+                                <th>Firotsahana farany</th>
+                                <th>Sata</th>
+                                <th>Asa</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="user : ${utilisateurs}">
+                                <td th:text="${user.email}">email@example.com</td>
+                                <td th:text="${user.fivondronana != null ? user.fivondronana.nom : '-'}">Fivondronana</td>
+                                <td th:text="${user.dateCreation != null ? #temporals.format(user.dateCreation, 'dd/MM/yyyy HH:mm') : '-'}">01/01/2024</td>
+                                <td th:text="${user.derniereConnexion != null ? #temporals.format(user.derniereConnexion, 'dd/MM/yyyy HH:mm') : 'Mbola tsy niditra'}">Mbola tsy niditra</td>
+                                <td>
+                                    <span th:if="${user.actif}" class="status-badge status-active">Mavitrika</span>
+                                    <span th:unless="${user.actif}" class="status-badge status-inactive">Tsy mavitrika</span>
+                                </td>
+                                <td class="actions">
+                                    <form th:action="@{/admin/utilisateurs/toggle}" method="post" style="display: inline;">
+                                        <input type="hidden" name="userId" th:value="${user.id}">
+                                        <button type="submit" th:class="${user.actif ? 'btn btn-warning-custom btn-sm' : 'btn btn-success-custom btn-sm'}">
+                                            <i th:class="${user.actif ? 'fas fa-ban' : 'fas fa-check'}"></i>
+                                            <span th:text="${user.actif ? 'Hajanona' : 'Hampandeha'}">Toggle</span>
+                                        </button>
+                                    </form>
+                                    <form th:action="@{/admin/utilisateurs/supprimer}" method="post" style="display: inline;" onsubmit="return confirm('Azo antoka ve ianao fa te-hamafa ity mpampiasa ity ?');">
+                                        <input type="hidden" name="userId" th:value="${user.id}">
+                                        <button type="submit" class="btn btn-danger-custom btn-sm">
+                                            <i class="fas fa-trash"></i>
+                                            Hamafa
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div th:if="${utilisateurs == null || utilisateurs.isEmpty()}" class="empty-state">
+                        <i class="fas fa-users"></i>
+                        <p>Tsy mbola misy kaonty Fivondronana</p>
+                        <p>Tsindrio "Hanampy kaonty" mba hamorona ny voalohany.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div th:replace="~{fragments/footer :: footer}"></div>
+    </div>
+
+    <!-- Modal Hanampy Mpampiasa -->
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Hanampy kaonty Fivondronana</h3>
+                <button class="modal-close" onclick="closeAddModal()">&times;</button>
+            </div>
+            <form th:action="@{/admin/utilisateurs/ajouter}" method="post">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="email">Mailaka *</label>
+                        <input type="email" id="email" name="email" required placeholder="email@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="motDePasse">Teny miafina *</label>
+                        <input type="password" id="motDePasse" name="motDePasse" required minlength="6" placeholder="6 marika farafahakeliny">
+                    </div>
+                    <div class="form-group">
+                        <label for="fivondronanaId">Fivondronana *</label>
+                        <select id="fivondronanaId" name="fivondronanaId" required>
+                            <option value="">-- Mifidy Fivondronana iray --</option>
+                            <option th:each="fiv : ${fivondronana}" th:value="${fiv.id}" th:text="${fiv.nom}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" onclick="closeAddModal()">Hanafoana</button>
+                    <button type="submit" class="btn btn-primary-custom">
+                        <i class="fas fa-save"></i>
+                        Hamorona ny kaonty
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Toggle sidebar mobile
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        // Toggle sidebar collapse/expand
+        function toggleSidebarCollapse() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.querySelector('.main-content');
+            const toggleIcon = sidebar.querySelector('.sidebar-toggle i');
+            
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('sidebar-collapsed');
+            
+            if (sidebar.classList.contains('collapsed')) {
+                toggleIcon.classList.remove('fa-chevron-left');
+                toggleIcon.classList.add('fa-chevron-right');
+                localStorage.setItem('sidebarCollapsed', 'true');
+            } else {
+                toggleIcon.classList.remove('fa-chevron-right');
+                toggleIcon.classList.add('fa-chevron-left');
+                localStorage.setItem('sidebarCollapsed', 'false');
+            }
+        }
+        
+        // Restore sidebar state
+        document.addEventListener('DOMContentLoaded', function() {
+            const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            if (isCollapsed) {
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.querySelector('.main-content');
+                const toggleIcon = sidebar.querySelector('.sidebar-toggle i');
+                
+                sidebar.classList.add('collapsed');
+                mainContent.classList.add('sidebar-collapsed');
+                toggleIcon.classList.remove('fa-chevron-left');
+                toggleIcon.classList.add('fa-chevron-right');
+            }
+            
+            // Auto-hide alerts after 5 seconds
+            setTimeout(() => {
+                document.querySelectorAll('.alert').forEach(alert => {
+                    alert.style.opacity = '0';
+                    setTimeout(() => alert.remove(), 300);
+                });
+            }, 5000);
+        });
+
+        function openAddModal() {
+            document.getElementById('addModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeAddModal() {
+            document.getElementById('addModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('addModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAddModal();
+            }
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeAddModal();
+            }
+        });
+    </script>
+</body>
+</html>
