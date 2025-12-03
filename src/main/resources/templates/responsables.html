@@ -141,8 +141,8 @@
                                 th:data-secteurid="${resp.secteur != null ? resp.secteur.id : ''}"
                                 th:data-andraikitra="${resp.andraikitra != null ? resp.andraikitra.nom : ''}"
                                 th:data-andraikitraid="${resp.andraikitra != null ? resp.andraikitra.id : ''}"
-                                th:data-fivondronana="${resp.vondrona != null ? resp.vondrona.nom : ''}"
-                                th:data-fivondronanaid="${resp.vondrona != null ? resp.vondrona.id : ''}"
+                                th:data-vondrona="${resp.vondrona != null ? resp.vondrona.nom : ''}"
+                                th:data-vondronaid="${resp.vondrona != null ? resp.vondrona.id : ''}"
                                 th:data-fivondronana="${resp.fivondronana != null ? resp.fivondronana.nom : ''}"
                                 th:data-fafi="${resp.fafi != null && resp.fafi.statut == 'Active' ? 'Eny' : 'Tsia'}">
                                 <td>
@@ -268,8 +268,8 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="vondronaId">vondrona</label>
-                            <select id="vondronanaId" name="vondronaId">
+                            <label for="vondronaId">Vondrona</label>
+                            <select id="vondronaId" name="vondronaId">
                                 <option value="">-- Mifidy --</option>
                                 <option th:each="v : ${vondrona}" th:value="${v.id}" th:text="${v.nom}"></option>
                             </select>
