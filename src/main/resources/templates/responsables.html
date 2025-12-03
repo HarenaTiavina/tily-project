@@ -141,8 +141,8 @@
                                 th:data-secteurid="${resp.secteur != null ? resp.secteur.id : ''}"
                                 th:data-andraikitra="${resp.andraikitra != null ? resp.andraikitra.nom : ''}"
                                 th:data-andraikitraid="${resp.andraikitra != null ? resp.andraikitra.id : ''}"
-                                th:data-vondrona="${resp.vondrona != null ? resp.vondrona.nom : ''}"
-                                th:data-vondronaid="${resp.vondrona != null ? resp.vondrona.id : ''}"
+                                th:data-fivondronana="${resp.vondrona != null ? resp.vondrona.nom : ''}"
+                                th:data-fivondronanaid="${resp.vondrona != null ? resp.vondrona.id : ''}"
                                 th:data-fivondronana="${resp.fivondronana != null ? resp.fivondronana.nom : ''}"
                                 th:data-fafi="${resp.fafi != null && resp.fafi.statut == 'Active' ? 'Eny' : 'Tsia'}">
                                 <td>
@@ -231,10 +231,6 @@
                         </div>
                     </div>
                     <div class="form-row">
-                        <div class="form-group">
-                            <label for="numeroCin">Laharana CIN</label>
-                            <input type="text" id="numeroCin" name="numeroCin" placeholder="Ohatra: 101 251 456 789">
-                        </div>
                         <div class="form-group">
                             <label for="numeroTelephone">Finday</label>
                             <input type="text" id="numeroTelephone" name="numeroTelephone" placeholder="Ohatra: 034 12 345 67">
