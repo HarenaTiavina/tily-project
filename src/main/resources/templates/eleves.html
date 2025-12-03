@@ -59,14 +59,6 @@
                             <input type="text" id="searchInput" placeholder="Anarana, fanampin'anarana, totem..." onkeyup="applyFilters()">
                         </div>
                     </div>
-                    <!-- Filtre Fivondronana (admin seulement) -->
-                    <div class="filter-group" th:if="${isAdmin}">
-                        <label>Fivondronana</label>
-                        <select id="filterFivondronana" onchange="applyFilters()">
-                            <option value="">Ny Fivondronana rehetra</option>
-                            <option th:each="fiv : ${fivondronana}" th:value="${fiv.nom}" th:text="${fiv.nom}"></option>
-                        </select>
-                    </div>
                     <div class="filter-group">
                         <label>Faritra</label>
                         <select id="filterSecteur" onchange="applyFilters()">
@@ -118,18 +110,16 @@
                                 <th class="sortable" onclick="sortTable(6)">Anaran'ny Reny <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(7)">Faritra <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(8)">Sampana <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(9)">Vondrona <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(10)" th:if="${isAdmin}">Fivondronana <i class="fas fa-sort"></i></th>
-                                <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(11)' : 'sortTable(10)'">Ambaratonga <i class="fas fa-sort"></i></th>
-                                <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(12)' : 'sortTable(11)'">Fanekena <i class="fas fa-sort"></i></th>
-                                <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(13)' : 'sortTable(12)'">FAFI <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(9)">Ambaratonga <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(10)">Fanekena <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(11)">FAFI <i class="fas fa-sort"></i></th>
                                 <th>Asa</th>
                             </tr>
                         </thead>
                         <tbody>
                             <!-- Message si aucune donnée -->
                             <tr th:if="${#lists.isEmpty(eleves)}">
-                                <td colspan="15" class="empty-message">
+                                <td colspan="13" class="empty-message">
                                     <i class="fas fa-inbox"></i>
                                     <p>Tsy misy Beazina hita</p>
                                 </td>
@@ -148,9 +138,6 @@
                                 th:data-secteurid="${eleve.secteur != null ? eleve.secteur.id : ''}"
                                 th:data-fizarana="${eleve.fizarana != null ? eleve.fizarana.nom : ''}"
                                 th:data-fizaranaid="${eleve.fizarana != null ? eleve.fizarana.id : ''}"
-                                th:data-vondrona="${eleve.vondrona != null ? eleve.vondrona.nom : ''}"
-                                th:data-vondronaid="${eleve.vondrona != null ? eleve.vondrona.id : ''}"
-                                th:data-fivondronana="${eleve.fivondronana != null ? eleve.fivondronana.nom : ''}"
                                 th:data-ambaratonga="${eleve.ambaratonga}"
                                 th:data-fafi="${eleve.fafi != null ? eleve.fafi.statut : 'Inactive'}">
                                 <td>
@@ -167,8 +154,6 @@
                                 <td th:text="${eleve.nomMere}">-</td>
                                 <td th:text="${eleve.secteur != null ? eleve.secteur.nom : '-'}">-</td>
                                 <td th:text="${eleve.fizarana != null ? eleve.fizarana.nom : '-'}">-</td>
-                                <td th:text="${eleve.vondrona != null ? eleve.vondrona.nom : '-'}">-</td>
-                                <td th:if="${isAdmin}" th:text="${eleve.fivondronana != null ? eleve.fivondronana.nom : '-'}">-</td>
                                 <td th:text="${eleve.ambaratonga != null ? eleve.ambaratonga : '-'}">-</td>
                                 <td th:text="${eleve.dateFanekena != null ? #temporals.format(eleve.dateFanekena, 'dd/MM/yyyy') : '-'}">-</td>
                                 <td>
@@ -273,18 +258,9 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="vondronaId">Vondrona</label>
-                            <select id="vondronaId" name="vondronaId">
-                                <option value="">-- Mifidy --</option>
-                                <option th:each="v : ${vondrona}" th:value="${v.id}" th:text="${v.nom}"></option>
-                            </select>
-                        </div>
-                        <div class="form-group">
                             <label for="ambaratonga">Ambaratonga</label>
                             <input type="text" id="ambaratonga" name="ambaratonga">
                         </div>
-                    </div>
-                    <div class="form-row">
                         <div class="form-group">
                             <label for="dateFanekena">Daty Fanekena</label>
                             <input type="date" id="dateFanekena" name="dateFanekena">
@@ -361,18 +337,9 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="editVondronaId">Vondrona</label>
-                            <select id="editVondronaId" name="vondronaId">
-                                <option value="">-- Mifidy --</option>
-                                <option th:each="v : ${vondrona}" th:value="${v.id}" th:text="${v.nom}"></option>
-                            </select>
-                        </div>
-                        <div class="form-group">
                             <label for="editAmbaratonga">Ambaratonga</label>
                             <input type="text" id="editAmbaratonga" name="ambaratonga">
                         </div>
-                    </div>
-                    <div class="form-row">
                         <div class="form-group">
                             <label for="editDateFanekena">Daty Fanekena</label>
                             <input type="date" id="editDateFanekena" name="dateFanekena">
@@ -534,9 +501,6 @@
             const secteurValue = document.getElementById('filterSecteur').value;
             const fizaranaValue = document.getElementById('filterFizarana').value;
             const fafiValue = document.getElementById('filterFafi').value;
-            // Filtre Fivondronana (admin seulement)
-            const filterFivondronanaEl = document.getElementById('filterFivondronana');
-            const fivondronanaValue = filterFivondronanaEl ? filterFivondronanaEl.value : '';
             
             const table = document.getElementById('elevesTable');
             const rows = table.querySelectorAll('tbody tr:not(.empty-message)');
@@ -547,15 +511,13 @@
                 const secteur = row.getAttribute('data-secteur') || '';
                 const fizarana = row.getAttribute('data-fizarana') || '';
                 const fafi = row.getAttribute('data-fafi') || '';
-                const fivondronana = row.getAttribute('data-fivondronana') || '';
                 
                 const matchSearch = !searchValue || text.includes(searchValue);
                 const matchSecteur = !secteurValue || secteur === secteurValue;
                 const matchFizarana = !fizaranaValue || fizarana === fizaranaValue;
                 const matchFafi = !fafiValue || fafi === fafiValue;
-                const matchFivondronana = !fivondronanaValue || fivondronana === fivondronanaValue;
                 
-                if (matchSearch && matchSecteur && matchFizarana && matchFafi && matchFivondronana) {
+                if (matchSearch && matchSecteur && matchFizarana && matchFafi) {
                     row.style.display = '';
                     visibleCount++;
                 } else {
@@ -564,7 +526,7 @@
             });
             
             document.getElementById('recordCount').textContent = visibleCount + ' Beazina';
-            document.getElementById('paginationInfo').textContent = '1-' + visibleCount + " amin'ny " + visibleCount;
+            document.getElementById('paginationInfo').textContent = '1-' + visibleCount + ' sur ' + visibleCount;
         }
 
         // Réinitialiser les filtres
@@ -573,9 +535,6 @@
             document.getElementById('filterSecteur').value = '';
             document.getElementById('filterFizarana').value = '';
             document.getElementById('filterFafi').value = '';
-            // Réinitialiser le filtre Fivondronana si présent (admin seulement)
-            const filterFivondronanaEl = document.getElementById('filterFivondronana');
-            if (filterFivondronanaEl) filterFivondronanaEl.value = '';
             applyFilters();
         }
 
@@ -593,7 +552,6 @@
         // Modal Modifier functions
         function openEditModal(row) {
             document.getElementById('editId').value = row.dataset.id;
-            document.getElementById('editNumerofafi').value = row.dataset.nom || '';
             document.getElementById('editNom').value = row.dataset.nom || '';
             document.getElementById('editPrenom').value = row.dataset.prenom || '';
             document.getElementById('editTotem').value = row.dataset.totem || '';
@@ -603,7 +561,6 @@
             document.getElementById('editDateFanekena').value = row.dataset.datefanekena || '';
             document.getElementById('editSecteurId').value = row.dataset.secteurid || '';
             document.getElementById('editFizaranaId').value = row.dataset.fizaranaid || '';
-            document.getElementById('editVondronaId').value = row.dataset.vondronaid || '';
             document.getElementById('editAmbaratonga').value = row.dataset.ambaratonga || '';
             
             document.getElementById('editModal').classList.add('active');
@@ -731,7 +688,6 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Laharana FAFI</th>
                                 <th>Anarana</th>
                                 <th>Fanampin'anarana</th>
                                 <th>Totem</th>
