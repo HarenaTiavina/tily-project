@@ -110,6 +110,7 @@
                         <thead>
                             <tr>
                                 <th class="sortable" onclick="sortTable(0)">Sary</th>
+                                 <th class="sortable" onclick="sortTable(1)">Laharana FAFI <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(1)">Anarana <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(2)">Fanampin'anarana <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(3)">Totem <i class="fas fa-sort"></i></th>
@@ -137,6 +138,7 @@
                             <!-- Données dynamiques -->
                             <tr th:each="eleve : ${eleves}" 
                                 th:data-id="${eleve.id}"
+                                th:data-nom="${eleve.numerofafi}"
                                 th:data-nom="${eleve.nom}"
                                 th:data-prenom="${eleve.prenom}"
                                 th:data-totem="${eleve.totem}"
@@ -159,6 +161,7 @@
                                          th:src="'https://ui-avatars.com/api/?name=' + ${eleve.prenom} + '+' + ${eleve.nom} + '&background=4facfe&color=fff'" 
                                          class="avatar" alt="Photo">
                                 </td>
+                                <td th:text="${eleve.numerofafi}">-</td>
                                 <td th:text="${eleve.nom}">-</td>
                                 <td th:text="${eleve.prenom}">-</td>
                                 <td th:text="${eleve.totem}">-</td>
@@ -226,6 +229,10 @@
             <form th:action="@{/eleves/ajouter}" method="post">
                 <div class="modal-body">
                     <div class="form-row">
+                       <div class="form-group">
+                            <label for="nom">Laharana FAFI <span class="required">*</span></label>
+                            <input type="text" id="nom" name="numerofafi" required placeholder="Ohatra:BZMV001">
+                        </div>
                         <div class="form-group">
                             <label for="nom">Anarana <span class="required">*</span></label>
                             <input type="text" id="nom" name="nom" required placeholder="Ohatra: RAKOTO">
@@ -314,6 +321,10 @@
                 <input type="hidden" id="editId" name="id">
                 <div class="modal-body">
                     <div class="form-row">
+                        <div class="form-group">
+                            <label for="nom">Laharana FAFI <span class="required">*</span></label>
+                            <input type="text" id="nom" name="numerofafi" required placeholder="Ohatra: BZMV001">
+                        </div>
                         <div class="form-group">
                             <label for="editNom">Anarana <span class="required">*</span></label>
                             <input type="text" id="editNom" name="nom" required>
@@ -593,6 +604,7 @@
         // Modal Modifier functions
         function openEditModal(row) {
             document.getElementById('editId').value = row.dataset.id;
+            document.getElementById('editNumerofafi').value = row.dataset.nom || '';
             document.getElementById('editNom').value = row.dataset.nom || '';
             document.getElementById('editPrenom').value = row.dataset.prenom || '';
             document.getElementById('editTotem').value = row.dataset.totem || '';
@@ -730,6 +742,7 @@
                     <table>
                         <thead>
                             <tr>
+                                <th>Laharana FAFI</th>
                                 <th>Anarana</th>
                                 <th>Fanampin'anarana</th>
                                 <th>Totem</th>
