@@ -148,8 +148,8 @@
                                 th:data-secteurid="${eleve.secteur != null ? eleve.secteur.id : ''}"
                                 th:data-fizarana="${eleve.fizarana != null ? eleve.fizarana.nom : ''}"
                                 th:data-fizaranaid="${eleve.fizarana != null ? eleve.fizarana.id : ''}"
-                                th:data-vondrona="${eleve.Vondrona != null ? eleve.Vondrona.nom : ''}"
-                                th:data-vondronaid="${eleve.Vondrona != null ? eleve.Vondrona.id : ''}"
+                                th:data-vondrona="${eleve.vondrona != null ? eleve.vondrona.nom : ''}"
+                                th:data-vondronaid="${eleve.vondrona != null ? eleve.vondrona.id : ''}"
                                 th:data-fivondronana="${eleve.fivondronana != null ? eleve.fivondronana.nom : ''}"
                                 th:data-ambaratonga="${eleve.ambaratonga}"
                                 th:data-fafi="${eleve.fafi != null ? eleve.fafi.statut : 'Inactive'}">
@@ -362,7 +362,7 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="editVondronaId">Vondrona</label>
-                            <select id="editVondronaId" name="VondronaId">
+                            <select id="editVondronaId" name="vondronaId">
                                 <option value="">-- Mifidy --</option>
                                 <option th:each="v : ${vondrona}" th:value="${v.id}" th:text="${v.nom}"></option>
                             </select>
