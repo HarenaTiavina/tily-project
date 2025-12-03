@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS personne (
         REFERENCES section(idSection),
     CONSTRAINT fk_andraikitra FOREIGN KEY (idAndraikitra)
         REFERENCES andraikitra(idAndraikitra),
-    CONSTRAINT fk_fivondronana FOREIGN KEY (idFivondronana)
+    CONSTRAINT fk_vondrona FOREIGN KEY (idVondrona)
         REFERENCES vondrona(idVondrona),
     CONSTRAINT fk_fivondronana FOREIGN KEY (idFivondronana)
         REFERENCES fivondronana(idFivondronana)
