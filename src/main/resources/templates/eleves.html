@@ -119,7 +119,7 @@
                                 <th class="sortable" onclick="sortTable(6)">Anaran'ny Reny <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(7)">Faritra <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(8)">Sampana <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(9)">Vondrona <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(9)">Fivondronana <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(10)" th:if="${isAdmin}">Fivondronana <i class="fas fa-sort"></i></th>
                                 <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(11)' : 'sortTable(10)'">Ambaratonga <i class="fas fa-sort"></i></th>
                                 <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(12)' : 'sortTable(11)'">Fanekena <i class="fas fa-sort"></i></th>
@@ -150,8 +150,8 @@
                                 th:data-secteurid="${eleve.secteur != null ? eleve.secteur.id : ''}"
                                 th:data-fizarana="${eleve.fizarana != null ? eleve.fizarana.nom : ''}"
                                 th:data-fizaranaid="${eleve.fizarana != null ? eleve.fizarana.id : ''}"
-                                th:data-vondrona="${eleve.vondrona != null ? eleve.vondrona.nom : ''}"
-                                th:data-vondronaid="${eleve.vondrona != null ? eleve.vondrona.id : ''}"
+                                th:data-vondrona="${eleve.fivondronana != null ? eleve.fivondronana.nom : ''}"
+                                th:data-vondronaid="${eleve.fivondronana != null ? eleve.fivondronana.id : ''}"
                                 th:data-fivondronana="${eleve.fivondronana != null ? eleve.fivondronana.nom : ''}"
                                 th:data-ambaratonga="${eleve.ambaratonga}"
                                 th:data-fafi="${eleve.fafi != null ? eleve.fafi.statut : 'Inactive'}">
@@ -170,7 +170,7 @@
                                 <td th:text="${eleve.nomMere}">-</td>
                                 <td th:text="${eleve.secteur != null ? eleve.secteur.nom : '-'}">-</td>
                                 <td th:text="${eleve.fizarana != null ? eleve.fizarana.nom : '-'}">-</td>
-                                <td th:text="${eleve.vondrona != null ? eleve.vondrona.nom : '-'}">-</td>
+                                <td th:text="${eleve.fivondronana != null ? eleve.fivondronana.nom : '-'}">-</td>
                                 <td th:if="${isAdmin}" th:text="${eleve.fivondronana != null ? eleve.fivondronana.nom : '-'}">-</td>
                                 <td th:text="${eleve.ambaratonga != null ? eleve.ambaratonga : '-'}">-</td>
                                 <td th:text="${eleve.dateFanekena != null ? #temporals.format(eleve.dateFanekena, 'dd/MM/yyyy') : '-'}">-</td>
@@ -280,8 +280,8 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="vondronaId">Vondrona</label>
-                            <select id="vondronaId" name="vondronaId">
+                            <label for="fivondronanaId">Fivondrona</label>
+                            <select id="FivondronanaId" name="FivondronanaId">
                                 <option value="">-- Mifidy --</option>
                                 <option th:each="v : ${vondrona}" th:value="${v.id}" th:text="${v.nom}"></option>
                             </select>
@@ -372,8 +372,8 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="editVondronaId">Vondrona</label>
-                            <select id="editVondronaId" name="vondronaId">
+                            <label for="editFivondronanaId">Fivondronana</label>
+                            <select id="editFivondronanaId" name="FivondronanaId">
                                 <option value="">-- Mifidy --</option>
                                 <option th:each="v : ${vondrona}" th:value="${v.id}" th:text="${v.nom}"></option>
                             </select>
