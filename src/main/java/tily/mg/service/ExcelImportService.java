@@ -38,6 +38,9 @@ public class ExcelImportService {
     @Autowired
     private FivondronanaRepository fivondronanaRepository;
 
+    @Autowired
+    private FafiRepository fafiRepository;
+
     // Fivondronana courant pour l'import (null = admin sans restriction)
     private Integer currentFivondronanaId;
 
@@ -325,9 +328,37 @@ public class ExcelImportService {
             personne.setDateFanekena(dateFanekena);
         }
         
-        // FAFI n'est PAS importé depuis Excel - ne pas créer de FAFI
-        // Le FAFI sera géré séparément via l'interface d'administration
-        personne.setFafi(null);
+        // FAFI - créer si des données sont présentes
+        String laharanaFafi = getCellValueAsString(row, columnMap.get("laharanafafi"));
+        LocalDate fafiDatePaiement = getCellValueAsDate(row, columnMap.get("fafidatepaiement"));
+        String fafiMontantStr = getCellValueAsString(row, columnMap.get("fafimontant"));
+        String fafiStatut = getCellValueAsString(row, columnMap.get("fafistatut"));
+        
+        if ((laharanaFafi != null && !laharanaFafi.trim().isEmpty()) ||
+            fafiDatePaiement != null || 
+            (fafiMontantStr != null && !fafiMontantStr.trim().isEmpty()) ||
+            (fafiStatut != null && !fafiStatut.trim().isEmpty())) {
+            
+            Fafi fafi = new Fafi();
+            if (laharanaFafi != null && !laharanaFafi.trim().isEmpty()) {
+                fafi.setNumeroFafi(laharanaFafi.trim());
+            }
+            if (fafiDatePaiement != null) {
+                fafi.setDatePaiement(fafiDatePaiement);
+            }
+            if (fafiMontantStr != null && !fafiMontantStr.trim().isEmpty()) {
+                try {
+                    fafi.setMontant(new java.math.BigDecimal(fafiMontantStr.trim().replace(",", ".")));
+                } catch (NumberFormatException e) {
+                    // Ignorer si le montant n'est pas valide
+                }
+            }
+            fafi.setStatut(fafiStatut != null && !fafiStatut.trim().isEmpty() ? fafiStatut.trim() : "Inactive");
+            fafi = fafiRepository.save(fafi);
+            personne.setFafi(fafi);
+        } else {
+            personne.setFafi(null);
+        }
         
         // S'assurer qu'andraikitra est null pour Beazina
         personne.setAndraikitra(null);
@@ -432,9 +463,37 @@ public class ExcelImportService {
             personne.setDateFanekena(dateFanekena);
         }
         
-        // FAFI n'est PAS importé depuis Excel - ne pas créer de FAFI
-        // Le FAFI sera géré séparément via l'interface d'administration
-        personne.setFafi(null);
+        // FAFI - créer si des données sont présentes
+        String laharanaFafi = getCellValueAsString(row, columnMap.get("laharanafafi"));
+        LocalDate fafiDatePaiement = getCellValueAsDate(row, columnMap.get("fafidatepaiement"));
+        String fafiMontantStr = getCellValueAsString(row, columnMap.get("fafimontant"));
+        String fafiStatut = getCellValueAsString(row, columnMap.get("fafistatut"));
+        
+        if ((laharanaFafi != null && !laharanaFafi.trim().isEmpty()) ||
+            fafiDatePaiement != null || 
+            (fafiMontantStr != null && !fafiMontantStr.trim().isEmpty()) ||
+            (fafiStatut != null && !fafiStatut.trim().isEmpty())) {
+            
+            Fafi fafi = new Fafi();
+            if (laharanaFafi != null && !laharanaFafi.trim().isEmpty()) {
+                fafi.setNumeroFafi(laharanaFafi.trim());
+            }
+            if (fafiDatePaiement != null) {
+                fafi.setDatePaiement(fafiDatePaiement);
+            }
+            if (fafiMontantStr != null && !fafiMontantStr.trim().isEmpty()) {
+                try {
+                    fafi.setMontant(new java.math.BigDecimal(fafiMontantStr.trim().replace(",", ".")));
+                } catch (NumberFormatException e) {
+                    // Ignorer si le montant n'est pas valide
+                }
+            }
+            fafi.setStatut(fafiStatut != null && !fafiStatut.trim().isEmpty() ? fafiStatut.trim() : "Inactive");
+            fafi = fafiRepository.save(fafi);
+            personne.setFafi(fafi);
+        } else {
+            personne.setFafi(null);
+        }
         
         // Affecter le Fivondronana si défini
         if (currentFivondronanaId != null) {
@@ -835,9 +894,37 @@ public class ExcelImportService {
             personne.setDateFanekena(dateFanekena);
         }
         
-        // FAFI n'est PAS importé depuis Excel - ne pas créer de FAFI
-        // Le FAFI sera géré séparément via l'interface d'administration
-        personne.setFafi(null);
+        // FAFI - créer si des données sont présentes
+        String laharanaFafi = getArrayValue(values, columnMap.get("laharanafafi"));
+        LocalDate fafiDatePaiement = parseDate(getArrayValue(values, columnMap.get("fafidatepaiement")));
+        String fafiMontantStr = getArrayValue(values, columnMap.get("fafimontant"));
+        String fafiStatut = getArrayValue(values, columnMap.get("fafistatut"));
+        
+        if ((laharanaFafi != null && !laharanaFafi.trim().isEmpty()) ||
+            fafiDatePaiement != null || 
+            (fafiMontantStr != null && !fafiMontantStr.trim().isEmpty()) ||
+            (fafiStatut != null && !fafiStatut.trim().isEmpty())) {
+            
+            Fafi fafi = new Fafi();
+            if (laharanaFafi != null && !laharanaFafi.trim().isEmpty()) {
+                fafi.setNumeroFafi(laharanaFafi.trim());
+            }
+            if (fafiDatePaiement != null) {
+                fafi.setDatePaiement(fafiDatePaiement);
+            }
+            if (fafiMontantStr != null && !fafiMontantStr.trim().isEmpty()) {
+                try {
+                    fafi.setMontant(new java.math.BigDecimal(fafiMontantStr.trim().replace(",", ".")));
+                } catch (NumberFormatException e) {
+                    // Ignorer si le montant n'est pas valide
+                }
+            }
+            fafi.setStatut(fafiStatut != null && !fafiStatut.trim().isEmpty() ? fafiStatut.trim() : "Inactive");
+            fafi = fafiRepository.save(fafi);
+            personne.setFafi(fafi);
+        } else {
+            personne.setFafi(null);
+        }
         
         personne.setAndraikitra(null);
         
@@ -943,9 +1030,37 @@ public class ExcelImportService {
             personne.setDateFanekena(dateFanekena);
         }
         
-        // FAFI n'est PAS importé depuis Excel - ne pas créer de FAFI
-        // Le FAFI sera géré séparément via l'interface d'administration
-        personne.setFafi(null);
+        // FAFI - créer si des données sont présentes
+        String laharanaFafi = getArrayValue(values, columnMap.get("laharanafafi"));
+        LocalDate fafiDatePaiement = parseDate(getArrayValue(values, columnMap.get("fafidatepaiement")));
+        String fafiMontantStr = getArrayValue(values, columnMap.get("fafimontant"));
+        String fafiStatut = getArrayValue(values, columnMap.get("fafistatut"));
+        
+        if ((laharanaFafi != null && !laharanaFafi.trim().isEmpty()) ||
+            fafiDatePaiement != null || 
+            (fafiMontantStr != null && !fafiMontantStr.trim().isEmpty()) ||
+            (fafiStatut != null && !fafiStatut.trim().isEmpty())) {
+            
+            Fafi fafi = new Fafi();
+            if (laharanaFafi != null && !laharanaFafi.trim().isEmpty()) {
+                fafi.setNumeroFafi(laharanaFafi.trim());
+            }
+            if (fafiDatePaiement != null) {
+                fafi.setDatePaiement(fafiDatePaiement);
+            }
+            if (fafiMontantStr != null && !fafiMontantStr.trim().isEmpty()) {
+                try {
+                    fafi.setMontant(new java.math.BigDecimal(fafiMontantStr.trim().replace(",", ".")));
+                } catch (NumberFormatException e) {
+                    // Ignorer si le montant n'est pas valide
+                }
+            }
+            fafi.setStatut(fafiStatut != null && !fafiStatut.trim().isEmpty() ? fafiStatut.trim() : "Inactive");
+            fafi = fafiRepository.save(fafi);
+            personne.setFafi(fafi);
+        } else {
+            personne.setFafi(null);
+        }
         
         // Affecter le Fivondronana si défini
         if (currentFivondronanaId != null) {
