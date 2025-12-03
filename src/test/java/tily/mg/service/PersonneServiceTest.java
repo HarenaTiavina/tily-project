@@ -86,9 +86,9 @@ class PersonneServiceTest {
         andraikitra.setNom("Mpitandrina lehibe");
 
         // Setup Fivondronana
-        vondrona = new Fivondronana();
-        vondrona.setId(1);
-        vondrona.setNom("Vondrona 1");
+        fivondronana = new Fivondronana();
+        fivondronana.setId(1);
+        fivondronana.setNom("Vondrona 1");
 
         // Setup Fivondronana
         fivondronana = new Fivondronana();
@@ -235,7 +235,7 @@ class PersonneServiceTest {
         when(typePersonneRepository.findByNom("Responsable")).thenReturn(Optional.of(typeResponsable));
         when(secteurRepository.findById(1)).thenReturn(Optional.of(secteur));
         when(andraikitraRepository.findById(1)).thenReturn(Optional.of(andraikitra));
-        when(vondronaRepository.findById(1)).thenReturn(Optional.of(vondrona));
+        when(fivondronanaRepository.findById(1)).thenReturn(Optional.of(fivondronana));
         when(fivondronanaRepository.findById(1)).thenReturn(Optional.of(fivondronana));
         when(personneRepository.save(any(Personne.class))).thenReturn(personne);
 
@@ -247,7 +247,7 @@ class PersonneServiceTest {
         assertEquals(typeResponsable, personne.getTypePersonne());
         assertEquals(secteur, personne.getSecteur());
         assertEquals(andraikitra, personne.getAndraikitra());
-        assertEquals(vondrona, personne.getVondrona());
+        assertEquals(fivondronana, personne.getFivondronana());
         assertEquals(fivondronana, personne.getFivondronana());
         assertNull(personne.getAmbaratonga()); // Pas de niveau pour les responsables
         verify(typePersonneRepository, times(1)).findByNom("Responsable");
@@ -272,7 +272,7 @@ class PersonneServiceTest {
         assertEquals(typeResponsable, personne.getTypePersonne());
         assertNull(personne.getSecteur());
         assertNull(personne.getAndraikitra());
-        assertNull(personne.getVondrona());
+        assertNull(personne.getFivondronana());
         assertNull(personne.getFivondronana());
         assertNull(personne.getAmbaratonga());
         verify(typePersonneRepository, times(1)).findByNom("Responsable");
@@ -300,7 +300,7 @@ class PersonneServiceTest {
         assertEquals(typeEleve, personne.getTypePersonne());
         assertEquals(secteur, personne.getSecteur());
         assertEquals(fizarana, personne.getFizarana());
-        assertEquals(vondrona, personne.getVondrona());
+        assertEquals(fivondronana, personne.getFivondronana());
         assertEquals(fivondronana, personne.getFivondronana());
         verify(typePersonneRepository, times(1)).findByNom("Eleve");
         verify(secteurRepository, times(1)).findById(1);
