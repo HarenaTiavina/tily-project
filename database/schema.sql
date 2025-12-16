@@ -41,6 +41,14 @@ CREATE TABLE IF NOT EXISTS andraikitra (
 );
 
 -- =====================================
+-- TABLE : dingam_piofanana (Niveaux de formation pour les Mpiandraikitra)
+-- =====================================
+CREATE TABLE IF NOT EXISTS dingam_piofanana (
+    idDingamPiofanana SERIAL PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL
+);
+
+-- =====================================
 -- TABLE : vondrona (Vondrona en malgache - groupe pour les Beazina et Mpiandraikitra)
 -- =====================================
 CREATE TABLE IF NOT EXISTS vondrona (
@@ -91,7 +99,7 @@ CREATE TABLE IF NOT EXISTS personne (
     idSection INTEGER,
     idAndraikitra INTEGER,
     idFivondronana INTEGER,
-    idFivondronana INTEGER,
+    idDingamPiofanana INTEGER,
     CONSTRAINT fk_type_personne FOREIGN KEY (idTypePersonne)
         REFERENCES type_personne(idTypePersonne),
     CONSTRAINT fk_fafi FOREIGN KEY (idFafi)
@@ -103,9 +111,9 @@ CREATE TABLE IF NOT EXISTS personne (
     CONSTRAINT fk_andraikitra FOREIGN KEY (idAndraikitra)
         REFERENCES andraikitra(idAndraikitra),
     CONSTRAINT fk_fivondronana FOREIGN KEY (idFivondronana)
-        REFERENCES vondrona(idVondrona),
-    CONSTRAINT fk_fivondronana FOREIGN KEY (idFivondronana)
-        REFERENCES fivondronana(idFivondronana)
+        REFERENCES fivondronana(idFivondronana),
+    CONSTRAINT fk_dingam_piofanana FOREIGN KEY (idDingamPiofanana)
+        REFERENCES dingam_piofanana(idDingamPiofanana)
 );
 
 -- =====================================
@@ -133,6 +141,7 @@ CREATE INDEX IF NOT EXISTS idx_personne_andraikitra ON personne(idAndraikitra);
 CREATE INDEX IF NOT EXISTS idx_personne_fafi ON personne(idFafi);
 CREATE INDEX IF NOT EXISTS idx_personne_vondrona ON personne(idVondrona);
 CREATE INDEX IF NOT EXISTS idx_personne_fivondronana ON personne(idFivondronana);
+CREATE INDEX IF NOT EXISTS idx_personne_dingam_piofanana ON personne(idDingamPiofanana);
 CREATE INDEX IF NOT EXISTS idx_utilisateur_email ON utilisateur(email);
 CREATE INDEX IF NOT EXISTS idx_utilisateur_fivondronana ON utilisateur(idFivondronana);
 

@@ -36,6 +36,9 @@ public class PersonneService {
     @Autowired
     private FivondronanaRepository fivondronanaRepository;
 
+    @Autowired
+    private DingamPiofananaRepository dingamPiofananaRepository;
+
     // CRUD Operations
     public List<Personne> findAll() {
         return personneRepository.findAll();
@@ -80,8 +83,8 @@ public class PersonneService {
     }
 
     // Filter pour admin (fivondronanaId optionnel)
-    public List<Personne> filterResponsables(Integer fivondronanaId, Integer secteurId, Integer andraikitraId, Integer fizaranaId, Boolean hasFafi) {
-        return personneRepository.filterResponsables(fivondronanaId, secteurId, andraikitraId, fizaranaId, hasFafi);
+    public List<Personne> filterResponsables(Integer fivondronanaId, Integer secteurId, Integer andraikitraId, Integer fizaranaId, Integer dingamPiofananaId, Boolean hasFafi) {
+        return personneRepository.filterResponsables(fivondronanaId, secteurId, andraikitraId, fizaranaId, dingamPiofananaId, hasFafi);
     }
 
     public List<Personne> filterEleves(Integer fivondronanaId, Integer secteurId, Integer fizaranaId, String ambaratonga, Boolean hasFafi) {
@@ -115,8 +118,8 @@ public class PersonneService {
     }
 
     // Filter par Fivondronana (pour non-admin)
-    public List<Personne> filterResponsablesByFivondronana(Integer fivondronanaId, Integer secteurId, Integer andraikitraId, Integer fizaranaId, Boolean hasFafi) {
-        return personneRepository.filterResponsablesByFivondronana(fivondronanaId, secteurId, andraikitraId, fizaranaId, hasFafi);
+    public List<Personne> filterResponsablesByFivondronana(Integer fivondronanaId, Integer secteurId, Integer andraikitraId, Integer fizaranaId, Integer dingamPiofananaId, Boolean hasFafi) {
+        return personneRepository.filterResponsablesByFivondronana(fivondronanaId, secteurId, andraikitraId, fizaranaId, dingamPiofananaId, hasFafi);
     }
 
     public List<Personne> filterElevesByFivondronana(Integer fivondronanaId, Integer secteurId, Integer fizaranaId, String ambaratonga, Boolean hasFafi) {
@@ -142,6 +145,10 @@ public class PersonneService {
 
     public List<Fivondronana> findAllFivondronana() {
         return fivondronanaRepository.findAll();
+    }
+
+    public List<DingamPiofanana> findAllDingamPiofanana() {
+        return dingamPiofananaRepository.findAll();
     }
 
     // Statistics
@@ -185,8 +192,12 @@ public class PersonneService {
         return fivondronanaRepository.findById(id);
     }
 
+    public Optional<DingamPiofanana> findDingamPiofananaById(Integer id) {
+        return dingamPiofananaRepository.findById(id);
+    }
+
     // Create new Responsable avec Fivondronana
-    public Personne createResponsable(Personne personne, Integer secteurId, Integer andraikitraId, Integer fizaranaId, Integer fivondronanaId) {
+    public Personne createResponsable(Personne personne, Integer secteurId, Integer andraikitraId, Integer fizaranaId, Integer fivondronanaId, Integer dingamPiofananaId) {
         // Set type to Responsable
         typePersonneRepository.findByNom("Responsable").ifPresent(personne::setTypePersonne);
         
@@ -208,6 +219,11 @@ public class PersonneService {
         // Set fivondronana (obligatoire pour les non-admin)
         if (fivondronanaId != null) {
             fivondronanaRepository.findById(fivondronanaId).ifPresent(personne::setFivondronana);
+        }
+        
+        // Set dingam-piofanana if provided
+        if (dingamPiofananaId != null) {
+            dingamPiofananaRepository.findById(dingamPiofananaId).ifPresent(personne::setDingamPiofanana);
         }
         
         // Ne pas définir ambaratonga pour les responsables

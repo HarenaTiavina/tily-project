@@ -42,6 +42,15 @@ INSERT INTO andraikitra (nom) VALUES ('Mpitandrina mpanampy faharoa');
 INSERT INTO andraikitra (nom) VALUES ('Mpitandrina mpanampy fahatelo');
 
 -- =====================================
+-- INSERTION DES DINGAM-PIOFANANA (Niveaux de formation pour les Mpiandraikitra)
+-- =====================================
+INSERT INTO dingam_piofanana (nom) VALUES ('Fanomanana');
+INSERT INTO dingam_piofanana (nom) VALUES ('Fanaterana');
+INSERT INTO dingam_piofanana (nom) VALUES ('Miandry Ravinala');
+INSERT INTO dingam_piofanana (nom) VALUES ('Ravinala');
+INSERT INTO dingam_piofanana (nom) VALUES ('TP2');
+
+-- =====================================
 -- INSERTION DES VONDRONA (Vondrona en malgache - groupes pour les Beazina et Mpiandraikitra)
 -- =====================================
 INSERT INTO vondrona (nom) VALUES ('Vondrona 1');

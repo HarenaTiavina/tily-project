@@ -82,6 +82,13 @@
                         </select>
                     </div>
                     <div class="filter-group">
+                        <label>Dingam-piofanana</label>
+                        <select id="filterDingamPiofanana" onchange="applyFilters()">
+                            <option value="">Ny rehetra</option>
+                            <option th:each="dingam : ${dingamPiofanana}" th:value="${dingam.nom}" th:text="${dingam.nom}"></option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
                         <label>FAFI</label>
                         <select id="filterFafi" onchange="applyFilters()">
                             <option value="">Ny rehetra</option>
@@ -118,17 +125,18 @@
                                 <th class="sortable" onclick="sortTable(7)">Faritra <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(8)">Sampana <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(9)">Andraikitra <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(10)" th:if="${isAdmin}">Fivondronana <i class="fas fa-sort"></i></th>
-                                <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(11)' : 'sortTable(10)'">Fanekena <i class="fas fa-sort"></i></th>
-                                <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(12)' : 'sortTable(11)'">Laharana FAFI <i class="fas fa-sort"></i></th>
-                                <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(13)' : 'sortTable(12)'">FAFI <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(10)">Dingam-piofanana <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(11)" th:if="${isAdmin}">Fivondronana <i class="fas fa-sort"></i></th>
+                                <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(12)' : 'sortTable(11)'">Fanekena <i class="fas fa-sort"></i></th>
+                                <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(13)' : 'sortTable(12)'">Laharana FAFI <i class="fas fa-sort"></i></th>
+                                <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(14)' : 'sortTable(13)'">FAFI <i class="fas fa-sort"></i></th>
                                 <th>Asa</th>
                             </tr>
                         </thead>
                         <tbody>
                             <!-- Message si aucune donnée -->
                             <tr th:if="${#lists.isEmpty(responsables)}">
-                                <td colspan="14" class="empty-message">
+                                <td colspan="16" class="empty-message">
                                     <i class="fas fa-inbox"></i>
                                     <p>Tsy misy Mpiandraikitra hita</p>
                                 </td>
@@ -153,6 +161,8 @@
                                 th:data-andraikitraid="${resp.andraikitra != null ? resp.andraikitra.id : ''}"
                                 th:data-fivondronana="${resp.fivondronana != null ? resp.fivondronana.nom : ''}"
                                 th:data-fivondronanaid="${resp.fivondronana != null ? resp.fivondronana.id : ''}"
+                                th:data-dingampiofanana="${resp.dingamPiofanana != null ? resp.dingamPiofanana.nom : ''}"
+                                th:data-dingampiofananaid="${resp.dingamPiofanana != null ? resp.dingamPiofanana.id : ''}"
                                 th:data-fafi="${resp.fafi != null && resp.fafi.statut == 'Active' ? 'Eny' : 'Tsia'}">
                                 <td>
                                     <img th:if="${resp.image != null and !resp.image.isEmpty()}" th:src="${resp.image}" class="avatar" alt="Photo">
@@ -169,6 +179,7 @@
                                 <td th:text="${resp.secteur != null ? resp.secteur.nom : '-'}">-</td>
                                 <td th:text="${resp.fizarana != null ? resp.fizarana.nom : '-'}">-</td>
                                 <td th:text="${resp.andraikitra != null ? resp.andraikitra.nom : '-'}">-</td>
+                                <td th:text="${resp.dingamPiofanana != null ? resp.dingamPiofanana.nom : '-'}">-</td>
                                 <td th:if="${isAdmin}" th:text="${resp.fivondronana != null ? resp.fivondronana.nom : '-'}">-</td>
                                 <td th:text="${resp.dateFanekena != null ? #temporals.format(resp.dateFanekena, 'dd/MM/yyyy') : '-'}">-</td>
                                 <td th:text="${resp.fafi != null && resp.fafi.numeroFafi != null ? resp.fafi.numeroFafi : '-'}">-</td>
@@ -292,8 +303,20 @@
                             </select>
                         </div>
                         <div class="form-group">
+                            <label for="dingamPiofananaId">Dingam-piofanana</label>
+                            <select id="dingamPiofananaId" name="dingamPiofananaId">
+                                <option value="">-- Mifidy --</option>
+                                <option th:each="dingam : ${dingamPiofanana}" th:value="${dingam.id}" th:text="${dingam.nom}"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
                             <label for="dateFanekena">Daty Fanekena</label>
                             <input type="date" id="dateFanekena" name="dateFanekena">
+                        </div>
+                        <div class="form-group">
+                            <!-- Empty for alignment -->
                         </div>
                     </div>
                 </div>
@@ -384,8 +407,20 @@
                             </select>
                         </div>
                         <div class="form-group">
+                            <label for="editDingamPiofananaId">Dingam-piofanana</label>
+                            <select id="editDingamPiofananaId" name="dingamPiofananaId">
+                                <option value="">-- Mifidy --</option>
+                                <option th:each="dingam : ${dingamPiofanana}" th:value="${dingam.id}" th:text="${dingam.nom}"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
                             <label for="editDateFanekena">Daty Fanekena</label>
                             <input type="date" id="editDateFanekena" name="dateFanekena">
+                        </div>
+                        <div class="form-group">
+                            <!-- Empty for alignment -->
                         </div>
                     </div>
                 </div>
@@ -554,6 +589,7 @@
             const searchValue = document.getElementById('searchInput').value.toLowerCase();
             const secteurValue = document.getElementById('filterSecteur').value;
             const fizaranaValue = document.getElementById('filterFizarana').value;
+            const dingamPiofananaValue = document.getElementById('filterDingamPiofanana').value;
             const fafiValue = document.getElementById('filterFafi').value;
             // Filtre Fivondronana (admin seulement)
             const filterFivondronanaEl = document.getElementById('filterFivondronana');
@@ -567,16 +603,18 @@
                 const text = row.textContent.toLowerCase();
                 const secteur = row.getAttribute('data-secteur') || '';
                 const fizarana = row.getAttribute('data-fizarana') || '';
+                const dingamPiofanana = row.getAttribute('data-dingampiofanana') || '';
                 const fafi = row.getAttribute('data-fafi') || '';
                 const fivondronana = row.getAttribute('data-fivondronana') || '';
                 
                 const matchSearch = !searchValue || text.includes(searchValue);
                 const matchSecteur = !secteurValue || secteur === secteurValue;
                 const matchFizarana = !fizaranaValue || fizarana === fizaranaValue;
+                const matchDingamPiofanana = !dingamPiofananaValue || dingamPiofanana === dingamPiofananaValue;
                 const matchFafi = !fafiValue || fafi === fafiValue;
                 const matchFivondronana = !fivondronanaValue || fivondronana === fivondronanaValue;
                 
-                if (matchSearch && matchSecteur && matchFizarana && matchFafi && matchFivondronana) {
+                if (matchSearch && matchSecteur && matchFizarana && matchDingamPiofanana && matchFafi && matchFivondronana) {
                     row.style.display = '';
                     visibleCount++;
                 } else {
@@ -593,6 +631,7 @@
             document.getElementById('searchInput').value = '';
             document.getElementById('filterSecteur').value = '';
             document.getElementById('filterFizarana').value = '';
+            document.getElementById('filterDingamPiofanana').value = '';
             document.getElementById('filterFafi').value = '';
             // Réinitialiser le filtre Fivondronana si présent (admin seulement)
             const filterFivondronanaEl = document.getElementById('filterFivondronana');
@@ -626,6 +665,7 @@
             document.getElementById('editSecteurId').value = row.dataset.secteurid || '';
             document.getElementById('editFizaranaId').value = row.dataset.fizaranaid || '';
             document.getElementById('editAndraikitraId').value = row.dataset.andraikitraid || '';
+            document.getElementById('editDingamPiofananaId').value = row.dataset.dingampiofananaid || '';
             
             document.getElementById('editModal').classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -712,6 +752,7 @@
 
             const secteur = document.getElementById('filterSecteur').value;
             const fizarana = document.getElementById('filterFizarana').value;
+            const dingamPiofanana = document.getElementById('filterDingamPiofanana').value;
             const fafi = document.getElementById('filterFafi').value;
             const filterFivondronanaEl = document.getElementById('filterFivondronana');
             const fivondronanaFilter = filterFivondronanaEl ? filterFivondronanaEl.value : '';
@@ -721,6 +762,7 @@
             if (fivondronanaFilter) filters.push('Fivondronana: ' + fivondronanaFilter);
             if (secteur) filters.push('Faritra: ' + secteur);
             if (fizarana) filters.push('Sampana: ' + fizarana);
+            if (dingamPiofanana) filters.push('Dingam-piofanana: ' + dingamPiofanana);
             if (fafi) filters.push('FAFI: ' + fafi);
             
             // Charger l'image et la convertir en base64
@@ -759,6 +801,7 @@
                                 <th>Faritra</th>
                                 <th>Sampana</th>
                                 <th>Andraikitra</th>
+                                <th>Dingam-piofanana</th>
                                 <th>Fivondronana</th>
                                 <th>Fanekena</th>
                             </tr>
@@ -771,12 +814,12 @@
             
             visibleRows.forEach(row => {
                 const cells = row.querySelectorAll('td');
-                // Indices des colonnes selon admin ou non (avec la nouvelle colonne Sampana)
-                // 0: Sary, 1: Anarana, 2: Fanampin'anarana, 3: Totem, 4: Daty, 5: CIN, 6: Finday, 7: Faritra, 8: Sampana, 9: Andraikitra
-                // Admin: 10: Fivondronana, 11: Fanekena
-                // Non-admin: 10: Fanekena
-                const fivondronanaIdx = isAdmin ? 10 : -1;
-                const fanekenaIdx = isAdmin ? 11 : 10;
+                // Indices des colonnes selon admin ou non (avec la nouvelle colonne Dingam-piofanana)
+                // 0: Sary, 1: Anarana, 2: Fanampin'anarana, 3: Totem, 4: Daty, 5: CIN, 6: Finday, 7: Faritra, 8: Sampana, 9: Andraikitra, 10: Dingam-piofanana
+                // Admin: 11: Fivondronana, 12: Fanekena
+                // Non-admin: 11: Fanekena
+                const fivondronanaIdx = isAdmin ? 11 : -1;
+                const fanekenaIdx = isAdmin ? 12 : 11;
                 // Récupérer Fivondronana depuis data attribute si non admin
                 const fivondronanaValue = isAdmin && fivondronanaIdx >= 0 ? cells[fivondronanaIdx].textContent : (row.getAttribute('data-fivondronana') || '-');
                 printContent += `
@@ -790,6 +833,7 @@
                         <td>${cells[7].textContent}</td>
                         <td>${cells[8].textContent}</td>
                         <td>${cells[9].textContent}</td>
+                        <td>${cells[10].textContent}</td>
                         <td>${fivondronanaValue}</td>
                         <td>${cells[fanekenaIdx].textContent}</td>
                     </tr>

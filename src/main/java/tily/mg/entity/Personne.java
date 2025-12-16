@@ -69,6 +69,10 @@ public class Personne {
     @JoinColumn(name = "idfivondronana")
     private Fivondronana fivondronana; // Fivondronana = District en malgache - chaque personne appartient à un Fivondronana
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "iddingampiofanana")
+    private DingamPiofanana dingamPiofanana; // Dingam-piofanana = Niveau de formation pour les Mpiandraikitra
+
     // Constructors
     public Personne() {}
 
@@ -215,6 +219,14 @@ public class Personne {
 
     public void setFivondronana(Fivondronana fivondronana) {
         this.fivondronana = fivondronana;
+    }
+
+    public DingamPiofanana getDingamPiofanana() {
+        return dingamPiofanana;
+    }
+
+    public void setDingamPiofanana(DingamPiofanana dingamPiofanana) {
+        this.dingamPiofanana = dingamPiofanana;
     }
 
     // Helper methods

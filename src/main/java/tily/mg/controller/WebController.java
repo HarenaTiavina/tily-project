@@ -155,6 +155,7 @@ public class WebController {
             @RequestParam(required = false) Integer secteurId,
             @RequestParam(required = false) Integer andraikitraId,
             @RequestParam(required = false) Integer fizaranaId,
+            @RequestParam(required = false) Integer dingamPiofananaId,
             @RequestParam(required = false) Boolean hasFafi
     ) {
         addCommonAttributes(model);
@@ -167,8 +168,8 @@ public class WebController {
 
         if (admin) {
             // Admin peut filtrer par Fivondronana ou voir tout
-            if (fivondronanaId != null || secteurId != null || andraikitraId != null || fizaranaId != null || hasFafi != null) {
-                responsables = personneService.filterResponsables(fivondronanaId, secteurId, andraikitraId, fizaranaId, hasFafi);
+            if (fivondronanaId != null || secteurId != null || andraikitraId != null || fizaranaId != null || dingamPiofananaId != null || hasFafi != null) {
+                responsables = personneService.filterResponsables(fivondronanaId, secteurId, andraikitraId, fizaranaId, dingamPiofananaId, hasFafi);
             } else {
                 responsables = personneService.findAllResponsables();
             }
@@ -176,8 +177,8 @@ public class WebController {
             model.addAttribute("fivondronana", personneService.findAllFivondronana());
         } else {
             // Utilisateur Fivondronana voit seulement son Fivondronana
-            if (secteurId != null || andraikitraId != null || fizaranaId != null || hasFafi != null) {
-                responsables = personneService.filterResponsablesByFivondronana(userFivondronanaId, secteurId, andraikitraId, fizaranaId, hasFafi);
+            if (secteurId != null || andraikitraId != null || fizaranaId != null || dingamPiofananaId != null || hasFafi != null) {
+                responsables = personneService.filterResponsablesByFivondronana(userFivondronanaId, secteurId, andraikitraId, fizaranaId, dingamPiofananaId, hasFafi);
             } else {
                 responsables = personneService.findResponsablesByFivondronana(userFivondronanaId);
             }
@@ -190,6 +191,7 @@ public class WebController {
         model.addAttribute("secteurs", personneService.findAllSecteurs());
         model.addAttribute("andraikitra", personneService.findAllAndraikitra());
         model.addAttribute("fizarana", personneService.findAllFizarana());
+        model.addAttribute("dingamPiofanana", personneService.findAllDingamPiofanana());
         model.addAttribute("fafiStatuts", personneService.findAllFafiStatuts());
 
         return "responsables";
@@ -210,6 +212,7 @@ public class WebController {
             @RequestParam(required = false) Integer andraikitraId,
             @RequestParam(required = false) Integer fizaranaId,
             @RequestParam(required = false) Integer fivondronanaId,
+            @RequestParam(required = false) Integer dingamPiofananaId,
             RedirectAttributes redirectAttributes
     ) {
         try {
@@ -232,7 +235,7 @@ public class WebController {
                 effectiveFivondronanaId = getCurrentUserFivondronanaId();
             }
 
-            personneService.createResponsable(personne, secteurId, andraikitraId, fizaranaId, effectiveFivondronanaId);
+            personneService.createResponsable(personne, secteurId, andraikitraId, fizaranaId, effectiveFivondronanaId, dingamPiofananaId);
             
             redirectAttributes.addFlashAttribute("successMessage", "Tafiditra mpiandraikitra !");
         } catch (Exception e) {
@@ -257,6 +260,7 @@ public class WebController {
             @RequestParam(required = false) Integer secteurId,
             @RequestParam(required = false) Integer andraikitraId,
             @RequestParam(required = false) Integer fizaranaId,
+            @RequestParam(required = false) Integer dingamPiofananaId,
             RedirectAttributes redirectAttributes
     ) {
         try {
@@ -297,6 +301,12 @@ public class WebController {
                     personneService.findFizaranaById(fizaranaId).ifPresent(personne::setFizarana);
                 } else {
                     personne.setFizarana(null);
+                }
+
+                if (dingamPiofananaId != null) {
+                    personneService.findDingamPiofananaById(dingamPiofananaId).ifPresent(personne::setDingamPiofanana);
+                } else {
+                    personne.setDingamPiofanana(null);
                 }
 
                 personneService.save(personne);
