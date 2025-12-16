@@ -730,6 +730,7 @@
                                 <th>Fivondronana</th>
                                 <th>Ambaratonga</th>
                                 <th>Fanekena</th>
+                                <th>Laharana FAFI</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -741,9 +742,12 @@
             visibleRows.forEach(row => {
                 const cells = row.querySelectorAll('td');
                 // Indices des colonnes selon admin ou non
+                // Admin: 9: Fivondronana, 10: Ambaratonga, 11: Fanekena, 12: Laharana FAFI
+                // Non-admin: 9: Ambaratonga, 10: Fanekena, 11: Laharana FAFI
                 const fivondronanaIdx = isAdmin ? 9 : -1;
                 const ambaratongaIdx = isAdmin ? 10 : 9;
                 const fanekenaIdx = isAdmin ? 11 : 10;
+                const laharanaFafiIdx = isAdmin ? 12 : 11;
                 // Récupérer Fivondronana depuis data attribute si non admin
                 const fivondronanaValue = isAdmin && fivondronanaIdx >= 0 ? cells[fivondronanaIdx].textContent : (row.getAttribute('data-fivondronana') || '-');
                 printContent += `
@@ -759,6 +763,7 @@
                         <td>${fivondronanaValue}</td>
                         <td>${cells[ambaratongaIdx].textContent}</td>
                         <td>${cells[fanekenaIdx].textContent}</td>
+                        <td>${cells[laharanaFafiIdx].textContent}</td>
                     </tr>
                 `;
             });

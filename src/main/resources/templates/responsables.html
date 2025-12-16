@@ -804,6 +804,7 @@
                                 <th>Dingam-piofanana</th>
                                 <th>Fivondronana</th>
                                 <th>Fanekena</th>
+                                <th>Laharana FAFI</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -816,10 +817,11 @@
                 const cells = row.querySelectorAll('td');
                 // Indices des colonnes selon admin ou non (avec la nouvelle colonne Dingam-piofanana)
                 // 0: Sary, 1: Anarana, 2: Fanampin'anarana, 3: Totem, 4: Daty, 5: CIN, 6: Finday, 7: Faritra, 8: Sampana, 9: Andraikitra, 10: Dingam-piofanana
-                // Admin: 11: Fivondronana, 12: Fanekena
-                // Non-admin: 11: Fanekena
+                // Admin: 11: Fivondronana, 12: Fanekena, 13: Laharana FAFI
+                // Non-admin: 11: Fanekena, 12: Laharana FAFI
                 const fivondronanaIdx = isAdmin ? 11 : -1;
                 const fanekenaIdx = isAdmin ? 12 : 11;
+                const laharanaFafiIdx = isAdmin ? 13 : 12;
                 // Récupérer Fivondronana depuis data attribute si non admin
                 const fivondronanaValue = isAdmin && fivondronanaIdx >= 0 ? cells[fivondronanaIdx].textContent : (row.getAttribute('data-fivondronana') || '-');
                 printContent += `
@@ -836,6 +838,7 @@
                         <td>${cells[10].textContent}</td>
                         <td>${fivondronanaValue}</td>
                         <td>${cells[fanekenaIdx].textContent}</td>
+                        <td>${cells[laharanaFafiIdx].textContent}</td>
                     </tr>
                 `;
             });
