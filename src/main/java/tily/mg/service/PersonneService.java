@@ -239,9 +239,9 @@ public class PersonneService {
         return personneRepository.save(personne);
     }
 
-    // Récupérer les statuts FAFI distincts depuis la base
+    // Récupérer les statuts FAFI (liste fixe pour éviter les problèmes si certains statuts n'existent pas encore en base)
     public List<String> findAllFafiStatuts() {
-        return fafiRepository.findDistinctStatuts();
+        return java.util.Arrays.asList("Active", "Inactive");
     }
 
     // Mettre à jour ou créer le FAFI d'une personne
