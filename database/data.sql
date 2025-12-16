@@ -179,6 +179,10 @@ VALUES ('RAMANA', 'Tojo', 'Fosa', '2010-12-03', 'Louveteau', NULL, NULL, NULL, '
 INSERT INTO utilisateur (email, motdepasse, role, actif, datecreation, idfivondronana)
 VALUES ('admin@tily.mg', '$2a$10$z89dW1lU6u6Dc6m280iVxuuQ7S/.xHcWSzJcqYa8JONDrOEHXMm0.', 'ADMIN', TRUE, NOW(), NULL);
 
+-- DFAF (pas de Fivondronana - peut tout voir comme admin, mais ne peut pas créer de comptes)
+INSERT INTO utilisateur (email, motdepasse, role, actif, datecreation, idfivondronana)
+VALUES ('dfaf@tilyafovoany.scout.mg', '$2a$10$z89dW1lU6u6Dc6m280iVxuuQ7S/.xHcWSzJcqYa8JONDrOEHXMm0.', 'DFAF', TRUE, NOW(), NULL);
+
 -- Utilisateurs par Fivondronana
 INSERT INTO utilisateur (email, motdepasse, role, actif, datecreation, idfivondronana)
 VALUES ('antananarivo.renivohitra@tily.mg', '$2a$10$z89dW1lU6u6Dc6m280iVxuuQ7S/.xHcWSzJcqYa8JONDrOEHXMm0.', 'USER', TRUE, NOW(), 1);
@@ -205,7 +209,8 @@ VALUES ('antsirabe2@tily.mg', '$2a$10$z89dW1lU6u6Dc6m280iVxuuQ7S/.xHcWSzJcqYa8JO
 -- Élèves avec FAFI active: 10
 -- 
 -- Comptes de test:
--- Email: admin@tily.mg / Mot de passe: 123456 (Admin - voit tout)
+-- Email: admin@tily.mg / Mot de passe: 123456 (Admin - voit tout, peut créer des comptes)
+-- Email: dfaf@tilyafovoany.scout.mg / Mot de passe: 123456 (DFAF - voit tout comme admin, ne peut pas créer de comptes)
 -- Email: antananarivo.renivohitra@tily.mg / Mot de passe: 123456 (Fivondronana 1)
 -- Email: antananarivo.atsimondrano@tily.mg / Mot de passe: 123456 (Fivondronana 2)
 -- Email: antananarivo.avaradrano@tily.mg / Mot de passe: 123456 (Fivondronana 3)

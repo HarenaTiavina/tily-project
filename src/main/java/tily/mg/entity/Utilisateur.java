@@ -19,7 +19,7 @@ public class Utilisateur {
     private String motDePasse;
 
     @Column(name = "role", length = 20)
-    private String role; // ADMIN, USER
+    private String role; // ADMIN, DFAF, USER
 
     @Column(name = "actif")
     private Boolean actif = true;
@@ -122,6 +122,18 @@ public class Utilisateur {
 
     public boolean isAdmin() {
         return "ADMIN".equals(role);
+    }
+
+    public boolean isDfaf() {
+        return "DFAF".equals(role);
+    }
+
+    /**
+     * Vérifie si l'utilisateur a des droits administratifs (ADMIN ou DFAF)
+     * Les deux peuvent voir toutes les données mais seul ADMIN peut créer des comptes
+     */
+    public boolean hasAdminAccess() {
+        return "ADMIN".equals(role) || "DFAF".equals(role);
     }
 
     public Integer getFivondronanaId() {

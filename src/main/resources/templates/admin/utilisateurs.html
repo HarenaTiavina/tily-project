@@ -253,7 +253,7 @@
             <div class="card">
                 <div class="card-header">
                     <h2 class="card-title">Kaonty Fivondronana</h2>
-                    <button class="btn btn-primary-custom" onclick="openAddModal()">
+                    <button th:if="${isStrictAdmin}" class="btn btn-primary-custom" onclick="openAddModal()">
                         <i class="fas fa-plus"></i>
                         Hanampy kaonty
                     </button>

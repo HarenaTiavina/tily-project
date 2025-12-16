@@ -42,10 +42,12 @@ public class SecurityConfig {
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/fonts/**").permitAll()
                 // Pages d'authentification et erreurs accessibles à tous
                 .requestMatchers("/login", "/auth/**", "/access-denied", "/error").permitAll()
-                // Pages admin uniquement
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-                // Pages accessibles aux ADMIN et USER (Fivondronana)
-                .requestMatchers("/dashboard", "/", "/responsables/**", "/eleves/**").hasAnyRole("ADMIN", "USER")
+                // Création de comptes: uniquement ADMIN
+                .requestMatchers("/admin/utilisateurs/ajouter").hasRole("ADMIN")
+                // Pages admin accessibles aux ADMIN et DFAF
+                .requestMatchers("/admin/**").hasAnyRole("ADMIN", "DFAF")
+                // Pages accessibles aux ADMIN, DFAF et USER (Fivondronana)
+                .requestMatchers("/dashboard", "/", "/responsables/**", "/eleves/**").hasAnyRole("ADMIN", "DFAF", "USER")
                 // Toutes les autres requêtes nécessitent une authentification
                 .anyRequest().authenticated()
             )

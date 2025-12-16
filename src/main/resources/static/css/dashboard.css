@@ -1314,6 +1314,7 @@ body {
     overscroll-behavior: contain;
     flex: 1;
     min-height: 0;
+    max-height: calc(90vh - 160px);
 }
 
 .modal-footer {
@@ -1535,6 +1536,8 @@ body {
     
     .modal-body {
         padding: 16px;
+        max-height: calc(100vh - 140px);
+        overflow-y: auto;
     }
     
     .modal-footer {
@@ -1583,6 +1586,7 @@ body {
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
         overscroll-behavior: contain;
+        max-height: calc(100vh - 130px);
     }
     
     .modal-footer {

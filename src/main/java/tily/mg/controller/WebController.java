@@ -52,14 +52,22 @@ public class WebController {
     }
 
     /**
-     * Vérifie si l'utilisateur connecté est admin
+     * Vérifie si l'utilisateur connecté est admin (strictement ADMIN)
      */
     private boolean isAdmin() {
         return getCurrentUser().map(Utilisateur::isAdmin).orElse(false);
     }
 
     /**
-     * Récupère l'ID du Fivondronana de l'utilisateur connecté (null pour admin)
+     * Vérifie si l'utilisateur a un accès administratif (ADMIN ou DFAF)
+     * Les deux peuvent voir toutes les données mais seul ADMIN peut créer des comptes
+     */
+    private boolean hasAdminAccess() {
+        return getCurrentUser().map(Utilisateur::hasAdminAccess).orElse(false);
+    }
+
+    /**
+     * Récupère l'ID du Fivondronana de l'utilisateur connecté (null pour admin/dfaf)
      */
     private Integer getCurrentUserFivondronanaId() {
         return getCurrentUser().map(Utilisateur::getFivondronanaId).orElse(null);
@@ -71,7 +79,8 @@ public class WebController {
 
     private void addCommonAttributes(Model model) {
         model.addAttribute("userName", getCurrentUserName());
-        model.addAttribute("isAdmin", isAdmin());
+        model.addAttribute("isAdmin", hasAdminAccess());
+        model.addAttribute("isStrictAdmin", isAdmin());
         getCurrentUser().ifPresent(user -> {
             model.addAttribute("currentUser", user);
             if (user.getFivondronana() != null) {
@@ -86,7 +95,7 @@ public class WebController {
         model.addAttribute("pageTitle", "Dashboard Overview");
 
         Integer fivondronanaId = getCurrentUserFivondronanaId();
-        boolean admin = isAdmin();
+        boolean admin = hasAdminAccess();
 
         // Responsables stats
         Long totalResponsables;
@@ -145,20 +154,21 @@ public class WebController {
             @RequestParam(required = false) Integer fivondronanaId,
             @RequestParam(required = false) Integer secteurId,
             @RequestParam(required = false) Integer andraikitraId,
+            @RequestParam(required = false) Integer fizaranaId,
             @RequestParam(required = false) Boolean hasFafi
     ) {
         addCommonAttributes(model);
         model.addAttribute("pageTitle", "Responsables");
 
-        boolean admin = isAdmin();
+        boolean admin = hasAdminAccess();
         Integer userFivondronanaId = getCurrentUserFivondronanaId();
 
         List<Personne> responsables;
 
         if (admin) {
             // Admin peut filtrer par Fivondronana ou voir tout
-            if (fivondronanaId != null || secteurId != null || andraikitraId != null || hasFafi != null) {
-                responsables = personneService.filterResponsables(fivondronanaId, secteurId, andraikitraId, hasFafi);
+            if (fivondronanaId != null || secteurId != null || andraikitraId != null || fizaranaId != null || hasFafi != null) {
+                responsables = personneService.filterResponsables(fivondronanaId, secteurId, andraikitraId, fizaranaId, hasFafi);
             } else {
                 responsables = personneService.findAllResponsables();
             }
@@ -166,8 +176,8 @@ public class WebController {
             model.addAttribute("fivondronana", personneService.findAllFivondronana());
         } else {
             // Utilisateur Fivondronana voit seulement son Fivondronana
-            if (secteurId != null || andraikitraId != null || hasFafi != null) {
-                responsables = personneService.filterResponsablesByFivondronana(userFivondronanaId, secteurId, andraikitraId, hasFafi);
+            if (secteurId != null || andraikitraId != null || fizaranaId != null || hasFafi != null) {
+                responsables = personneService.filterResponsablesByFivondronana(userFivondronanaId, secteurId, andraikitraId, fizaranaId, hasFafi);
             } else {
                 responsables = personneService.findResponsablesByFivondronana(userFivondronanaId);
             }
@@ -179,6 +189,7 @@ public class WebController {
         // Reference data for filters and form
         model.addAttribute("secteurs", personneService.findAllSecteurs());
         model.addAttribute("andraikitra", personneService.findAllAndraikitra());
+        model.addAttribute("fizarana", personneService.findAllFizarana());
         model.addAttribute("fafiStatuts", personneService.findAllFafiStatuts());
 
         return "responsables";
@@ -197,6 +208,7 @@ public class WebController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFanekena,
             @RequestParam(required = false) Integer secteurId,
             @RequestParam(required = false) Integer andraikitraId,
+            @RequestParam(required = false) Integer fizaranaId,
             @RequestParam(required = false) Integer fivondronanaId,
             RedirectAttributes redirectAttributes
     ) {
@@ -214,13 +226,13 @@ public class WebController {
 
             // Pour les non-admin, forcer le Fivondronana de l'utilisateur
             Integer effectiveFivondronanaId;
-            if (isAdmin()) {
+            if (hasAdminAccess()) {
                 effectiveFivondronanaId = fivondronanaId;
             } else {
                 effectiveFivondronanaId = getCurrentUserFivondronanaId();
             }
 
-            personneService.createResponsable(personne, secteurId, andraikitraId, effectiveFivondronanaId);
+            personneService.createResponsable(personne, secteurId, andraikitraId, fizaranaId, effectiveFivondronanaId);
             
             redirectAttributes.addFlashAttribute("successMessage", "Tafiditra mpiandraikitra !");
         } catch (Exception e) {
@@ -244,11 +256,12 @@ public class WebController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFanekena,
             @RequestParam(required = false) Integer secteurId,
             @RequestParam(required = false) Integer andraikitraId,
+            @RequestParam(required = false) Integer fizaranaId,
             RedirectAttributes redirectAttributes
     ) {
         try {
             // Vérifier les permissions
-            if (!isAdmin()) {
+            if (!hasAdminAccess()) {
                 Integer userFivondronanaId = getCurrentUserFivondronanaId();
                 if (!personneService.personneAppartientAFivondronana(id, userFivondronanaId)) {
                     redirectAttributes.addFlashAttribute("errorMessage", "Vous n'avez pas la permission de modifier cette personne");
@@ -280,6 +293,12 @@ public class WebController {
                     personne.setAndraikitra(null);
                 }
 
+                if (fizaranaId != null) {
+                    personneService.findFizaranaById(fizaranaId).ifPresent(personne::setFizarana);
+                } else {
+                    personne.setFizarana(null);
+                }
+
                 personneService.save(personne);
             });
             
@@ -298,7 +317,7 @@ public class WebController {
     ) {
         try {
             // Vérifier les permissions
-            if (!isAdmin()) {
+            if (!hasAdminAccess()) {
                 Integer userFivondronanaId = getCurrentUserFivondronanaId();
                 if (!personneService.personneAppartientAFivondronana(id, userFivondronanaId)) {
                     redirectAttributes.addFlashAttribute("errorMessage", "Vous n'avez pas la permission de supprimer cette personne");
@@ -327,7 +346,7 @@ public class WebController {
         addCommonAttributes(model);
         model.addAttribute("pageTitle", "Élèves");
 
-        boolean admin = isAdmin();
+        boolean admin = hasAdminAccess();
         Integer userFivondronanaId = getCurrentUserFivondronanaId();
 
         List<Personne> eleves;
@@ -389,7 +408,7 @@ public class WebController {
 
             // Pour les non-admin, forcer le Fivondronana de l'utilisateur
             Integer effectiveFivondronanaId;
-            if (isAdmin()) {
+            if (hasAdminAccess()) {
                 effectiveFivondronanaId = fivondronanaId;
             } else {
                 effectiveFivondronanaId = getCurrentUserFivondronanaId();
@@ -422,7 +441,7 @@ public class WebController {
     ) {
         try {
             // Vérifier les permissions
-            if (!isAdmin()) {
+            if (!hasAdminAccess()) {
                 Integer userFivondronanaId = getCurrentUserFivondronanaId();
                 if (!personneService.personneAppartientAFivondronana(id, userFivondronanaId)) {
                     redirectAttributes.addFlashAttribute("errorMessage", "Vous n'avez pas la permission de modifier cette personne");
@@ -470,7 +489,7 @@ public class WebController {
     ) {
         try {
             // Vérifier les permissions
-            if (!isAdmin()) {
+            if (!hasAdminAccess()) {
                 Integer userFivondronanaId = getCurrentUserFivondronanaId();
                 if (!personneService.personneAppartientAFivondronana(id, userFivondronanaId)) {
                     redirectAttributes.addFlashAttribute("errorMessage", "Vous n'avez pas la permission de supprimer cette personne");
@@ -487,7 +506,7 @@ public class WebController {
         return "redirect:/eleves";
     }
 
-    // Endpoint pour modifier le FAFI d'un élève (admin ou utilisateur du même Fivondronana)
+    // Endpoint pour modifier le FAFI d'un élève (admin/dfaf ou utilisateur du même Fivondronana)
     @PostMapping("/eleves/modifier-fafi")
     public String modifierFafiEleve(
             @RequestParam Integer personneId,
@@ -499,7 +518,7 @@ public class WebController {
     ) {
         try {
             // Vérifier les permissions
-            if (!isAdmin()) {
+            if (!hasAdminAccess()) {
                 Integer userFivondronanaId = getCurrentUserFivondronanaId();
                 if (!personneService.personneAppartientAFivondronana(personneId, userFivondronanaId)) {
                     redirectAttributes.addFlashAttribute("errorMessage", "Vous n'avez pas la permission de modifier le FAFI de cette personne");
@@ -527,7 +546,7 @@ public class WebController {
     ) {
         try {
             // Vérifier les permissions
-            if (!isAdmin()) {
+            if (!hasAdminAccess()) {
                 Integer userFivondronanaId = getCurrentUserFivondronanaId();
                 if (!personneService.personneAppartientAFivondronana(personneId, userFivondronanaId)) {
                     redirectAttributes.addFlashAttribute("errorMessage", "Vous n'avez pas la permission de modifier le FAFI de cette personne");
@@ -562,7 +581,7 @@ public class WebController {
 
         try {
             // Récupérer le Fivondronana de l'utilisateur pour l'import
-            Integer fivondronanaId = isAdmin() ? null : getCurrentUserFivondronanaId();
+            Integer fivondronanaId = hasAdminAccess() ? null : getCurrentUserFivondronanaId();
             
             ExcelImportService.ImportResult result = excelImportService.importBeazina(file, fivondronanaId);
             
@@ -602,7 +621,7 @@ public class WebController {
 
         try {
             // Récupérer le Fivondronana de l'utilisateur pour l'import
-            Integer fivondronanaId = isAdmin() ? null : getCurrentUserFivondronanaId();
+            Integer fivondronanaId = hasAdminAccess() ? null : getCurrentUserFivondronanaId();
             
             ExcelImportService.ImportResult result = excelImportService.importMpiandraikitra(file, fivondronanaId);
             

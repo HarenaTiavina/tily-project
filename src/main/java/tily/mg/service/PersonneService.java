@@ -80,8 +80,8 @@ public class PersonneService {
     }
 
     // Filter pour admin (fivondronanaId optionnel)
-    public List<Personne> filterResponsables(Integer fivondronanaId, Integer secteurId, Integer andraikitraId, Boolean hasFafi) {
-        return personneRepository.filterResponsables(fivondronanaId, secteurId, andraikitraId, hasFafi);
+    public List<Personne> filterResponsables(Integer fivondronanaId, Integer secteurId, Integer andraikitraId, Integer fizaranaId, Boolean hasFafi) {
+        return personneRepository.filterResponsables(fivondronanaId, secteurId, andraikitraId, fizaranaId, hasFafi);
     }
 
     public List<Personne> filterEleves(Integer fivondronanaId, Integer secteurId, Integer fizaranaId, String ambaratonga, Boolean hasFafi) {
@@ -115,8 +115,8 @@ public class PersonneService {
     }
 
     // Filter par Fivondronana (pour non-admin)
-    public List<Personne> filterResponsablesByFivondronana(Integer fivondronanaId, Integer secteurId, Integer andraikitraId, Boolean hasFafi) {
-        return personneRepository.filterResponsablesByFivondronana(fivondronanaId, secteurId, andraikitraId, hasFafi);
+    public List<Personne> filterResponsablesByFivondronana(Integer fivondronanaId, Integer secteurId, Integer andraikitraId, Integer fizaranaId, Boolean hasFafi) {
+        return personneRepository.filterResponsablesByFivondronana(fivondronanaId, secteurId, andraikitraId, fizaranaId, hasFafi);
     }
 
     public List<Personne> filterElevesByFivondronana(Integer fivondronanaId, Integer secteurId, Integer fizaranaId, String ambaratonga, Boolean hasFafi) {
@@ -186,7 +186,7 @@ public class PersonneService {
     }
 
     // Create new Responsable avec Fivondronana
-    public Personne createResponsable(Personne personne, Integer secteurId, Integer andraikitraId, Integer fivondronanaId) {
+    public Personne createResponsable(Personne personne, Integer secteurId, Integer andraikitraId, Integer fizaranaId, Integer fivondronanaId) {
         // Set type to Responsable
         typePersonneRepository.findByNom("Responsable").ifPresent(personne::setTypePersonne);
         
@@ -198,6 +198,11 @@ public class PersonneService {
         // Set andraikitra if provided
         if (andraikitraId != null) {
             andraikitraRepository.findById(andraikitraId).ifPresent(personne::setAndraikitra);
+        }
+        
+        // Set fizarana (sampana) if provided
+        if (fizaranaId != null) {
+            fizaranaRepository.findById(fizaranaId).ifPresent(personne::setFizarana);
         }
         
         // Set fivondronana (obligatoire pour les non-admin)

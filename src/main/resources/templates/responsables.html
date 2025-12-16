@@ -75,6 +75,13 @@
                         </select>
                     </div>
                     <div class="filter-group">
+                        <label>Sampana</label>
+                        <select id="filterFizarana" onchange="applyFilters()">
+                            <option value="">Ny sampana rehetra</option>
+                            <option th:each="fizarana : ${fizarana}" th:value="${fizarana.nom}" th:text="${fizarana.nom}"></option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
                         <label>FAFI</label>
                         <select id="filterFafi" onchange="applyFilters()">
                             <option value="">Ny rehetra</option>
@@ -109,11 +116,12 @@
                                 <th class="sortable" onclick="sortTable(5)">N° CIN <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(6)">Finday <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(7)">Faritra <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(8)">Andraikitra <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(9)" th:if="${isAdmin}">Fivondronana <i class="fas fa-sort"></i></th>
-                                <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(10)' : 'sortTable(9)'">Fanekena <i class="fas fa-sort"></i></th>
-                                <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(11)' : 'sortTable(10)'">Laharana FAFI <i class="fas fa-sort"></i></th>
-                                <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(12)' : 'sortTable(11)'">FAFI <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(8)">Sampana <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(9)">Andraikitra <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(10)" th:if="${isAdmin}">Fivondronana <i class="fas fa-sort"></i></th>
+                                <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(11)' : 'sortTable(10)'">Fanekena <i class="fas fa-sort"></i></th>
+                                <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(12)' : 'sortTable(11)'">Laharana FAFI <i class="fas fa-sort"></i></th>
+                                <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(13)' : 'sortTable(12)'">FAFI <i class="fas fa-sort"></i></th>
                                 <th>Asa</th>
                             </tr>
                         </thead>
@@ -139,6 +147,8 @@
                                 th:data-datefanekena="${resp.dateFanekena}"
                                 th:data-secteur="${resp.secteur != null ? resp.secteur.nom : ''}"
                                 th:data-secteurid="${resp.secteur != null ? resp.secteur.id : ''}"
+                                th:data-fizarana="${resp.fizarana != null ? resp.fizarana.nom : ''}"
+                                th:data-fizaranaid="${resp.fizarana != null ? resp.fizarana.id : ''}"
                                 th:data-andraikitra="${resp.andraikitra != null ? resp.andraikitra.nom : ''}"
                                 th:data-andraikitraid="${resp.andraikitra != null ? resp.andraikitra.id : ''}"
                                 th:data-fivondronana="${resp.fivondronana != null ? resp.fivondronana.nom : ''}"
@@ -157,6 +167,7 @@
                                 <td th:text="${resp.numeroCin}">-</td>
                                 <td th:text="${resp.numeroTelephone}">-</td>
                                 <td th:text="${resp.secteur != null ? resp.secteur.nom : '-'}">-</td>
+                                <td th:text="${resp.fizarana != null ? resp.fizarana.nom : '-'}">-</td>
                                 <td th:text="${resp.andraikitra != null ? resp.andraikitra.nom : '-'}">-</td>
                                 <td th:if="${isAdmin}" th:text="${resp.fivondronana != null ? resp.fivondronana.nom : '-'}">-</td>
                                 <td th:text="${resp.dateFanekena != null ? #temporals.format(resp.dateFanekena, 'dd/MM/yyyy') : '-'}">-</td>
@@ -265,14 +276,21 @@
                             </select>
                         </div>
                         <div class="form-group">
+                            <label for="fizaranaId">Sampana</label>
+                            <select id="fizaranaId" name="fizaranaId">
+                                <option value="">-- Mifidy --</option>
+                                <option th:each="fizarana : ${fizarana}" th:value="${fizarana.id}" th:text="${fizarana.nom}"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
                             <label for="andraikitraId">Andraikitra</label>
                             <select id="andraikitraId" name="andraikitraId">
                                 <option value="">-- Mifidy --</option>
                                 <option th:each="andraikitra : ${andraikitra}" th:value="${andraikitra.id}" th:text="${andraikitra.nom}"></option>
                             </select>
                         </div>
-                    </div>
-                    <div class="form-row">
                         <div class="form-group">
                             <label for="dateFanekena">Daty Fanekena</label>
                             <input type="date" id="dateFanekena" name="dateFanekena">
@@ -350,14 +368,21 @@
                             </select>
                         </div>
                         <div class="form-group">
+                            <label for="editFizaranaId">Sampana</label>
+                            <select id="editFizaranaId" name="fizaranaId">
+                                <option value="">-- Mifidy --</option>
+                                <option th:each="fizarana : ${fizarana}" th:value="${fizarana.id}" th:text="${fizarana.nom}"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
                             <label for="editAndraikitraId">Andraikitra</label>
                             <select id="editAndraikitraId" name="andraikitraId">
                                 <option value="">-- Mifidy --</option>
                                 <option th:each="andraikitra : ${andraikitra}" th:value="${andraikitra.id}" th:text="${andraikitra.nom}"></option>
                             </select>
                         </div>
-                    </div>
-                    <div class="form-row">
                         <div class="form-group">
                             <label for="editDateFanekena">Daty Fanekena</label>
                             <input type="date" id="editDateFanekena" name="dateFanekena">
@@ -528,6 +553,7 @@
         function applyFilters() {
             const searchValue = document.getElementById('searchInput').value.toLowerCase();
             const secteurValue = document.getElementById('filterSecteur').value;
+            const fizaranaValue = document.getElementById('filterFizarana').value;
             const fafiValue = document.getElementById('filterFafi').value;
             // Filtre Fivondronana (admin seulement)
             const filterFivondronanaEl = document.getElementById('filterFivondronana');
@@ -540,15 +566,17 @@
             rows.forEach(row => {
                 const text = row.textContent.toLowerCase();
                 const secteur = row.getAttribute('data-secteur') || '';
+                const fizarana = row.getAttribute('data-fizarana') || '';
                 const fafi = row.getAttribute('data-fafi') || '';
                 const fivondronana = row.getAttribute('data-fivondronana') || '';
                 
                 const matchSearch = !searchValue || text.includes(searchValue);
                 const matchSecteur = !secteurValue || secteur === secteurValue;
+                const matchFizarana = !fizaranaValue || fizarana === fizaranaValue;
                 const matchFafi = !fafiValue || fafi === fafiValue;
                 const matchFivondronana = !fivondronanaValue || fivondronana === fivondronanaValue;
                 
-                if (matchSearch && matchSecteur && matchFafi && matchFivondronana) {
+                if (matchSearch && matchSecteur && matchFizarana && matchFafi && matchFivondronana) {
                     row.style.display = '';
                     visibleCount++;
                 } else {
@@ -564,6 +592,7 @@
         function resetFilters() {
             document.getElementById('searchInput').value = '';
             document.getElementById('filterSecteur').value = '';
+            document.getElementById('filterFizarana').value = '';
             document.getElementById('filterFafi').value = '';
             // Réinitialiser le filtre Fivondronana si présent (admin seulement)
             const filterFivondronanaEl = document.getElementById('filterFivondronana');
@@ -595,6 +624,7 @@
             document.getElementById('editNomMere').value = row.dataset.nommere || '';
             document.getElementById('editDateFanekena').value = row.dataset.datefanekena || '';
             document.getElementById('editSecteurId').value = row.dataset.secteurid || '';
+            document.getElementById('editFizaranaId').value = row.dataset.fizaranaid || '';
             document.getElementById('editAndraikitraId').value = row.dataset.andraikitraid || '';
             
             document.getElementById('editModal').classList.add('active');
@@ -681,11 +711,16 @@
             }
 
             const secteur = document.getElementById('filterSecteur').value;
+            const fizarana = document.getElementById('filterFizarana').value;
             const fafi = document.getElementById('filterFafi').value;
+            const filterFivondronanaEl = document.getElementById('filterFivondronana');
+            const fivondronanaFilter = filterFivondronanaEl ? filterFivondronanaEl.value : '';
             
             let filterTitle = 'Lisitry ny Mpiandraikitra';
             let filters = [];
+            if (fivondronanaFilter) filters.push('Fivondronana: ' + fivondronanaFilter);
             if (secteur) filters.push('Faritra: ' + secteur);
+            if (fizarana) filters.push('Sampana: ' + fizarana);
             if (fafi) filters.push('FAFI: ' + fafi);
             
             // Charger l'image et la convertir en base64
@@ -712,7 +747,6 @@
                         ${imageBase64 ? '<img src="' + imageBase64 + '" alt="Tily" class="header-image">' : ''}
                         <h1>${filterTitle}</h1>
                         ${filters.length > 0 ? '<p class="filters">Sivana: ' + filters.join(' | ') + '</p>' : ''}
-                        <p class="date">Voaloa tamin'ny: ${new Date().toLocaleDateString('fr-FR')} amin'ny ${new Date().toLocaleTimeString('fr-FR')}</p>
                     <table>
                         <thead>
                             <tr>
@@ -723,10 +757,10 @@
                                 <th>N° CIN</th>
                                 <th>Finday</th>
                                 <th>Faritra</th>
+                                <th>Sampana</th>
                                 <th>Andraikitra</th>
+                                <th>Fivondronana</th>
                                 <th>Fanekena</th>
-                                <th>Laharana FAFI</th>
-                                <th>FAFI</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -737,10 +771,14 @@
             
             visibleRows.forEach(row => {
                 const cells = row.querySelectorAll('td');
-                // Indices des colonnes selon admin ou non
-                const fanekenaIdx = isAdmin ? 10 : 9;
-                const numeroFafiIdx = isAdmin ? 11 : 10;
-                const fafiIdx = isAdmin ? 12 : 11;
+                // Indices des colonnes selon admin ou non (avec la nouvelle colonne Sampana)
+                // 0: Sary, 1: Anarana, 2: Fanampin'anarana, 3: Totem, 4: Daty, 5: CIN, 6: Finday, 7: Faritra, 8: Sampana, 9: Andraikitra
+                // Admin: 10: Fivondronana, 11: Fanekena
+                // Non-admin: 10: Fanekena
+                const fivondronanaIdx = isAdmin ? 10 : -1;
+                const fanekenaIdx = isAdmin ? 11 : 10;
+                // Récupérer Fivondronana depuis data attribute si non admin
+                const fivondronanaValue = isAdmin && fivondronanaIdx >= 0 ? cells[fivondronanaIdx].textContent : (row.getAttribute('data-fivondronana') || '-');
                 printContent += `
                     <tr>
                         <td>${cells[1].textContent}</td>
@@ -751,9 +789,9 @@
                         <td>${cells[6].textContent}</td>
                         <td>${cells[7].textContent}</td>
                         <td>${cells[8].textContent}</td>
+                        <td>${cells[9].textContent}</td>
+                        <td>${fivondronanaValue}</td>
                         <td>${cells[fanekenaIdx].textContent}</td>
-                        <td>${cells[numeroFafiIdx].textContent}</td>
-                        <td>${cells[fafiIdx].textContent}</td>
                     </tr>
                 `;
             });

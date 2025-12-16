@@ -682,9 +682,12 @@
             const secteur = document.getElementById('filterSecteur').value;
             const fizarana = document.getElementById('filterFizarana').value;
             const fafi = document.getElementById('filterFafi').value;
+            const filterFivondronanaEl = document.getElementById('filterFivondronana');
+            const fivondronanaFilter = filterFivondronanaEl ? filterFivondronanaEl.value : '';
             
             let filterTitle = 'Lisitry ny Beazina';
             let filters = [];
+            if (fivondronanaFilter) filters.push('Fivondronana: ' + fivondronanaFilter);
             if (secteur) filters.push('Faritra: ' + secteur);
             if (fizarana) filters.push('Sampana: ' + fizarana);
             if (fafi) filters.push('FAFI: ' + fafi);
@@ -713,7 +716,6 @@
                         ${imageBase64 ? '<img src="' + imageBase64 + '" alt="Tily" class="header-image">' : ''}
                         <h1>${filterTitle}</h1>
                         ${filters.length > 0 ? '<p class="filters">Sivana: ' + filters.join(' | ') + '</p>' : ''}
-                        <p class="date">Voaloa tamin'ny: ${new Date().toLocaleDateString('fr-FR')} amin'ny ${new Date().toLocaleTimeString('fr-FR')}</p>
                     <table>
                         <thead>
                             <tr>
@@ -725,10 +727,9 @@
                                 <th>Anaran'ny Reny</th>
                                 <th>Faritra</th>
                                 <th>Sampana</th>
+                                <th>Fivondronana</th>
                                 <th>Ambaratonga</th>
                                 <th>Fanekena</th>
-                                <th>Laharana FAFI</th>
-                                <th>FAFI</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -740,10 +741,11 @@
             visibleRows.forEach(row => {
                 const cells = row.querySelectorAll('td');
                 // Indices des colonnes selon admin ou non
+                const fivondronanaIdx = isAdmin ? 9 : -1;
                 const ambaratongaIdx = isAdmin ? 10 : 9;
                 const fanekenaIdx = isAdmin ? 11 : 10;
-                const numeroFafiIdx = isAdmin ? 12 : 11;
-                const fafiIdx = isAdmin ? 13 : 12;
+                // Récupérer Fivondronana depuis data attribute si non admin
+                const fivondronanaValue = isAdmin && fivondronanaIdx >= 0 ? cells[fivondronanaIdx].textContent : (row.getAttribute('data-fivondronana') || '-');
                 printContent += `
                     <tr>
                         <td>${cells[1].textContent}</td>
@@ -754,10 +756,9 @@
                         <td>${cells[6].textContent}</td>
                         <td>${cells[7].textContent}</td>
                         <td>${cells[8].textContent}</td>
+                        <td>${fivondronanaValue}</td>
                         <td>${cells[ambaratongaIdx].textContent}</td>
                         <td>${cells[fanekenaIdx].textContent}</td>
-                        <td>${cells[numeroFafiIdx].textContent}</td>
-                        <td>${cells[fafiIdx].textContent}</td>
                     </tr>
                 `;
             });

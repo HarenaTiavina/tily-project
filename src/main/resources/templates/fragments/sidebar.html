@@ -23,8 +23,8 @@
             <span class="nav-text">Beazina</span>
         </a>
         
-        <!-- Menu ADMIN uniquement -->
-        <div sec:authorize="hasRole('ADMIN')">
+        <!-- Menu ADMIN et DFAF -->
+        <div sec:authorize="hasAnyRole('ADMIN', 'DFAF')">
             <a th:href="@{/admin/utilisateurs}" class="nav-item" th:classappend="${activePage == 'utilisateurs'} ? 'active'" data-tooltip="Mpampiasa">
                 <i class="fas fa-users-cog"></i>
                 <span class="nav-text">Mpampiasa</span>
