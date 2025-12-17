@@ -64,5 +64,22 @@ public class DashboardService {
         Long paid = getTotalPaidFafi();
         return totalPersonnes - paid;
     }
+
+    // FAFI Total stats filtrées par Fivondronana
+    public BigDecimal getTotalFafiMontantByFivondronana(Integer fivondronanaId) {
+        BigDecimal total = fafiRepository.getTotalMontantActiveByFivondronana(fivondronanaId);
+        return total != null ? total : BigDecimal.ZERO;
+    }
+
+    public Long getTotalPaidFafiByFivondronana(Integer fivondronanaId) {
+        Long count = fafiRepository.countActiveByFivondronana(fivondronanaId);
+        return count != null ? count : 0L;
+    }
+
+    public Long getTotalUnpaidFafiByFivondronana(Integer fivondronanaId, Long totalResponsables, Long totalEleves) {
+        Long totalPersonnes = totalResponsables + totalEleves;
+        Long paid = getTotalPaidFafiByFivondronana(fivondronanaId);
+        return totalPersonnes - paid;
+    }
 }
 

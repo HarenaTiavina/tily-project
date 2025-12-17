@@ -9,13 +9,11 @@
         </button>
     </div>
     <nav class="sidebar-nav">
-        <!-- Dashboard: ADMIN et DFAF uniquement -->
-        <div sec:authorize="hasAnyRole('ADMIN', 'DFAF')">
-            <a th:href="@{/dashboard}" class="nav-item" th:classappend="${activePage == 'dashboard'} ? 'active'" data-tooltip="Dashboard">
-                <i class="fas fa-home"></i>
-                <span class="nav-text">Dashboard</span>
-            </a>
-        </div>
+        <!-- Dashboard: tous les rôles -->
+        <a th:href="@{/dashboard}" class="nav-item" th:classappend="${activePage == 'dashboard'} ? 'active'" data-tooltip="Dashboard">
+            <i class="fas fa-home"></i>
+            <span class="nav-text">Dashboard</span>
+        </a>
         <!-- Menu commun (ADMIN, DFAF et USER) -->
         <a th:href="@{/responsables}" class="nav-item" th:classappend="${activePage == 'responsables'} ? 'active'" data-tooltip="Mpiandraikitra">
             <i class="fas fa-user-tie"></i>

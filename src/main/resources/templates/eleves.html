@@ -398,11 +398,12 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="fafiStatut">Sata</label>
-                            <select id="fafiStatut" name="statut">
+                            <select id="fafiStatut" name="statut" th:disabled="${!isAdmin}">
                                 <option th:each="statut : ${fafiStatuts}" 
                                         th:value="${statut}" 
                                         th:text="${statut == 'Active' ? 'Active (Eny)' : (statut == 'Inactive' ? 'Inactive (Tsia)' : statut)}"></option>
                             </select>
+                            <small th:if="${!isAdmin}" class="form-hint" style="color: #666; font-size: 11px;">Admin na DFAF ihany no afaka manova ny sata</small>
                         </div>
                         <div class="form-group">
                             <label for="fafiNumero">Laharana FAFI</label>

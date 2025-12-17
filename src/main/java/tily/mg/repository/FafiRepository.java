@@ -20,5 +20,12 @@ public interface FafiRepository extends JpaRepository<Fafi, Integer> {
     
     @Query("SELECT DISTINCT f.statut FROM Fafi f WHERE f.statut IS NOT NULL ORDER BY f.statut")
     List<String> findDistinctStatuts();
+    
+    // Méthodes filtrées par Fivondronana
+    @Query("SELECT SUM(f.montant) FROM Fafi f WHERE f.statut = 'Active' AND f.personne.fivondronana.id = :fivondronanaId")
+    BigDecimal getTotalMontantActiveByFivondronana(Integer fivondronanaId);
+    
+    @Query("SELECT COUNT(f) FROM Fafi f WHERE f.statut = 'Active' AND f.personne.fivondronana.id = :fivondronanaId")
+    Long countActiveByFivondronana(Integer fivondronanaId);
 }
 

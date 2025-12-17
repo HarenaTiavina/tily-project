@@ -135,11 +135,23 @@ public class WebController {
         model.addAttribute("elevesWithFafi", elevesWithFafi);
         model.addAttribute("elevesWithoutFafi", elevesWithoutFafi);
 
-        // FAFI Total stats (admin seulement pour le total global)
+        // FAFI Total stats (filtré par fivondronana pour USER)
         NumberFormat formatter = NumberFormat.getInstance(Locale.FRANCE);
-        String totalFafi = formatter.format(dashboardService.getTotalFafiMontant()) + " Ar";
-        Long paidFafi = dashboardService.getTotalPaidFafi();
-        Long unpaidFafi = dashboardService.getTotalUnpaidFafi();
+        String totalFafi;
+        Long paidFafi;
+        Long unpaidFafi;
+
+        if (admin) {
+            // Admin voit le total global
+            totalFafi = formatter.format(dashboardService.getTotalFafiMontant()) + " Ar";
+            paidFafi = dashboardService.getTotalPaidFafi();
+            unpaidFafi = dashboardService.getTotalUnpaidFafi();
+        } else {
+            // USER voit seulement son fivondronana
+            totalFafi = formatter.format(dashboardService.getTotalFafiMontantByFivondronana(fivondronanaId)) + " Ar";
+            paidFafi = dashboardService.getTotalPaidFafiByFivondronana(fivondronanaId);
+            unpaidFafi = dashboardService.getTotalUnpaidFafiByFivondronana(fivondronanaId, totalResponsables, totalEleves);
+        }
 
         model.addAttribute("totalFafi", totalFafi);
         model.addAttribute("paidFafi", paidFafi);
@@ -527,13 +539,16 @@ public class WebController {
             RedirectAttributes redirectAttributes
     ) {
         try {
+            boolean admin = hasAdminAccess();
             // Vérifier les permissions
-            if (!hasAdminAccess()) {
+            if (!admin) {
                 Integer userFivondronanaId = getCurrentUserFivondronanaId();
                 if (!personneService.personneAppartientAFivondronana(personneId, userFivondronanaId)) {
                     redirectAttributes.addFlashAttribute("errorMessage", "Vous n'avez pas la permission de modifier le FAFI de cette personne");
                     return "redirect:/eleves";
                 }
+                // USER ne peut pas modifier le statut - ignorer le paramètre statut
+                statut = null;
             }
 
             personneService.updateFafi(personneId, datePaiement, montant, statut, numeroFafi);
@@ -555,13 +570,16 @@ public class WebController {
             RedirectAttributes redirectAttributes
     ) {
         try {
+            boolean admin = hasAdminAccess();
             // Vérifier les permissions
-            if (!hasAdminAccess()) {
+            if (!admin) {
                 Integer userFivondronanaId = getCurrentUserFivondronanaId();
                 if (!personneService.personneAppartientAFivondronana(personneId, userFivondronanaId)) {
                     redirectAttributes.addFlashAttribute("errorMessage", "Vous n'avez pas la permission de modifier le FAFI de cette personne");
                     return "redirect:/responsables";
                 }
+                // USER ne peut pas modifier le statut - ignorer le paramètre statut
+                statut = null;
             }
 
             personneService.updateFafi(personneId, datePaiement, montant, statut, numeroFafi);

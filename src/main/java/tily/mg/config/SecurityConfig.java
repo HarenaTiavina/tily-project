@@ -46,10 +46,8 @@ public class SecurityConfig {
                 .requestMatchers("/admin/utilisateurs/ajouter").hasRole("ADMIN")
                 // Pages admin accessibles aux ADMIN et DFAF
                 .requestMatchers("/admin/**").hasAnyRole("ADMIN", "DFAF")
-                // Dashboard accessible uniquement aux ADMIN et DFAF
-                .requestMatchers("/dashboard", "/").hasAnyRole("ADMIN", "DFAF")
                 // Pages accessibles aux ADMIN, DFAF et USER (Fivondronana)
-                .requestMatchers("/responsables/**", "/eleves/**").hasAnyRole("ADMIN", "DFAF", "USER")
+                .requestMatchers("/dashboard", "/", "/responsables/**", "/eleves/**").hasAnyRole("ADMIN", "DFAF", "USER")
                 // Toutes les autres requêtes nécessitent une authentification
                 .anyRequest().authenticated()
             )
@@ -57,14 +55,8 @@ public class SecurityConfig {
                 .loginPage("/login")
                 .loginProcessingUrl("/auth/login")
                 .successHandler((request, response, authentication) -> {
-                    // Rediriger selon le rôle
-                    boolean isUser = authentication.getAuthorities().stream()
-                        .anyMatch(a -> a.getAuthority().equals("ROLE_USER"));
-                    if (isUser) {
-                        response.sendRedirect("/responsables");
-                    } else {
-                        response.sendRedirect("/dashboard");
-                    }
+                    // Tous les rôles vont au dashboard
+                    response.sendRedirect("/dashboard");
                 })
                 .failureUrl("/login?error=true")
                 .usernameParameter("email")
