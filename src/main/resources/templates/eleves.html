@@ -197,16 +197,18 @@
                 <div class="table-footer">
                     <div class="rows-per-page">
                         <span>Andalana isaky ny pejy:</span>
-                        <select>
-                            <option>10</option>
-                            <option>25</option>
-                            <option>50</option>
+                        <select id="rowsPerPage" onchange="changeRowsPerPage()">
+                            <option value="10" selected>10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                            <option value="all">Rehetra</option>
                         </select>
                     </div>
                     <div class="pagination">
-                        <span id="paginationInfo" th:text="'1-' + ${totalCount} + ' amin\'ny ' + ${totalCount}">1-0 amin'ny 0</span>
-                        <button class="btn-icon" disabled><i class="fas fa-chevron-left"></i></button>
-                        <button class="btn-icon"><i class="fas fa-chevron-right"></i></button>
+                        <span id="paginationInfo">1-10 amin'ny 0</span>
+                        <button class="btn-icon" id="prevPageBtn" onclick="prevPage()" disabled><i class="fas fa-chevron-left"></i></button>
+                        <button class="btn-icon" id="nextPageBtn" onclick="nextPage()"><i class="fas fa-chevron-right"></i></button>
                     </div>
                 </div>
             </div>
@@ -476,7 +478,15 @@
                     openEditModal(row);
                 });
             });
+
+            // Initialiser la pagination au chargement
+            applyFilters();
         });
+
+        // Variables de pagination
+        let currentPage = 1;
+        let rowsPerPage = 10;
+        let filteredRows = [];
 
         // Tri du tableau
         let sortDirection = {};
@@ -526,8 +536,9 @@
             
             const table = document.getElementById('elevesTable');
             const rows = table.querySelectorAll('tbody tr:not(.empty-message)');
-            let visibleCount = 0;
             
+            // Filtrer les lignes
+            filteredRows = [];
             rows.forEach(row => {
                 const text = row.textContent.toLowerCase();
                 const secteur = row.getAttribute('data-secteur') || '';
@@ -542,15 +553,77 @@
                 const matchFivondronana = !fivondronanaValue || fivondronana === fivondronanaValue;
                 
                 if (matchSearch && matchSecteur && matchFizarana && matchFafi && matchFivondronana) {
+                    filteredRows.push(row);
+                }
+                row.style.display = 'none';
+            });
+            
+            // Reset to page 1 when filters change
+            currentPage = 1;
+            document.getElementById('recordCount').textContent = filteredRows.length + ' Beazina';
+            
+            // Appliquer la pagination
+            applyPagination();
+        }
+
+        // Appliquer la pagination
+        function applyPagination() {
+            const totalRows = filteredRows.length;
+            const isShowAll = rowsPerPage === 'all' || rowsPerPage >= totalRows;
+            const effectiveRowsPerPage = isShowAll ? totalRows : rowsPerPage;
+            const totalPages = isShowAll ? 1 : Math.ceil(totalRows / rowsPerPage);
+            
+            // S'assurer que currentPage est valide
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+            
+            const startIndex = (currentPage - 1) * effectiveRowsPerPage;
+            const endIndex = isShowAll ? totalRows : Math.min(startIndex + rowsPerPage, totalRows);
+            
+            // Afficher uniquement les lignes de la page courante
+            filteredRows.forEach((row, index) => {
+                if (index >= startIndex && index < endIndex) {
                     row.style.display = '';
-                    visibleCount++;
                 } else {
                     row.style.display = 'none';
                 }
             });
             
-            document.getElementById('recordCount').textContent = visibleCount + ' Beazina';
-            document.getElementById('paginationInfo').textContent = '1-' + visibleCount + " amin'ny " + visibleCount;
+            // Mettre à jour l'info de pagination
+            const displayStart = totalRows === 0 ? 0 : startIndex + 1;
+            const displayEnd = endIndex;
+            document.getElementById('paginationInfo').textContent = displayStart + '-' + displayEnd + " amin'ny " + totalRows;
+            
+            // Activer/désactiver les boutons
+            document.getElementById('prevPageBtn').disabled = currentPage <= 1;
+            document.getElementById('nextPageBtn').disabled = currentPage >= totalPages || totalRows === 0;
+        }
+
+        // Changer le nombre de lignes par page
+        function changeRowsPerPage() {
+            const select = document.getElementById('rowsPerPage');
+            const value = select.value;
+            rowsPerPage = value === 'all' ? 'all' : parseInt(value);
+            currentPage = 1;
+            applyPagination();
+        }
+
+        // Page précédente
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                applyPagination();
+            }
+        }
+
+        // Page suivante
+        function nextPage() {
+            const totalRows = filteredRows.length;
+            const totalPages = rowsPerPage === 'all' ? 1 : Math.ceil(totalRows / rowsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                applyPagination();
+            }
         }
 
         // Réinitialiser les filtres
@@ -562,6 +635,9 @@
             // Réinitialiser le filtre Fivondronana si présent (admin seulement)
             const filterFivondronanaEl = document.getElementById('filterFivondronana');
             if (filterFivondronanaEl) filterFivondronanaEl.value = '';
+            // Réinitialiser la pagination
+            document.getElementById('rowsPerPage').value = '10';
+            rowsPerPage = 10;
             applyFilters();
         }
 
