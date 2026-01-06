@@ -12,10 +12,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import tily.mg.entity.Personne;
+import tily.mg.entity.PrixFafi;
 import tily.mg.entity.Utilisateur;
 import tily.mg.service.AuthService;
 import tily.mg.service.DashboardService;
 import tily.mg.service.ExcelImportService;
+import tily.mg.service.FafiService;
 import tily.mg.service.PersonneService;
 
 import java.math.BigDecimal;
@@ -39,6 +41,9 @@ public class WebController {
 
     @Autowired
     private ExcelImportService excelImportService;
+
+    @Autowired
+    private FafiService fafiService;
 
     /**
      * Récupère l'utilisateur connecté
@@ -96,6 +101,7 @@ public class WebController {
 
         Integer fivondronanaId = getCurrentUserFivondronanaId();
         boolean admin = hasAdminAccess();
+        int anneeCourante = dashboardService.getAnneeCourante();
 
         // Responsables stats
         Long totalResponsables;
@@ -119,11 +125,11 @@ public class WebController {
         } else {
             // Utilisateur Fivondronana voit seulement son Fivondronana
             totalResponsables = personneService.countResponsablesByFivondronana(fivondronanaId);
-            responsablesWithFafi = personneService.countResponsablesWithFafiByFivondronana(fivondronanaId);
+            responsablesWithFafi = dashboardService.getResponsablesWithFafiByFivondronana(fivondronanaId);
             responsablesWithoutFafi = totalResponsables - responsablesWithFafi;
 
             totalEleves = personneService.countElevesByFivondronana(fivondronanaId);
-            elevesWithFafi = personneService.countElevesWithFafiByFivondronana(fivondronanaId);
+            elevesWithFafi = dashboardService.getElevesWithFafiByFivondronana(fivondronanaId);
             elevesWithoutFafi = totalEleves - elevesWithFafi;
         }
 
@@ -156,6 +162,11 @@ public class WebController {
         model.addAttribute("totalFafi", totalFafi);
         model.addAttribute("paidFafi", paidFafi);
         model.addAttribute("unpaidFafi", unpaidFafi);
+        
+        // Ajouter l'année courante et les prix FAFI
+        model.addAttribute("anneeCourante", anneeCourante);
+        model.addAttribute("prixMpiandraikitra", fafiService.getPrixMpiandraikitraAnneeActuelle());
+        model.addAttribute("prixBeazina", fafiService.getPrixBeazinaAnneeActuelle());
 
         return "dashboard";
     }
@@ -205,6 +216,10 @@ public class WebController {
         model.addAttribute("fizarana", personneService.findAllFizarana());
         model.addAttribute("dingamPiofanana", personneService.findAllDingamPiofanana());
         model.addAttribute("fafiStatuts", personneService.findAllFafiStatuts());
+        
+        // Données FAFI
+        model.addAttribute("anneeCourante", fafiService.getAnneeCourante());
+        model.addAttribute("prixFafi", fafiService.getPrixMpiandraikitraAnneeActuelle());
 
         return "responsables";
     }
@@ -398,6 +413,10 @@ public class WebController {
         model.addAttribute("secteurs", personneService.findAllSecteurs());
         model.addAttribute("fizarana", personneService.findAllFizarana());
         model.addAttribute("fafiStatuts", personneService.findAllFafiStatuts());
+        
+        // Données FAFI
+        model.addAttribute("anneeCourante", fafiService.getAnneeCourante());
+        model.addAttribute("prixFafi", fafiService.getPrixBeazinaAnneeActuelle());
 
         return "eleves";
     }
@@ -743,5 +762,130 @@ public class WebController {
         }
 
         return "redirect:/admin/utilisateurs";
+    }
+
+    // ========== ADMIN/DFAF: Configuration des prix FAFI ==========
+
+    @GetMapping("/admin/configuration-fafi")
+    public String configurationFafi(Model model) {
+        if (!hasAdminAccess()) {
+            return "redirect:/access-denied";
+        }
+
+        addCommonAttributes(model);
+        model.addAttribute("pageTitle", "Configuration FAFI");
+        
+        int anneeCourante = fafiService.getAnneeCourante();
+        model.addAttribute("anneeCourante", anneeCourante);
+        model.addAttribute("prixMpiandraikitra", fafiService.getPrixMpiandraikitraAnneeActuelle());
+        model.addAttribute("prixBeazina", fafiService.getPrixBeazinaAnneeActuelle());
+        
+        // Historique des prix
+        List<PrixFafi> historiquePrix = fafiService.getAllPrixFafi();
+        model.addAttribute("historiquePrix", historiquePrix);
+        
+        // Liste des années distinctes
+        java.util.Set<Integer> anneesSet = new java.util.TreeSet<>(java.util.Collections.reverseOrder());
+        historiquePrix.forEach(p -> anneesSet.add(p.getAnnee()));
+        model.addAttribute("anneesAvecPrix", anneesSet);
+
+        return "admin/configuration-fafi";
+    }
+
+    @PostMapping("/admin/configuration-fafi/modifier")
+    public String modifierPrixFafi(
+            @RequestParam String typePersonne,
+            @RequestParam BigDecimal prix,
+            RedirectAttributes redirectAttributes
+    ) {
+        if (!hasAdminAccess()) {
+            return "redirect:/access-denied";
+        }
+
+        try {
+            int anneeCourante = fafiService.getAnneeCourante();
+            fafiService.savePrixFafi(typePersonne, prix, anneeCourante);
+            redirectAttributes.addFlashAttribute("successMessage", "Vidin'ny FAFI novaina soa amin'ny " + typePersonne + "!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Nisy tsy nety: " + e.getMessage());
+        }
+
+        return "redirect:/admin/configuration-fafi";
+    }
+
+    @PostMapping("/admin/configuration-fafi/ajouter-annee")
+    public String ajouterPrixFafiAnnee(
+            @RequestParam Integer annee,
+            @RequestParam BigDecimal prixMpiandraikitra,
+            @RequestParam BigDecimal prixBeazina,
+            RedirectAttributes redirectAttributes
+    ) {
+        if (!hasAdminAccess()) {
+            return "redirect:/access-denied";
+        }
+
+        try {
+            fafiService.savePrixFafi("Mpiandraikitra", prixMpiandraikitra, annee);
+            fafiService.savePrixFafi("Beazina", prixBeazina, annee);
+            redirectAttributes.addFlashAttribute("successMessage", "Vidin'ny FAFI ho an'ny taona " + annee + " tafiditra soa!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Nisy tsy nety: " + e.getMessage());
+        }
+
+        return "redirect:/admin/configuration-fafi";
+    }
+
+    // ========== Paiement FAFI multiple ==========
+
+    @PostMapping("/responsables/payer-fafi-multiple")
+    public String payerFafiMultipleResponsables(
+            @RequestParam("personneIds") List<Integer> personneIds,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            if (!hasAdminAccess()) {
+                // Vérifier que toutes les personnes appartiennent au même fivondronana
+                Integer userFivondronanaId = getCurrentUserFivondronanaId();
+                for (Integer personneId : personneIds) {
+                    if (!personneService.personneAppartientAFivondronana(personneId, userFivondronanaId)) {
+                        redirectAttributes.addFlashAttribute("errorMessage", "Vous n'avez pas la permission de modifier le FAFI de certaines personnes");
+                        return "redirect:/responsables";
+                    }
+                }
+            }
+
+            int count = fafiService.marquerFafiPayePourAnnee(personneIds, "Mpiandraikitra");
+            redirectAttributes.addFlashAttribute("successMessage", count + " Mpiandraikitra efa nandoa FAFI amin'ity taona ity!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Nisy tsy nety: " + e.getMessage());
+        }
+
+        return "redirect:/responsables";
+    }
+
+    @PostMapping("/eleves/payer-fafi-multiple")
+    public String payerFafiMultipleEleves(
+            @RequestParam("personneIds") List<Integer> personneIds,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            if (!hasAdminAccess()) {
+                // Vérifier que toutes les personnes appartiennent au même fivondronana
+                Integer userFivondronanaId = getCurrentUserFivondronanaId();
+                for (Integer personneId : personneIds) {
+                    if (!personneService.personneAppartientAFivondronana(personneId, userFivondronanaId)) {
+                        redirectAttributes.addFlashAttribute("errorMessage", "Vous n'avez pas la permission de modifier le FAFI de certaines personnes");
+                        return "redirect:/eleves";
+                    }
+                }
+            }
+
+            int count = fafiService.marquerFafiPayePourAnnee(personneIds, "Beazina");
+            redirectAttributes.addFlashAttribute("successMessage", count + " Beazina efa nandoa FAFI amin'ity taona ity!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Nisy tsy nety: " + e.getMessage());
+        }
+
+        return "redirect:/eleves";
     }
 }

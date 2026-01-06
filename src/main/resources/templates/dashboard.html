@@ -18,6 +18,13 @@
 
         <!-- Dashboard Content -->
         <div class="dashboard-content">
+            <!-- Année courante badge -->
+            <div class="year-badge" style="margin-bottom: 20px;">
+                <span style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 8px 16px; border-radius: 20px; font-weight: 600;">
+                    <i class="fas fa-calendar-alt"></i> FAFI Taona <span th:text="${anneeCourante}">2026</span>
+                </span>
+            </div>
+            
             <!-- Top Cards -->
             <div class="cards-grid cards-3">
                 <!-- Card Responsable -->
@@ -28,15 +35,27 @@
                     <div class="card-content">
                         <h3>Mpiandraikitra</h3>
                         <div class="card-value" th:text="${totalResponsables}">0</div>
+                        <div class="card-price" style="font-size: 13px; color: #666; margin-bottom: 8px;">
+                            <i class="fas fa-tag"></i> FAFI: <span th:text="${#numbers.formatDecimal(prixMpiandraikitra, 0, 'COMMA', 0, 'POINT')} + ' Ar'">8 000 Ar</span>
+                        </div>
                         <div class="card-stats">
                             <div class="stat-item success">
                                 <i class="fas fa-check-circle"></i>
-                                <span>FAFI: <strong th:text="${responsablesWithFafi}">0</strong></span>
+                                <span>Efa nandoa: <strong th:text="${responsablesWithFafi}">0</strong></span>
                             </div>
                             <div class="stat-item warning">
                                 <i class="fas fa-clock"></i>
                                 <span>Mbola tsy: <strong th:text="${responsablesWithoutFafi}">0</strong></span>
                             </div>
+                        </div>
+                        <div class="card-progress" style="margin-top: 12px;">
+                            <div class="progress-bar" style="height: 6px; background: #e0e0e0; border-radius: 3px; overflow: hidden;">
+                                <div class="progress-fill" 
+                                     th:style="'width: ' + (${totalResponsables > 0} ? (${responsablesWithFafi * 100 / totalResponsables}) : 0) + '%; background: linear-gradient(90deg, #14CA74, #43e97b); height: 100%;'"></div>
+                            </div>
+                            <span style="font-size: 11px; color: #888; margin-top: 4px; display: block;">
+                                <span th:text="${totalResponsables > 0 ? #numbers.formatDecimal(responsablesWithFafi * 100.0 / totalResponsables, 1, 'POINT', 1, 'POINT') : 0}">0</span>% voaloa
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -49,15 +68,27 @@
                     <div class="card-content">
                         <h3>Beazina</h3>
                         <div class="card-value" th:text="${totalEleves}">0</div>
+                        <div class="card-price" style="font-size: 13px; color: #666; margin-bottom: 8px;">
+                            <i class="fas fa-tag"></i> FAFI: <span th:text="${#numbers.formatDecimal(prixBeazina, 0, 'COMMA', 0, 'POINT')} + ' Ar'">5 000 Ar</span>
+                        </div>
                         <div class="card-stats">
                             <div class="stat-item success">
                                 <i class="fas fa-check-circle"></i>
-                                <span>FAFI: <strong th:text="${elevesWithFafi}">0</strong></span>
+                                <span>Efa nandoa: <strong th:text="${elevesWithFafi}">0</strong></span>
                             </div>
                             <div class="stat-item warning">
                                 <i class="fas fa-clock"></i>
                                 <span>Mbola tsy: <strong th:text="${elevesWithoutFafi}">0</strong></span>
                             </div>
+                        </div>
+                        <div class="card-progress" style="margin-top: 12px;">
+                            <div class="progress-bar" style="height: 6px; background: #e0e0e0; border-radius: 3px; overflow: hidden;">
+                                <div class="progress-fill" 
+                                     th:style="'width: ' + (${totalEleves > 0} ? (${elevesWithFafi * 100 / totalEleves}) : 0) + '%; background: linear-gradient(90deg, #14CA74, #43e97b); height: 100%;'"></div>
+                            </div>
+                            <span style="font-size: 11px; color: #888; margin-top: 4px; display: block;">
+                                <span th:text="${totalEleves > 0 ? #numbers.formatDecimal(elevesWithFafi * 100.0 / totalEleves, 1, 'POINT', 1, 'POINT') : 0}">0</span>% voaloa
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -68,7 +99,7 @@
                         <i class="fas fa-money-bill-wave"></i>
                     </div>
                     <div class="card-content">
-                        <h3>FAFI Total</h3>
+                        <h3>FAFI Total <span th:text="${anneeCourante}">2026</span></h3>
                         <div class="card-value" th:text="${totalFafi}">0 Ar</div>
                         <div class="card-stats">
                             <div class="stat-item success">
@@ -79,6 +110,15 @@
                                 <i class="fas fa-user-clock"></i>
                                 <span>Tsy voaloa: <strong th:text="${unpaidFafi}">0</strong></span>
                             </div>
+                        </div>
+                        <div class="card-progress" style="margin-top: 12px;">
+                            <div class="progress-bar" style="height: 6px; background: #e0e0e0; border-radius: 3px; overflow: hidden;">
+                                <div class="progress-fill" 
+                                     th:style="'width: ' + (${(paidFafi + unpaidFafi) > 0} ? (${paidFafi * 100 / (paidFafi + unpaidFafi)}) : 0) + '%; background: linear-gradient(90deg, #43e97b, #38f9d7); height: 100%;'"></div>
+                            </div>
+                            <span style="font-size: 11px; color: #888; margin-top: 4px; display: block;">
+                                <span th:text="${(paidFafi + unpaidFafi) > 0 ? #numbers.formatDecimal(paidFafi * 100.0 / (paidFafi + unpaidFafi), 1, 'POINT', 1, 'POINT') : 0}">0</span>% voaloa
+                            </span>
                         </div>
                     </div>
                 </div>

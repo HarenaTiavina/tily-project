@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="mg" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration FAFI - Tily</title>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+        .current-year-row {
+            background: rgba(20, 202, 116, 0.08) !important;
+        }
+        .current-year-row td {
+            font-weight: 500;
+        }
+        .config-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        .config-card h3 {
+            color: #0B1739;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .config-card h3 i {
+            color: #667eea;
+        }
+        .price-display {
+            font-size: 32px;
+            font-weight: bold;
+            color: #0B1739;
+            margin: 20px 0;
+        }
+        .price-display span {
+            font-size: 16px;
+            color: #666;
+        }
+        .current-year {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        .info-text {
+            color: #666;
+            font-size: 14px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        .price-form {
+            margin-top: 20px;
+        }
+        .price-form .form-group {
+            margin-bottom: 15px;
+        }
+        .price-form label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+        .price-form input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .price-form input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .history-section {
+            margin-top: 40px;
+        }
+        .history-section h3 {
+            color: #0B1739;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div th:replace="~{fragments/sidebar :: sidebar('configuration-fafi')}"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Topbar -->
+        <div th:replace="~{fragments/topbar :: topbar(${pageTitle}, ${userName})}"></div>
+
+        <!-- Page Content -->
+        <div class="dashboard-content">
+            <!-- Messages de notification -->
+            <div th:if="${successMessage}" class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                <span th:text="${successMessage}"></span>
+                <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span th:text="${errorMessage}"></span>
+                <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+            </div>
+
+            <!-- Header -->
+            <div class="page-header">
+                <div class="header-left">
+                    <h2><i class="fas fa-coins"></i> Vidin'ny FAFI</h2>
+                    <span class="record-count">Configuration des prix pour l'année <span th:text="${anneeCourante}"></span></span>
+                </div>
+            </div>
+
+            <!-- Configuration Cards -->
+            <div class="config-grid">
+                <!-- Prix Mpiandraikitra -->
+                <div class="config-card">
+                    <h3><i class="fas fa-user-tie"></i> Mpiandraikitra</h3>
+                    <span class="current-year" th:text="'Taona ' + ${anneeCourante}"></span>
+                    <div class="price-display">
+                        <span th:text="${#numbers.formatDecimal(prixMpiandraikitra, 0, 'COMMA', 0, 'POINT')}">8 000</span>
+                        <span>Ar</span>
+                    </div>
+                    <form th:action="@{/admin/configuration-fafi/modifier}" method="post" class="price-form">
+                        <input type="hidden" name="typePersonne" value="Mpiandraikitra">
+                        <div class="form-group">
+                            <label for="prixMpiandraikitra">Vidin'ny FAFI vaovao (Ar)</label>
+                            <input type="number" id="prixMpiandraikitra" name="prix" 
+                                   th:value="${prixMpiandraikitra}" 
+                                   step="100" min="0" required>
+                        </div>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> Tehirizina
+                        </button>
+                    </form>
+                    <p class="info-text">
+                        <i class="fas fa-info-circle"></i>
+                        Vidiny mitovy ho an'ny Mpiandraikitra rehetra. Ny fandoavana dia manan-kery mandritra ny taona iray.
+                    </p>
+                </div>
+
+                <!-- Prix Beazina -->
+                <div class="config-card">
+                    <h3><i class="fas fa-user-graduate"></i> Beazina</h3>
+                    <span class="current-year" th:text="'Taona ' + ${anneeCourante}"></span>
+                    <div class="price-display">
+                        <span th:text="${#numbers.formatDecimal(prixBeazina, 0, 'COMMA', 0, 'POINT')}">5 000</span>
+                        <span>Ar</span>
+                    </div>
+                    <form th:action="@{/admin/configuration-fafi/modifier}" method="post" class="price-form">
+                        <input type="hidden" name="typePersonne" value="Beazina">
+                        <div class="form-group">
+                            <label for="prixBeazina">Vidin'ny FAFI vaovao (Ar)</label>
+                            <input type="number" id="prixBeazina" name="prix" 
+                                   th:value="${prixBeazina}" 
+                                   step="100" min="0" required>
+                        </div>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> Tehirizina
+                        </button>
+                    </form>
+                    <p class="info-text">
+                        <i class="fas fa-info-circle"></i>
+                        Vidiny mitovy ho an'ny Beazina rehetra. Ny fandoavana dia manan-kery mandritra ny taona iray.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Ajouter prix pour une autre année -->
+            <div class="table-card" style="padding: 24px; margin-bottom: 30px;">
+                <h3 style="margin-bottom: 20px;"><i class="fas fa-plus-circle"></i> Hanampy vidiny ho an'ny taona hafa</h3>
+                <form th:action="@{/admin/configuration-fafi/ajouter-annee}" method="post" style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="newAnnee">Taona</label>
+                        <input type="number" id="newAnnee" name="annee" th:value="${anneeCourante + 1}" min="2020" max="2050" required style="padding: 10px; border: 1px solid #ddd; border-radius: 8px; width: 100px;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="newPrixMpiandraikitra">Mpiandraikitra (Ar)</label>
+                        <input type="number" id="newPrixMpiandraikitra" name="prixMpiandraikitra" th:value="${prixMpiandraikitra}" step="100" min="0" required style="padding: 10px; border: 1px solid #ddd; border-radius: 8px; width: 150px;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="newPrixBeazina">Beazina (Ar)</label>
+                        <input type="number" id="newPrixBeazina" name="prixBeazina" th:value="${prixBeazina}" step="100" min="0" required style="padding: 10px; border: 1px solid #ddd; border-radius: 8px; width: 150px;">
+                    </div>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-plus"></i> Hanampy
+                    </button>
+                </form>
+                <p style="color: #666; font-size: 13px; margin-top: 15px;">
+                    <i class="fas fa-info-circle"></i> Afaka manampy vidiny ho an'ny taona ho avy ianao, na mamerina ny vidiny taloha.
+                </p>
+            </div>
+
+            <!-- Info Card -->
+            <div class="table-card" style="padding: 24px;">
+                <h3 style="margin-bottom: 15px;"><i class="fas fa-calendar-alt"></i> Momba ny FAFI isan-taona</h3>
+                <ul style="color: #666; line-height: 1.8;">
+                    <li>Ny FAFI dia <strong>manan-kery mandritra ny taona iray</strong> (1 Janoary - 31 Desambra)</li>
+                    <li>Rehefa tapitra ny taona, ny FAFI dia <strong>lasa tsy manan-kery</strong> ary mila averina aloha indray</li>
+                    <li>Ny vidiny dia <strong>mitovy ho an'ny Mpiandraikitra rehetra</strong> ary <strong>mitovy ho an'ny Beazina rehetra</strong></li>
+                    <li>Afaka <strong>misafidy olona maromaro</strong> ianao ary mametraka azy ireo ho efa nandoa FAFI</li>
+                    <li>Ny vidiny dia <strong>voatahiry isaky ny taona</strong> - afaka jerena ny tantaran'ny vidiny eto ambany</li>
+                </ul>
+            </div>
+
+            <!-- Historique des prix -->
+            <div class="history-section" style="margin-top: 30px;">
+                <h3 style="margin-bottom: 20px;"><i class="fas fa-history"></i> Tantaran'ny vidiny</h3>
+                <div class="table-card">
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Taona</th>
+                                    <th>Mpiandraikitra</th>
+                                    <th>Beazina</th>
+                                    <th>Sata</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${#lists.isEmpty(anneesAvecPrix)}">
+                                    <td colspan="4" style="text-align: center; color: #888; padding: 30px;">
+                                        <i class="fas fa-inbox" style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
+                                        Tsy misy tantaran'ny vidiny
+                                    </td>
+                                </tr>
+                                <tr th:each="annee : ${anneesAvecPrix}" th:classappend="${annee == anneeCourante} ? 'current-year-row' : ''">
+                                    <td>
+                                        <strong th:text="${annee}"></strong>
+                                        <span th:if="${annee == anneeCourante}" class="badge-current" style="background: #14CA74; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; margin-left: 8px;">Ankehitriny</span>
+                                    </td>
+                                    <td>
+                                        <span th:each="prix : ${historiquePrix}" 
+                                              th:if="${prix.annee == annee and prix.typePersonne == 'Mpiandraikitra'}"
+                                              th:text="${#numbers.formatDecimal(prix.prix, 0, 'COMMA', 0, 'POINT')} + ' Ar'">-</span>
+                                    </td>
+                                    <td>
+                                        <span th:each="prix : ${historiquePrix}" 
+                                              th:if="${prix.annee == annee and prix.typePersonne == 'Beazina'}"
+                                              th:text="${#numbers.formatDecimal(prix.prix, 0, 'COMMA', 0, 'POINT')} + ' Ar'">-</span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${annee == anneeCourante}" class="status-badge delivered">Ampiasaina</span>
+                                        <span th:if="${annee > anneeCourante}" class="status-badge" style="background: rgba(0, 194, 255, 0.1); color: #0077a3;">Ho avy</span>
+                                        <span th:if="${annee < anneeCourante}" class="status-badge pending">Lasa</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div th:replace="~{fragments/footer :: footer}"></div>
+    </div>
+
+    <script>
+        // Toggle sidebar mobile
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        // Toggle sidebar collapse/expand
+        function toggleSidebarCollapse() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.querySelector('.main-content');
+            const toggleIcon = sidebar.querySelector('.sidebar-toggle i');
+            
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('sidebar-collapsed');
+            
+            if (sidebar.classList.contains('collapsed')) {
+                toggleIcon.classList.remove('fa-chevron-left');
+                toggleIcon.classList.add('fa-chevron-right');
+                localStorage.setItem('sidebarCollapsed', 'true');
+            } else {
+                toggleIcon.classList.remove('fa-chevron-right');
+                toggleIcon.classList.add('fa-chevron-left');
+                localStorage.setItem('sidebarCollapsed', 'false');
+            }
+        }
+        
+        // Restore sidebar state
+        document.addEventListener('DOMContentLoaded', function() {
+            const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            if (isCollapsed) {
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.querySelector('.main-content');
+                const toggleIcon = sidebar.querySelector('.sidebar-toggle i');
+                
+                sidebar.classList.add('collapsed');
+                mainContent.classList.add('sidebar-collapsed');
+                toggleIcon.classList.remove('fa-chevron-left');
+                toggleIcon.classList.add('fa-chevron-right');
+            }
+            
+            // Auto-hide alerts after 5 seconds
+            setTimeout(() => {
+                document.querySelectorAll('.alert').forEach(alert => {
+                    alert.style.opacity = '0';
+                    setTimeout(() => alert.remove(), 300);
+                });
+            }, 5000);
+        });
+    </script>
+</body>
+</html>
+

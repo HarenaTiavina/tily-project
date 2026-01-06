@@ -25,6 +25,9 @@ public class Fafi {
     @Column(name = "numerofafi", length = 50)
     private String numeroFafi;
 
+    @Column(name = "annee")
+    private Integer annee;
+
     @OneToOne(mappedBy = "fafi")
     private Personne personne;
 
@@ -85,5 +88,23 @@ public class Fafi {
 
     public void setNumeroFafi(String numeroFafi) {
         this.numeroFafi = numeroFafi;
+    }
+
+    public Integer getAnnee() {
+        return annee;
+    }
+
+    public void setAnnee(Integer annee) {
+        this.annee = annee;
+    }
+
+    /**
+     * Vérifie si le FAFI est valide pour l'année courante
+     */
+    public boolean isValidePourAnneeCourante() {
+        if (annee == null || !"Active".equals(statut)) {
+            return false;
+        }
+        return annee.equals(java.time.LocalDate.now().getYear());
     }
 }

@@ -87,21 +87,37 @@ public interface PersonneRepository extends JpaRepository<Personne, Integer> {
     @Query("SELECT COUNT(p) FROM Personne p WHERE p.typePersonne.nom = :typeName AND p.fivondronana.id = :fivondronanaId")
     Long countByTypePersonneNomAndFivondronana(@Param("typeName") String typeName, @Param("fivondronanaId") Integer fivondronanaId);
     
-    // Count responsables with fafi
+    // Count responsables with fafi (any year - deprecated)
     @Query("SELECT COUNT(p) FROM Personne p WHERE p.typePersonne.nom = 'Responsable' AND p.fafi IS NOT NULL AND p.fafi.statut = 'Active'")
     Long countResponsablesWithFafi();
     
-    // Count responsables with fafi by fivondronana
+    // Count responsables with fafi for specific year
+    @Query("SELECT COUNT(p) FROM Personne p WHERE p.typePersonne.nom = 'Responsable' AND p.fafi IS NOT NULL AND p.fafi.statut = 'Active' AND p.fafi.annee = :annee")
+    Long countResponsablesWithFafiForYear(@Param("annee") Integer annee);
+    
+    // Count responsables with fafi by fivondronana (any year - deprecated)
     @Query("SELECT COUNT(p) FROM Personne p WHERE p.typePersonne.nom = 'Responsable' AND p.fafi IS NOT NULL AND p.fafi.statut = 'Active' AND p.fivondronana.id = :fivondronanaId")
     Long countResponsablesWithFafiByFivondronana(@Param("fivondronanaId") Integer fivondronanaId);
     
-    // Count eleves with fafi
+    // Count responsables with fafi by fivondronana for specific year
+    @Query("SELECT COUNT(p) FROM Personne p WHERE p.typePersonne.nom = 'Responsable' AND p.fafi IS NOT NULL AND p.fafi.statut = 'Active' AND p.fafi.annee = :annee AND p.fivondronana.id = :fivondronanaId")
+    Long countResponsablesWithFafiByFivondronanaForYear(@Param("fivondronanaId") Integer fivondronanaId, @Param("annee") Integer annee);
+    
+    // Count eleves with fafi (any year - deprecated)
     @Query("SELECT COUNT(p) FROM Personne p WHERE p.typePersonne.nom = 'Eleve' AND p.fafi IS NOT NULL AND p.fafi.statut = 'Active'")
     Long countElevesWithFafi();
     
-    // Count eleves with fafi by fivondronana
+    // Count eleves with fafi for specific year
+    @Query("SELECT COUNT(p) FROM Personne p WHERE p.typePersonne.nom = 'Eleve' AND p.fafi IS NOT NULL AND p.fafi.statut = 'Active' AND p.fafi.annee = :annee")
+    Long countElevesWithFafiForYear(@Param("annee") Integer annee);
+    
+    // Count eleves with fafi by fivondronana (any year - deprecated)
     @Query("SELECT COUNT(p) FROM Personne p WHERE p.typePersonne.nom = 'Eleve' AND p.fafi IS NOT NULL AND p.fafi.statut = 'Active' AND p.fivondronana.id = :fivondronanaId")
     Long countElevesWithFafiByFivondronana(@Param("fivondronanaId") Integer fivondronanaId);
+    
+    // Count eleves with fafi by fivondronana for specific year
+    @Query("SELECT COUNT(p) FROM Personne p WHERE p.typePersonne.nom = 'Eleve' AND p.fafi IS NOT NULL AND p.fafi.statut = 'Active' AND p.fafi.annee = :annee AND p.fivondronana.id = :fivondronanaId")
+    Long countElevesWithFafiByFivondronanaForYear(@Param("fivondronanaId") Integer fivondronanaId, @Param("annee") Integer annee);
     
     // Search
     @Query("SELECT p FROM Personne p WHERE " +

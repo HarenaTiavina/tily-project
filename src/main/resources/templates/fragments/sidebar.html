@@ -26,6 +26,10 @@
         
         <!-- Menu ADMIN et DFAF -->
         <div sec:authorize="hasAnyRole('ADMIN', 'DFAF')">
+            <a th:href="@{/admin/configuration-fafi}" class="nav-item" th:classappend="${activePage == 'configuration-fafi'} ? 'active'" data-tooltip="Vidin'ny FAFI">
+                <i class="fas fa-coins"></i>
+                <span class="nav-text">Vidin'ny FAFI</span>
+            </a>
             <a th:href="@{/admin/utilisateurs}" class="nav-item" th:classappend="${activePage == 'utilisateurs'} ? 'active'" data-tooltip="Mpampiasa">
                 <i class="fas fa-users-cog"></i>
                 <span class="nav-text">Mpampiasa</span>

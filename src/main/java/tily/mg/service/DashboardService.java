@@ -6,6 +6,7 @@ import tily.mg.repository.FafiRepository;
 import tily.mg.repository.PersonneRepository;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Service
 public class DashboardService {
@@ -16,20 +17,31 @@ public class DashboardService {
     @Autowired
     private FafiRepository fafiRepository;
 
+    /**
+     * Récupère l'année courante
+     */
+    public int getAnneeCourante() {
+        return LocalDate.now().getYear();
+    }
+
     // Responsables stats
     public Long getTotalResponsables() {
         Long count = personneRepository.countByTypePersonneNom("Responsable");
         return count != null ? count : 0L;
     }
 
+    /**
+     * Compte les responsables avec FAFI payé pour l'année courante
+     */
     public Long getResponsablesWithFafi() {
-        return personneRepository.countResponsablesWithFafi();
+        Long count = personneRepository.countResponsablesWithFafiForYear(getAnneeCourante());
+        return count != null ? count : 0L;
     }
 
     public Long getResponsablesWithoutFafi() {
         Long total = getTotalResponsables();
         Long withFafi = getResponsablesWithFafi();
-        return total - (withFafi != null ? withFafi : 0L);
+        return total - withFafi;
     }
 
     // Eleves stats
@@ -38,14 +50,18 @@ public class DashboardService {
         return count != null ? count : 0L;
     }
 
+    /**
+     * Compte les élèves avec FAFI payé pour l'année courante
+     */
     public Long getElevesWithFafi() {
-        return personneRepository.countElevesWithFafi();
+        Long count = personneRepository.countElevesWithFafiForYear(getAnneeCourante());
+        return count != null ? count : 0L;
     }
 
     public Long getElevesWithoutFafi() {
         Long total = getTotalEleves();
         Long withFafi = getElevesWithFafi();
-        return total - (withFafi != null ? withFafi : 0L);
+        return total - withFafi;
     }
 
     // FAFI Total stats
@@ -55,8 +71,7 @@ public class DashboardService {
     }
 
     public Long getTotalPaidFafi() {
-        Long count = fafiRepository.countActive();
-        return count != null ? count : 0L;
+        return getResponsablesWithFafi() + getElevesWithFafi();
     }
 
     public Long getTotalUnpaidFafi() {
@@ -71,9 +86,24 @@ public class DashboardService {
         return total != null ? total : BigDecimal.ZERO;
     }
 
-    public Long getTotalPaidFafiByFivondronana(Integer fivondronanaId) {
-        Long count = fafiRepository.countActiveByFivondronana(fivondronanaId);
+    /**
+     * Compte les responsables avec FAFI payé pour l'année courante par fivondronana
+     */
+    public Long getResponsablesWithFafiByFivondronana(Integer fivondronanaId) {
+        Long count = personneRepository.countResponsablesWithFafiByFivondronanaForYear(fivondronanaId, getAnneeCourante());
         return count != null ? count : 0L;
+    }
+
+    /**
+     * Compte les élèves avec FAFI payé pour l'année courante par fivondronana
+     */
+    public Long getElevesWithFafiByFivondronana(Integer fivondronanaId) {
+        Long count = personneRepository.countElevesWithFafiByFivondronanaForYear(fivondronanaId, getAnneeCourante());
+        return count != null ? count : 0L;
+    }
+
+    public Long getTotalPaidFafiByFivondronana(Integer fivondronanaId) {
+        return getResponsablesWithFafiByFivondronana(fivondronanaId) + getElevesWithFafiByFivondronana(fivondronanaId);
     }
 
     public Long getTotalUnpaidFafiByFivondronana(Integer fivondronanaId, Long totalResponsables, Long totalEleves) {
