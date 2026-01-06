@@ -10,6 +10,7 @@ import tily.mg.repository.FafiRepository;
 import tily.mg.repository.PersonneRepository;
 import tily.mg.repository.PrixFafiRepository;
 
+import jakarta.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -28,26 +29,58 @@ public class FafiService {
     @Autowired
     private PersonneRepository personneRepository;
 
+    /**
+     * Initialise les prix FAFI par défaut pour l'année courante s'ils n'existent pas
+     */
+    @PostConstruct
+    public void initPrixFafiDefaut() {
+        int anneeCourante = LocalDate.now().getYear();
+        
+        // Créer le prix Mpiandraikitra s'il n'existe pas
+        if (!prixFafiRepository.existsByTypePersonneAndAnnee("Mpiandraikitra", anneeCourante)) {
+            PrixFafi prixMpiandraikitra = new PrixFafi("Mpiandraikitra", BigDecimal.valueOf(8000), anneeCourante);
+            prixFafiRepository.save(prixMpiandraikitra);
+        }
+        
+        // Créer le prix Beazina s'il n'existe pas
+        if (!prixFafiRepository.existsByTypePersonneAndAnnee("Beazina", anneeCourante)) {
+            PrixFafi prixBeazina = new PrixFafi("Beazina", BigDecimal.valueOf(5000), anneeCourante);
+            prixFafiRepository.save(prixBeazina);
+        }
+    }
+
     // ========== Gestion des Prix FAFI ==========
 
     /**
      * Récupère le prix du FAFI pour les Mpiandraikitra pour l'année courante
+     * Le prix doit exister dans la base de données
      */
     public BigDecimal getPrixMpiandraikitraAnneeActuelle() {
         int anneeCourante = LocalDate.now().getYear();
         return prixFafiRepository.findPrixMpiandraikitraForYear(anneeCourante)
                 .map(PrixFafi::getPrix)
-                .orElse(BigDecimal.valueOf(8000)); // Prix par défaut
+                .orElseGet(() -> {
+                    // Créer le prix s'il n'existe pas (ne devrait pas arriver après @PostConstruct)
+                    PrixFafi nouveauPrix = new PrixFafi("Mpiandraikitra", BigDecimal.valueOf(8000), anneeCourante);
+                    prixFafiRepository.save(nouveauPrix);
+                    return nouveauPrix.getPrix();
+                });
     }
 
     /**
      * Récupère le prix du FAFI pour les Beazina pour l'année courante
+     * Le prix doit exister dans la base de données
      */
     public BigDecimal getPrixBeazinaAnneeActuelle() {
         int anneeCourante = LocalDate.now().getYear();
         return prixFafiRepository.findPrixBeazinaForYear(anneeCourante)
                 .map(PrixFafi::getPrix)
-                .orElse(BigDecimal.valueOf(5000)); // Prix par défaut
+                .orElseGet(() -> {
+                    // Créer le prix s'il n'existe pas (ne devrait pas arriver après @PostConstruct)
+                    PrixFafi nouveauPrix = new PrixFafi("Beazina", BigDecimal.valueOf(5000), anneeCourante);
+                    prixFafiRepository.save(nouveauPrix);
+                    return nouveauPrix.getPrix();
+                });
     }
 
     /**

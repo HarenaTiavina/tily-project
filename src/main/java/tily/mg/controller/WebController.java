@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import tily.mg.entity.Personne;
+import tily.mg.entity.Fafi;
 import tily.mg.entity.PrixFafi;
 import tily.mg.entity.Utilisateur;
 import tily.mg.service.AuthService;
@@ -288,6 +289,7 @@ public class WebController {
             @RequestParam(required = false) Integer andraikitraId,
             @RequestParam(required = false) Integer fizaranaId,
             @RequestParam(required = false) Integer dingamPiofananaId,
+            @RequestParam(required = false) String numeroFafi,
             RedirectAttributes redirectAttributes
     ) {
         try {
@@ -334,6 +336,17 @@ public class WebController {
                     personneService.findDingamPiofananaById(dingamPiofananaId).ifPresent(personne::setDingamPiofanana);
                 } else {
                     personne.setDingamPiofanana(null);
+                }
+
+                // Mettre à jour le numéro FAFI
+                if (numeroFafi != null && !numeroFafi.trim().isEmpty()) {
+                    if (personne.getFafi() == null) {
+                        Fafi fafi = new Fafi();
+                        fafi.setNumeroFafi(numeroFafi.trim());
+                        personne.setFafi(fafi);
+                    } else {
+                        personne.getFafi().setNumeroFafi(numeroFafi.trim());
+                    }
                 }
 
                 personneService.save(personne);
@@ -478,6 +491,7 @@ public class WebController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFanekena,
             @RequestParam(required = false) Integer secteurId,
             @RequestParam(required = false) Integer fizaranaId,
+            @RequestParam(required = false) String numeroFafi,
             RedirectAttributes redirectAttributes
     ) {
         try {
@@ -510,6 +524,17 @@ public class WebController {
                     personneService.findFizaranaById(fizaranaId).ifPresent(personne::setFizarana);
                 } else {
                     personne.setFizarana(null);
+                }
+
+                // Mettre à jour le numéro FAFI
+                if (numeroFafi != null && !numeroFafi.trim().isEmpty()) {
+                    if (personne.getFafi() == null) {
+                        Fafi fafi = new Fafi();
+                        fafi.setNumeroFafi(numeroFafi.trim());
+                        personne.setFafi(fafi);
+                    } else {
+                        personne.getFafi().setNumeroFafi(numeroFafi.trim());
+                    }
                 }
 
                 personneService.save(personne);

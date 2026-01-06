@@ -69,28 +69,38 @@ INSERT INTO fivondronana (nom, code) VALUES ('Antsirabe I', 'ATS-1');
 INSERT INTO fivondronana (nom, code) VALUES ('Antsirabe II', 'ATS-2');
 
 -- =====================================
+-- INSERTION DES PRIX FAFI (Prix par type de personne et par année)
+-- =====================================
+INSERT INTO prix_fafi (type_personne, prix, annee, actif) VALUES ('Mpiandraikitra', 8000.00, 2024, TRUE);
+INSERT INTO prix_fafi (type_personne, prix, annee, actif) VALUES ('Beazina', 5000.00, 2024, TRUE);
+INSERT INTO prix_fafi (type_personne, prix, annee, actif) VALUES ('Mpiandraikitra', 8000.00, 2025, TRUE);
+INSERT INTO prix_fafi (type_personne, prix, annee, actif) VALUES ('Beazina', 5000.00, 2025, TRUE);
+INSERT INTO prix_fafi (type_personne, prix, annee, actif) VALUES ('Mpiandraikitra', 8500.00, 2026, TRUE);
+INSERT INTO prix_fafi (type_personne, prix, annee, actif) VALUES ('Beazina', 5500.00, 2026, TRUE);
+
+-- =====================================
 -- INSERTION DES FAFI (FAFI en malgache - remplace assurance)
 -- =====================================
-INSERT INTO fafi (datepaiement, montant, statut) VALUES ('2024-01-15', 8000.00, 'Active');
-INSERT INTO fafi (datepaiement, montant, statut) VALUES ('2024-02-20', 8000.00, 'Active');
-INSERT INTO fafi (datepaiement, montant, statut) VALUES ('2024-03-10', 8000.00, 'Active');
-INSERT INTO fafi (datepaiement, montant, statut) VALUES ('2024-01-25', 8000.00, 'Active');
-INSERT INTO fafi (datepaiement, montant, statut) VALUES ('2024-04-05', 8000.00, 'Active');
-INSERT INTO fafi (datepaiement, montant, statut) VALUES ('2024-02-14', 8000.00, 'Active');
-INSERT INTO fafi (datepaiement, montant, statut) VALUES ('2024-05-01', 8000.00, 'Active');
-INSERT INTO fafi (datepaiement, montant, statut) VALUES ('2024-03-22', 8000.00, 'Active');
-INSERT INTO fafi (datepaiement, montant, statut) VALUES (NULL, NULL, 'Inactive');
-INSERT INTO fafi (datepaiement, montant, statut) VALUES (NULL, NULL, 'Inactive');
-INSERT INTO fafi (datepaiement, montant, statut) VALUES ('2024-06-10', 8000.00, 'Active');
-INSERT INTO fafi (datepaiement, montant, statut) VALUES ('2024-07-15', 8000.00, 'Active');
-INSERT INTO fafi (datepaiement, montant, statut) VALUES (NULL, NULL, 'Inactive');
-INSERT INTO fafi (datepaiement, montant, statut) VALUES ('2024-08-20', 8000.00, 'Active');
-INSERT INTO fafi (datepaiement, montant, statut) VALUES ('2024-09-05', 8000.00, 'Active');
-INSERT INTO fafi (datepaiement, montant, statut) VALUES (NULL, NULL, 'Inactive');
-INSERT INTO fafi (datepaiement, montant, statut) VALUES ('2024-10-12', 8000.00, 'Active');
-INSERT INTO fafi (datepaiement, montant, statut) VALUES ('2024-11-01', 8000.00, 'Active');
-INSERT INTO fafi (datepaiement, montant, statut) VALUES (NULL, NULL, 'Inactive');
-INSERT INTO fafi (datepaiement, montant, statut) VALUES ('2024-01-30', 8000.00, 'Active');
+INSERT INTO fafi (datepaiement, montant, statut, annee) VALUES ('2024-01-15', 8000.00, 'Active', 2024);
+INSERT INTO fafi (datepaiement, montant, statut, annee) VALUES ('2024-02-20', 8000.00, 'Active', 2024);
+INSERT INTO fafi (datepaiement, montant, statut, annee) VALUES ('2024-03-10', 8000.00, 'Active', 2024);
+INSERT INTO fafi (datepaiement, montant, statut, annee) VALUES ('2024-01-25', 8000.00, 'Active', 2024);
+INSERT INTO fafi (datepaiement, montant, statut, annee) VALUES ('2024-04-05', 8000.00, 'Active', 2024);
+INSERT INTO fafi (datepaiement, montant, statut, annee) VALUES ('2024-02-14', 8000.00, 'Active', 2024);
+INSERT INTO fafi (datepaiement, montant, statut, annee) VALUES ('2024-05-01', 8000.00, 'Active', 2024);
+INSERT INTO fafi (datepaiement, montant, statut, annee) VALUES ('2024-03-22', 8000.00, 'Active', 2024);
+INSERT INTO fafi (datepaiement, montant, statut, annee) VALUES (NULL, NULL, 'Inactive', NULL);
+INSERT INTO fafi (datepaiement, montant, statut, annee) VALUES (NULL, NULL, 'Inactive', NULL);
+INSERT INTO fafi (datepaiement, montant, statut, annee) VALUES ('2024-06-10', 8000.00, 'Active', 2024);
+INSERT INTO fafi (datepaiement, montant, statut, annee) VALUES ('2024-07-15', 8000.00, 'Active', 2024);
+INSERT INTO fafi (datepaiement, montant, statut, annee) VALUES (NULL, NULL, 'Inactive', NULL);
+INSERT INTO fafi (datepaiement, montant, statut, annee) VALUES ('2024-08-20', 8000.00, 'Active', 2024);
+INSERT INTO fafi (datepaiement, montant, statut, annee) VALUES ('2024-09-05', 8000.00, 'Active', 2024);
+INSERT INTO fafi (datepaiement, montant, statut, annee) VALUES (NULL, NULL, 'Inactive', NULL);
+INSERT INTO fafi (datepaiement, montant, statut, annee) VALUES ('2024-10-12', 8000.00, 'Active', 2024);
+INSERT INTO fafi (datepaiement, montant, statut, annee) VALUES ('2024-11-01', 8000.00, 'Active', 2024);
+INSERT INTO fafi (datepaiement, montant, statut, annee) VALUES (NULL, NULL, 'Inactive', NULL);
+INSERT INTO fafi (datepaiement, montant, statut, annee) VALUES ('2024-01-30', 8000.00, 'Active', 2024);
 
 -- =====================================
 -- INSERTION DES PERSONNES (RESPONSABLES - Mpiandraikitra)

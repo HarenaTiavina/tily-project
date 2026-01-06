@@ -37,7 +37,7 @@
                     <span class="record-count" id="recordCount" th:text="${totalCount} + ' Mpiandraikitra'">0 Mpiandraikitra</span>
                 </div>
                 <div class="header-actions">
-                    <button class="btn-success" id="payFafiMultipleBtn" onclick="openPayFafiMultipleModal()" style="display: none; margin-right: 10px;">
+                    <button th:if="${isAdmin}" class="btn-success" id="payFafiMultipleBtn" onclick="openPayFafiMultipleModal()" style="display: none; margin-right: 10px;">
                         <i class="fas fa-money-bill-wave"></i>
                         Handoa FAFI (<span id="selectedCount">0</span>)
                     </button>
@@ -125,8 +125,8 @@
                     <table class="data-table" id="responsablesTable">
                         <thead>
                             <tr>
-                                <th style="width: 40px;"><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)"></th>
-                                <th class="sortable" onclick="sortTable(1)">Sary</th>
+                                <th th:if="${isAdmin}" style="width: 40px;"><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)"></th>
+                                <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(1)' : 'sortTable(0)'">Sary</th>
                                 <th class="sortable" onclick="sortTable(2)">Anarana <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(3)">Fanampin'anarana <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(4)">Totem <i class="fas fa-sort"></i></th>
@@ -146,7 +146,7 @@
                         <tbody>
                             <!-- Message si aucune donnée -->
                             <tr th:if="${#lists.isEmpty(responsables)}">
-                                <td colspan="17" class="empty-message">
+                                <td th:colspan="${isAdmin} ? 16 : 15" class="empty-message">
                                     <i class="fas fa-inbox"></i>
                                     <p>Tsy misy Mpiandraikitra hita</p>
                                 </td>
@@ -174,8 +174,9 @@
                                 th:data-dingampiofanana="${resp.dingamPiofanana != null ? resp.dingamPiofanana.nom : ''}"
                                 th:data-dingampiofananaid="${resp.dingamPiofanana != null ? resp.dingamPiofanana.id : ''}"
                                 th:data-fafi="${resp.fafi != null && resp.fafi.statut == 'Active' && resp.fafi.annee == anneeCourante ? 'Eny' : 'Tsia'}"
-                                th:data-fafiannee="${resp.fafi != null ? resp.fafi.annee : ''}">
-                                <td>
+                                th:data-fafiannee="${resp.fafi != null ? resp.fafi.annee : ''}"
+                                th:data-numerofafi="${resp.fafi != null ? resp.fafi.numeroFafi : ''}">
+                                <td th:if="${isAdmin}">
                                     <input type="checkbox" class="row-checkbox" th:value="${resp.id}" onclick="updateSelectedCount()">
                                 </td>
                                 <td>
@@ -204,7 +205,7 @@
                                     <button class="btn-icon edit-btn" title="Hanova" th:data-id="${resp.id}"><i class="fas fa-edit"></i></button>
                                     <form th:action="@{/responsables/supprimer}" method="post" style="display: inline;">
                                         <input type="hidden" name="id" th:value="${resp.id}">
-                                        <button type="submit" class="btn-icon danger" title="Hamafa" onclick="return confirm('Azo antoka ve ianao fa te-hamafa ity Mpiandraikitra ity ?')"><i class="fas fa-trash"></i></button>
+                                        <button type="submit" class="btn-icon danger" title="Hamafa" onclick="return confirm('Azo antoka ve ise fa te-hamafa ity Mpiandraikitra ity ?')"><i class="fas fa-trash"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -428,7 +429,8 @@
                             <input type="date" id="editDateFanekena" name="dateFanekena">
                         </div>
                         <div class="form-group">
-                            <!-- Empty for alignment -->
+                            <label for="editNumeroFafi">Laharana FAFI</label>
+                            <input type="text" id="editNumeroFafi" name="numeroFafi" placeholder="Ohatra: FAFI-2026-001">
                         </div>
                     </div>
                 </div>
@@ -461,7 +463,7 @@
                         <i class="fas fa-info-circle"></i>
                         <span id="payFafiInfo"></span>
                     </div>
-                    <p style="margin-bottom: 15px;">Ianao dia handoa FAFI ho an'ny <strong id="selectedPersonsCount">0</strong> Mpiandraikitra.</p>
+                    <p style="margin-bottom: 15px;">ise dia handoa FAFI ho an'ny <strong id="selectedPersonsCount">0</strong> Mpiandraikitra.</p>
                     <p style="margin-bottom: 15px;">Vidiny: <strong th:text="${#numbers.formatDecimal(prixFafi, 0, 'COMMA', 0, 'POINT')} + ' Ar'"></strong> x <span id="selectedPersonsCountPrice">0</span> = <strong id="totalPrice">0 Ar</strong></p>
                     <p style="color: #666; font-size: 14px;">Ny FAFI dia manan-kery mandritra ny taona <span th:text="${anneeCourante}"></span>.</p>
                     <div id="selectedPersonsContainer"></div>
@@ -735,6 +737,7 @@
             document.getElementById('editFizaranaId').value = row.dataset.fizaranaid || '';
             document.getElementById('editAndraikitraId').value = row.dataset.andraikitraid || '';
             document.getElementById('editDingamPiofananaId').value = row.dataset.dingampiofananaid || '';
+            document.getElementById('editNumeroFafi').value = row.dataset.numerofafi || '';
             
             document.getElementById('editModal').classList.add('active');
             document.body.style.overflow = 'hidden';

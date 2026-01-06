@@ -73,7 +73,22 @@ CREATE TABLE IF NOT EXISTS fafi (
     datePaiement DATE,
     montant NUMERIC(10,2),
     statut VARCHAR(20),
-    numeroFafi VARCHAR(50)
+    numeroFafi VARCHAR(50),
+    annee INTEGER
+);
+
+-- =====================================
+-- TABLE : prix_fafi (Prix FAFI par type et par année)
+-- =====================================
+CREATE TABLE IF NOT EXISTS prix_fafi (
+    idPrixFafi SERIAL PRIMARY KEY,
+    type_personne VARCHAR(50) NOT NULL,
+    prix NUMERIC(10,2) NOT NULL,
+    annee INTEGER NOT NULL,
+    actif BOOLEAN DEFAULT TRUE,
+    date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    date_modification TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(type_personne, annee)
 );
 
 -- =====================================
@@ -144,6 +159,8 @@ CREATE INDEX IF NOT EXISTS idx_personne_fivondronana ON personne(idFivondronana)
 CREATE INDEX IF NOT EXISTS idx_personne_dingam_piofanana ON personne(idDingamPiofanana);
 CREATE INDEX IF NOT EXISTS idx_utilisateur_email ON utilisateur(email);
 CREATE INDEX IF NOT EXISTS idx_utilisateur_fivondronana ON utilisateur(idFivondronana);
+CREATE INDEX IF NOT EXISTS idx_fafi_annee ON fafi(annee);
+CREATE INDEX IF NOT EXISTS idx_prix_fafi_type_annee ON prix_fafi(type_personne, annee);
 
 -- =====================================
 -- TABLES SPRING SESSION
