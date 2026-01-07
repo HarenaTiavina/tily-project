@@ -140,13 +140,14 @@
                                 <th class="sortable" onclick="sortTable(12)" th:if="${isAdmin}">Fivondronana <i class="fas fa-sort"></i></th>
                                 <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(13)' : 'sortTable(12)'">Fanekena <i class="fas fa-sort"></i></th>
                                 <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(14)' : 'sortTable(13)'">FAFI <span th:text="${anneeCourante}"></span> <i class="fas fa-sort"></i></th>
+                                <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(15)' : 'sortTable(14)'">Laharana FAFI <i class="fas fa-sort"></i></th>
                                 <th>Asa</th>
                             </tr>
                         </thead>
                         <tbody>
                             <!-- Message si aucune donnée -->
                             <tr th:if="${#lists.isEmpty(responsables)}">
-                                <td th:colspan="${isAdmin} ? 16 : 15" class="empty-message">
+                                <td th:colspan="${isAdmin} ? 17 : 16" class="empty-message">
                                     <i class="fas fa-inbox"></i>
                                     <p>Tsy misy Mpiandraikitra hita</p>
                                 </td>
@@ -201,6 +202,7 @@
                                     <span th:if="${resp.fafi != null && resp.fafi.statut == 'Active' && resp.fafi.annee == anneeCourante}" class="status-badge delivered">Eny</span>
                                     <span th:unless="${resp.fafi != null && resp.fafi.statut == 'Active' && resp.fafi.annee == anneeCourante}" class="status-badge pending">Tsia</span>
                                 </td>
+                                <td th:text="${resp.fafi != null && resp.fafi.numeroFafi != null ? resp.fafi.numeroFafi : '-'}">-</td>
                                 <td class="actions-cell">
                                     <button class="btn-icon edit-btn" title="Hanova" th:data-id="${resp.id}"><i class="fas fa-edit"></i></button>
                                     <form th:action="@{/responsables/supprimer}" method="post" style="display: inline;">
