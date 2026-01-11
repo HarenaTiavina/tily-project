@@ -397,7 +397,7 @@
     <input type="hidden" id="anneeCouranteData" th:value="${anneeCourante}">
 
     <!-- Modal Paiement FAFI Multiple -->
-    <div id="payFafiMultipleModal" class="modal">
+    <div th:if="${isAdmin}" id="payFafiMultipleModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h2><i class="fas fa-money-bill-wave"></i> Handoa FAFI ho an'ny olona maromaro</h2>
@@ -722,9 +722,24 @@
 
         // Modal paiement FAFI multiple - variables passées via data attributes
         function openPayFafiMultipleModal() {
-            const prixFafi = parseFloat(document.getElementById('prixFafiData').value) || 0;
-            const anneeCourante = document.getElementById('anneeCouranteData').value;
-            const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+            // Vérifier que le modal existe
+            const modal = document.getElementById('payFafiMultipleModal');
+            if (!modal) {
+                alert('Modal non disponible');
+                return;
+            }
+            
+            const prixFafiEl = document.getElementById('prixFafiData');
+            const anneeCouranteEl = document.getElementById('anneeCouranteData');
+            const prixFafi = prixFafiEl ? parseFloat(prixFafiEl.value) || 0 : 0;
+            const anneeCourante = anneeCouranteEl ? anneeCouranteEl.value : '';
+            
+            // Ne prendre que les checkboxes des lignes visibles
+            const allCheckboxes = document.querySelectorAll('.row-checkbox:checked');
+            const checkboxes = Array.from(allCheckboxes).filter(cb => {
+                const row = cb.closest('tr');
+                return row && row.style.display !== 'none';
+            });
             const count = checkboxes.length;
             
             if (count === 0) {
@@ -732,27 +747,63 @@
                 return;
             }
 
-            document.getElementById('selectedPersonsCount').textContent = count;
-            document.getElementById('selectedPersonsCountPrice').textContent = count;
+            const selectedPersonsCount = document.getElementById('selectedPersonsCount');
+            const selectedPersonsCountPrice = document.getElementById('selectedPersonsCountPrice');
+            const totalPrice = document.getElementById('totalPrice');
+            const payFafiInfo = document.getElementById('payFafiInfo');
+            const container = document.getElementById('selectedPersonsContainer');
+            
+            if (selectedPersonsCount) selectedPersonsCount.textContent = count;
+            if (selectedPersonsCountPrice) selectedPersonsCountPrice.textContent = count;
             
             const total = count * prixFafi;
-            document.getElementById('totalPrice').textContent = total.toLocaleString('fr-FR') + ' Ar';
-            document.getElementById('payFafiInfo').textContent = 'Handoa FAFI ho an\'ny ' + count + ' Beazina amin\'ny taona ' + anneeCourante;
+            if (totalPrice) totalPrice.textContent = total.toLocaleString('fr-FR') + ' Ar';
+            if (payFafiInfo) payFafiInfo.textContent = 'Handoa FAFI ho an\'ny ' + count + ' Beazina amin\'ny taona ' + anneeCourante;
             
             // Ajouter les inputs hidden pour les IDs
-            const container = document.getElementById('selectedPersonsContainer');
-            container.innerHTML = '';
-            checkboxes.forEach(cb => {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'personneIds';
-                input.value = cb.value;
-                container.appendChild(input);
-            });
+            if (container) {
+                container.innerHTML = '';
+                checkboxes.forEach(cb => {
+                    const personneId = cb.value;
+                    if (personneId) {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'personneIds';
+                        input.value = personneId;
+                        container.appendChild(input);
+                    }
+                });
+                
+                // Vérifier qu'il y a bien des IDs
+                if (container.children.length === 0) {
+                    alert('Tsy hita ny ID-n\'ny olona voafidy');
+                    return;
+                }
+                
+                console.log('IDs sélectionnés:', Array.from(container.querySelectorAll('input')).map(i => i.value));
+            }
             
-            document.getElementById('payFafiMultipleModal').classList.add('active');
+            modal.classList.add('active');
             document.body.style.overflow = 'hidden';
         }
+        
+        // Gestionnaire de soumission du formulaire
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('payFafiMultipleForm');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const container = document.getElementById('selectedPersonsContainer');
+                    const inputs = container.querySelectorAll('input[name="personneIds"]');
+                    if (inputs.length === 0) {
+                        e.preventDefault();
+                        alert('Tsy misy olona voafidy');
+                        return false;
+                    }
+                    console.log('Soumission du formulaire avec', inputs.length, 'personnes');
+                    return true;
+                });
+            }
+        });
 
         function closePayFafiMultipleModal() {
             document.getElementById('payFafiMultipleModal').classList.remove('active');
@@ -760,9 +811,12 @@
         }
 
         // Close pay modal on outside click
-        document.getElementById('payFafiMultipleModal').addEventListener('click', function(e) {
-            if (e.target === this) closePayFafiMultipleModal();
-        });
+        const payFafiModal = document.getElementById('payFafiMultipleModal');
+        if (payFafiModal) {
+            payFafiModal.addEventListener('click', function(e) {
+                if (e.target === this) closePayFafiMultipleModal();
+            });
+        }
 
         // Fonction helper pour convertir une image en base64
         function imageToBase64(url, callback) {
