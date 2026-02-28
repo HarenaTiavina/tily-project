@@ -252,11 +252,17 @@
             <!-- Karatra Mpampiasa -->
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">Kaonty Fivondronana</h2>
-                    <button th:if="${isStrictAdmin}" class="btn btn-primary-custom" onclick="openAddModal()">
-                        <i class="fas fa-plus"></i>
-                        Hanampy kaonty
-                    </button>
+                    <h2 class="card-title">Kaonty Mpampiasa</h2>
+                    <div style="display: flex; gap: 10px;">
+                        <button th:if="${isStrictAdmin}" class="btn btn-primary-custom" onclick="openAddModal()">
+                            <i class="fas fa-plus"></i>
+                            Hanampy kaonty Fivondronana
+                        </button>
+                        <button th:if="${isStrictAdmin and (filohaSansCompte != null and !filohaSansCompte.isEmpty())}" class="btn btn-primary-custom" onclick="openAddFilohaModal()">
+                            <i class="fas fa-plus"></i>
+                            Hanampy kaonty Filoha
+                        </button>
+                    </div>
                 </div>
 
                 <div class="table-container">
@@ -264,7 +270,8 @@
                         <thead>
                             <tr>
                                 <th>Mailaka</th>
-                                <th>Fivondronana</th>
+                                <th>Karazana</th>
+                                <th>Anarana / Fivondronana</th>
                                 <th>Daty namoronana</th>
                                 <th>Firotsahana farany</th>
                                 <th>Sata</th>
@@ -274,7 +281,20 @@
                         <tbody>
                             <tr th:each="user : ${utilisateurs}">
                                 <td th:text="${user.email}">email@example.com</td>
-                                <td th:text="${user.fivondronana != null ? user.fivondronana.nom : '-'}">Fivondronana</td>
+                                <td>
+                                    <span th:if="${user.personne != null && user.personne.isFiloha()}" class="status-badge" style="background: #667eea; color: white;">
+                                        <i class="fas fa-crown"></i> Filoha
+                                    </span>
+                                    <span th:unless="${user.personne != null && user.personne.isFiloha()}" class="status-badge" style="background: #10b981; color: white;">
+                                        <i class="fas fa-building"></i> Fivondronana
+                                    </span>
+                                </td>
+                                <td>
+                                    <span th:if="${user.personne != null && user.personne.isFiloha()}" 
+                                          th:text="${user.personne.prenom + ' ' + user.personne.nom}">Filoha</span>
+                                    <span th:unless="${user.personne != null && user.personne.isFiloha()}" 
+                                          th:text="${user.fivondronana != null ? user.fivondronana.nom : '-'}">Fivondronana</span>
+                                </td>
                                 <td th:text="${user.dateCreation != null ? #temporals.format(user.dateCreation, 'dd/MM/yyyy HH:mm') : '-'}">01/01/2024</td>
                                 <td th:text="${user.derniereConnexion != null ? #temporals.format(user.derniereConnexion, 'dd/MM/yyyy HH:mm') : 'Mbola tsy niditra'}">Mbola tsy niditra</td>
                                 <td>
@@ -302,7 +322,7 @@
                     </table>
                     <div th:if="${utilisateurs == null || utilisateurs.isEmpty()}" class="empty-state">
                         <i class="fas fa-users"></i>
-                        <p>Tsy mbola misy kaonty Fivondronana</p>
+                        <p>Tsy mbola misy kaonty mpampiasa</p>
                         <p>Tsindrio "Hanampy kaonty" mba hamorona ny voalohany.</p>
                     </div>
                 </div>
@@ -340,6 +360,45 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn" onclick="closeAddModal()">Hanafoana</button>
+                    <button type="submit" class="btn btn-primary-custom">
+                        <i class="fas fa-save"></i>
+                        Hamorona ny kaonty
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Hanampy Kaonty Filoha -->
+    <div id="addFilohaModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Hanampy kaonty Filoha</h3>
+                <button class="modal-close" onclick="closeAddFilohaModal()">&times;</button>
+            </div>
+            <form th:action="@{/admin/utilisateurs/ajouter-filoha}" method="post">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="emailFiloha">Mailaka *</label>
+                        <input type="email" id="emailFiloha" name="email" required placeholder="email@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="motDePasseFiloha">Teny miafina *</label>
+                        <input type="password" id="motDePasseFiloha" name="motDePasse" required minlength="6" placeholder="6 marika farafahakeliny">
+                    </div>
+                    <div class="form-group">
+                        <label for="personneId">Filoha *</label>
+                        <select id="personneId" name="personneId" required>
+                            <option value="">-- Mifidy Filoha iray --</option>
+                            <option th:each="filoha : ${filohaSansCompte}" 
+                                    th:value="${filoha.id}" 
+                                    th:text="${filoha.prenom + ' ' + filoha.nom + (filoha.typeFiloha != null ? ' (' + filoha.typeFiloha.nom + ')' : '')}">
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" onclick="closeAddFilohaModal()">Hanafoana</button>
                     <button type="submit" class="btn btn-primary-custom">
                         <i class="fas fa-save"></i>
                         Hamorona ny kaonty
@@ -409,6 +468,16 @@
             document.body.style.overflow = '';
         }
 
+        function openAddFilohaModal() {
+            document.getElementById('addFilohaModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeAddFilohaModal() {
+            document.getElementById('addFilohaModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
         // Close modal when clicking outside
         document.getElementById('addModal').addEventListener('click', function(e) {
             if (e.target === this) {
@@ -416,10 +485,20 @@
             }
         });
 
+        const addFilohaModal = document.getElementById('addFilohaModal');
+        if (addFilohaModal) {
+            addFilohaModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeAddFilohaModal();
+                }
+            });
+        }
+
         // Close modal on Escape key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeAddModal();
+                closeAddFilohaModal();
             }
         });
     </script>

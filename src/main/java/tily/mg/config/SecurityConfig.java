@@ -44,10 +44,13 @@ public class SecurityConfig {
                 .requestMatchers("/login", "/auth/**", "/access-denied", "/error").permitAll()
                 // Création de comptes: uniquement ADMIN
                 .requestMatchers("/admin/utilisateurs/ajouter").hasRole("ADMIN")
+                .requestMatchers("/admin/utilisateurs/ajouter-filoha").hasRole("ADMIN")
                 // Pages admin accessibles aux ADMIN et DFAF
                 .requestMatchers("/admin/**").hasAnyRole("ADMIN", "DFAF")
-                // Pages accessibles aux ADMIN, DFAF et USER (Fivondronana)
-                .requestMatchers("/dashboard", "/", "/responsables/**", "/eleves/**").hasAnyRole("ADMIN", "DFAF", "USER")
+                // Pages accessibles aux ADMIN, DFAF, USER (Fivondronana) et FILOHA
+                .requestMatchers("/dashboard", "/", "/responsables/**", "/eleves/**").hasAnyRole("ADMIN", "DFAF", "USER", "FILOHA")
+                // Pages Filoha : les Filoha ne peuvent voir que leur propre profil
+                .requestMatchers("/filoha/**").hasAnyRole("ADMIN", "DFAF", "FILOHA")
                 // Toutes les autres requêtes nécessitent une authentification
                 .anyRequest().authenticated()
             )

@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="mg" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ny antsipiriany ny Mpiandraikitra - Tily</title>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Style pour les sections de détails */
+        .details-section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .details-section:last-child {
+            border-bottom: none;
+        }
+        
+        .details-section-title {
+            color: var(--primary);
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .detail-item label {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .detail-item span {
+            color: var(--text-primary);
+            font-size: 15px;
+            padding: 8px 12px;
+            background: var(--bg-primary);
+            border-radius: 6px;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+        }
+
+        .details-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .details-header h1 {
+            color: var(--primary);
+            font-size: 24px;
+            margin: 0;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--secondary);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: var(--sidebar-hover);
+            transform: translateX(-3px);
+        }
+
+        .details-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Champs éditables (inputs / selects) avec le même rendu que les spans d'info */
+        .editable-field {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: var(--bg-primary);
+            font-size: 15px;
+        }
+
+        .editable-select {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div th:replace="~{fragments/sidebar :: sidebar('responsables')}"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Topbar -->
+        <div th:replace="~{fragments/topbar :: topbar('Ny antsipiriany ny Mpiandraikitra', ${userName})}"></div>
+
+        <!-- Page Content -->
+        <div class="dashboard-content">
+            <!-- Messages de notification -->
+            <div th:if="${successMessage}" class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                <span th:text="${successMessage}"></span>
+                <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span th:text="${errorMessage}"></span>
+                <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+            </div>
+
+            <!-- Header avec bouton retour -->
+            <div class="details-header">
+                <h1><i class="fas fa-user-circle"></i> Ny antsipiriany ny Mpiandraikitra</h1>
+                <a th:href="@{/responsables}" class="back-button">
+                    <i class="fas fa-arrow-left"></i>
+                    Miverina
+                </a>
+            </div>
+
+            <!-- Contenu des détails -->
+            <div class="details-card" th:if="${personne != null}">
+                <!-- Section 1: Mikasika ny tena -->
+                <div class="details-section">
+                    <h3 class="details-section-title">
+                        <i class="fas fa-user"></i> Mikasika ny tena
+                    </h3>
+                    <div class="details-grid">
+                        <div class="detail-item">
+                            <label>Anarana:</label>
+                            <span th:text="${personne.nom} ?: '-'">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Fanampin'anarana:</label>
+                            <span th:text="${personne.prenom} ?: '-'">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Laharana Finday:</label>
+                            <span th:text="${personne.numeroTelephone} ?: '-'">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Mikasika ny fikambanana -->
+                <div class="details-section">
+                    <h3 class="details-section-title">
+                        <i class="fas fa-users"></i> Mikasika ny fikambanana
+                    </h3>
+                    <div class="details-grid">
+                        <div class="detail-item">
+                            <label>FAFI:</label>
+                            <span th:text="${personne.fafi != null && personne.fafi.statut == 'Active' && personne.fafi.annee == anneeCourante} ? 'Eny (Efa nandoa)' : 'Tsia (Mbola tsy nandoa)'">-</span>
+                        </div>
+                        <div class="detail-item" th:if="${personne.fafi != null && personne.fafi.statut == 'Active' && personne.fafi.annee == anneeCourante}">
+                            <label>Taona FAFI:</label>
+                            <span th:text="${personne.fafi.annee} ?: '-'">-</span>
+                        </div>
+                        <div class="detail-item" th:if="${personne.fafi != null && personne.fafi.statut == 'Active' && personne.fafi.annee == anneeCourante && personne.fafi.numeroFafi != null}">
+                            <label>Laharana FAFI:</label>
+                            <span th:text="${personne.fafi.numeroFafi}">-</span>
+                        </div>
+                        <div class="detail-item" th:if="${personne.fafi != null && personne.fafi.statut == 'Active' && personne.fafi.annee == anneeCourante && personne.fafi.montant != null}">
+                            <label>Vola:</label>
+                            <span th:text="${#numbers.formatDecimal(personne.fafi.montant, 0, 'COMMA', 0, 'POINT')} + ' Ar'">-</span>
+                        </div>
+                        <div class="detail-item" th:if="${personne.fafi != null && personne.fafi.statut == 'Active' && personne.fafi.annee == anneeCourante && personne.fafi.datePaiement != null}">
+                            <label>Daty nandoavana:</label>
+                            <span th:text="${#temporals.format(personne.fafi.datePaiement, 'dd/MM/yyyy')}">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Fivondronana:</label>
+                            <span th:text="${personne.fivondronana != null ? personne.fivondronana.nom : '-'}">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Faritra:</label>
+                            <span th:text="${personne.secteur != null ? personne.secteur.nom : '-'}">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Sampana:</label>
+                            <span th:text="${personne.fizarana != null ? personne.fizarana.nom : '-'}">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Mikasika ny ofana -->
+                <div class="details-section">
+                    <h3 class="details-section-title">
+                        <i class="fas fa-briefcase"></i> Mikasika ny ofana
+                    </h3>
+                    <div class="details-grid">
+                        <div class="detail-item">
+                            <label>Dingam-piofanana:</label>
+                            <span th:text="${personne.dingamPiofanana != null ? personne.dingamPiofanana.nom : '-'}">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Type fiofanana:</label>
+                            <form id="typeFiofananaForm" th:action="@{/responsables/details/update-type-fiofanana}" method="post" style="display: inline-block; width: 100%;">
+                                <input type="hidden" name="id" th:value="${personne.id}">
+                                <select name="typeFiofananaId" id="typeFiofananaSelect" 
+                                        class="form-select editable-field editable-select"
+                                        th:attr="data-current-value=${personne.typeFiofanana != null ? personne.typeFiofanana.id : ''}"
+                                        onchange="updateTypeFiofanana(this)">
+                                    <option value="">-- Mifidy --</option>
+                                    <option th:each="type : ${typeFiofanana}" 
+                                            th:value="${type.id}" 
+                                            th:text="${type.nom}"
+                                            th:selected="${personne.typeFiofanana != null && personne.typeFiofanana.id == type.id}">
+                                    </option>
+                                </select>
+                            </form>
+                        </div>
+                        <div class="detail-item">
+                            <label>Andraikitra:</label>
+                            <span th:text="${personne.andraikitra != null ? personne.andraikitra.nom : '-'}">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sections supplémentaires visibles seulement pour certains typeFiofanana (par ID) -->
+                <div th:if="${personne.typeFiofanana != null and (personne.typeFiofanana.id == 1 or personne.typeFiofanana.id == 2)}">
+                    <!-- Trouver les détails correspondant au typeFiofanana actuel -->
+                    <div th:with="filteredList=${personne.detailsFiofananaList != null ? personne.detailsFiofananaList.?[typeFiofanana.id == personne.typeFiofanana.id] : null}, currentDetails=${filteredList != null and !#lists.isEmpty(filteredList) ? filteredList[0] : null}">
+                    <form id="detailsFiofananaForm" th:action="@{/responsables/details/save-details-fiofanana}" method="post">
+                        <input type="hidden" name="id" th:value="${personne.id}">
+                        
+                        <!-- A) Asan'ny tsirairay -->
+                        <div class="details-section">
+                            <h3 class="details-section-title">
+                                A) Asan'ny tsirairay
+                            </h3>
+                            <div class="details-grid">
+                                <div class="detail-item">
+                                    <label>1)</label>
+                                    <input type="text" name="asan1"
+                                           class="form-control editable-field"
+                                           placeholder="Asa 1"
+                                           th:value="${currentDetails != null ? currentDetails.asan1 : ''}" />
+                                </div>
+                                <div class="detail-item">
+                                    <label>2)</label>
+                                    <input type="text" name="asan2"
+                                           class="form-control editable-field"
+                                           placeholder="Asa 2"
+                                           th:value="${currentDetails != null ? currentDetails.asan2 : ''}" />
+                                </div>
+                                <div class="detail-item">
+                                    <label>3)</label>
+                                    <input type="text" name="asan3"
+                                           class="form-control editable-field"
+                                           placeholder="Asa 3"
+                                           th:value="${currentDetails != null ? currentDetails.asan3 : ''}" />
+                                </div>
+                                <div class="detail-item">
+                                    <label>4)</label>
+                                    <input type="text" name="asan4"
+                                           class="form-control editable-field"
+                                           placeholder="Asa 4"
+                                           th:value="${currentDetails != null ? currentDetails.asan4 : ''}" />
+                                </div>
+                                <div class="detail-item">
+                                    <label>5)</label>
+                                    <input type="text" name="asan5"
+                                           class="form-control editable-field"
+                                           placeholder="Asa 5"
+                                           th:value="${currentDetails != null ? currentDetails.asan5 : ''}" />
+                                </div>
+                                <div class="detail-item">
+                                    <label>6)</label>
+                                    <input type="text" name="asan6"
+                                           class="form-control editable-field"
+                                           placeholder="Asa 6"
+                                           th:value="${currentDetails != null ? currentDetails.asan6 : ''}" />
+                                </div>
+                                <div class="detail-item">
+                                    <label>7)</label>
+                                    <input type="text" name="asan7"
+                                           class="form-control editable-field"
+                                           placeholder="Asa 7"
+                                           th:value="${currentDetails != null ? currentDetails.asan7 : ''}" />
+                                </div>
+                                <div class="detail-item">
+                                    <label>Filoha nanome:</label>
+                                    <input type="text" name="asanFilohaNanome"
+                                           class="form-control editable-field"
+                                           placeholder="Anaran'ny filoha"
+                                           th:value="${currentDetails != null ? currentDetails.asanFilohaNanome : ''}" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- B) Ezakin'ny mpiofana -->
+                        <div class="details-section">
+                            <h3 class="details-section-title">
+                                B) Ezakin'ny mpiofana
+                            </h3>
+                            <div class="details-grid">
+                                <div class="detail-item">
+                                    <label>1)</label>
+                                    <input type="text" name="ezaka1"
+                                           class="form-control editable-field"
+                                           placeholder="Ezaka 1"
+                                           th:value="${currentDetails != null ? currentDetails.ezaka1 : ''}" />
+                                </div>
+                                <div class="detail-item">
+                                    <label>2)</label>
+                                    <input type="text" name="ezaka2"
+                                           class="form-control editable-field"
+                                           placeholder="Ezaka 2"
+                                           th:value="${currentDetails != null ? currentDetails.ezaka2 : ''}" />
+                                </div>
+                                <div class="detail-item">
+                                    <label>3)</label>
+                                    <input type="text" name="ezaka3"
+                                           class="form-control editable-field"
+                                           placeholder="Ezaka 3"
+                                           th:value="${currentDetails != null ? currentDetails.ezaka3 : ''}" />
+                                </div>
+                                <div class="detail-item">
+                                    <label>4)</label>
+                                    <input type="text" name="ezaka4"
+                                           class="form-control editable-field"
+                                           placeholder="Ezaka 4"
+                                           th:value="${currentDetails != null ? currentDetails.ezaka4 : ''}" />
+                                </div>
+                                <div class="detail-item">
+                                    <label>5)</label>
+                                    <input type="text" name="ezaka5"
+                                           class="form-control editable-field"
+                                           placeholder="Ezaka 5"
+                                           th:value="${currentDetails != null ? currentDetails.ezaka5 : ''}" />
+                                </div>
+                                <div class="detail-item">
+                                    <label>6)</label>
+                                    <input type="text" name="ezaka6"
+                                           class="form-control editable-field"
+                                           placeholder="Ezaka 6"
+                                           th:value="${currentDetails != null ? currentDetails.ezaka6 : ''}" />
+                                </div>
+                                <div class="detail-item">
+                                    <label>7)</label>
+                                    <input type="text" name="ezaka7"
+                                           class="form-control editable-field"
+                                           placeholder="Ezaka 7"
+                                           th:value="${currentDetails != null ? currentDetails.ezaka7 : ''}" />
+                                </div>
+                                <div class="detail-item">
+                                    <label>Filoha nanome:</label>
+                                    <input type="text" name="ezakaFilohaNanome"
+                                           class="form-control editable-field"
+                                           placeholder="Anaran'ny filoha"
+                                           th:value="${currentDetails != null ? currentDetails.ezakaFilohaNanome : ''}" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- C) Bitsiky ny fivondronana -->
+                        <div class="details-section">
+                            <h3 class="details-section-title">
+                                C) Bitsiky ny fivondronana
+                            </h3>
+                            <div class="details-grid">
+                                <div class="detail-item">
+                                    <label>1)</label>
+                                    <input type="date" name="bitsikyDaty1"
+                                           class="form-control editable-field"
+                                           style="margin-bottom: 6px;"
+                                           th:value="${currentDetails != null and currentDetails.bitsikyDaty1 != null ? #temporals.format(currentDetails.bitsikyDaty1, 'yyyy-MM-dd') : ''}" />
+                                    <select class="form-select editable-field editable-select" name="bitsikyFivondronana1">
+                                        <option value="">-- Mifidy fivondronana --</option>
+                                        <option th:each="fiv : ${fivondronanaList}"
+                                                th:value="${fiv.id}"
+                                                th:text="${fiv.nom}"
+                                                th:selected="${currentDetails != null and currentDetails.bitsikyFivondronana1 != null and currentDetails.bitsikyFivondronana1.id == fiv.id}">
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="detail-item">
+                                    <label>2)</label>
+                                    <input type="date" name="bitsikyDaty2"
+                                           class="form-control editable-field"
+                                           style="margin-bottom: 6px;"
+                                           th:value="${currentDetails != null and currentDetails.bitsikyDaty2 != null ? #temporals.format(currentDetails.bitsikyDaty2, 'yyyy-MM-dd') : ''}" />
+                                    <select class="form-select editable-field editable-select" name="bitsikyFivondronana2">
+                                        <option value="">-- Mifidy fivondronana --</option>
+                                        <option th:each="fiv : ${fivondronanaList}"
+                                                th:value="${fiv.id}"
+                                                th:text="${fiv.nom}"
+                                                th:selected="${currentDetails != null and currentDetails.bitsikyFivondronana2 != null and currentDetails.bitsikyFivondronana2.id == fiv.id}">
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- D) Diniky ny filoha -->
+                        <div class="details-section">
+                            <h3 class="details-section-title">
+                                D) Diniky ny filoha
+                            </h3>
+                            <div class="details-grid">
+                                <div class="detail-item">
+                                    <label>1)</label>
+                                    <input type="text" name="dinikyTheme1"
+                                           class="form-control editable-field"
+                                           placeholder="Thème 1"
+                                           style="margin-bottom: 6px;"
+                                           th:value="${currentDetails != null ? currentDetails.dinikyTheme1 : ''}" />
+                                    <input type="text" name="dinikyFiloha1"
+                                           class="form-control editable-field"
+                                           placeholder="Filoha 1"
+                                           th:value="${currentDetails != null ? currentDetails.dinikyFiloha1 : ''}" />
+                                </div>
+                                <div class="detail-item">
+                                    <label>2)</label>
+                                    <input type="text" name="dinikyTheme2"
+                                           class="form-control editable-field"
+                                           placeholder="Thème 2"
+                                           style="margin-bottom: 6px;"
+                                           th:value="${currentDetails != null ? currentDetails.dinikyTheme2 : ''}" />
+                                    <input type="text" name="dinikyFiloha2"
+                                           class="form-control editable-field"
+                                           placeholder="Filoha 2"
+                                           th:value="${currentDetails != null ? currentDetails.dinikyFiloha2 : ''}" />
+                                </div>
+                                <div class="detail-item">
+                                    <label>3)</label>
+                                    <input type="text" name="dinikyTheme3"
+                                           class="form-control editable-field"
+                                           placeholder="Thème 3"
+                                           style="margin-bottom: 6px;"
+                                           th:value="${currentDetails != null ? currentDetails.dinikyTheme3 : ''}" />
+                                    <input type="text" name="dinikyFiloha3"
+                                           class="form-control editable-field"
+                                           placeholder="Filoha 3"
+                                           th:value="${currentDetails != null ? currentDetails.dinikyFiloha3 : ''}" />
+                                </div>
+                                <div class="detail-item">
+                                    <label>4)</label>
+                                    <input type="text" name="dinikyTheme4"
+                                           class="form-control editable-field"
+                                           placeholder="Thème 4"
+                                           style="margin-bottom: 6px;"
+                                           th:value="${currentDetails != null ? currentDetails.dinikyTheme4 : ''}" />
+                                    <input type="text" name="dinikyFiloha4"
+                                           class="form-control editable-field"
+                                           placeholder="Filoha 4"
+                                           th:value="${currentDetails != null ? currentDetails.dinikyFiloha4 : ''}" />
+                                </div>
+                                <div class="detail-item">
+                                    <label>5)</label>
+                                    <input type="text" name="dinikyTheme5"
+                                           class="form-control editable-field"
+                                           placeholder="Thème 5"
+                                           style="margin-bottom: 6px;"
+                                           th:value="${currentDetails != null ? currentDetails.dinikyTheme5 : ''}" />
+                                    <input type="text" name="dinikyFiloha5"
+                                           class="form-control editable-field"
+                                           placeholder="Filoha 5"
+                                           th:value="${currentDetails != null ? currentDetails.dinikyFiloha5 : ''}" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- E) Filasiana -->
+                        <div class="details-section">
+                            <h3 class="details-section-title">
+                                E) Filasiana
+                            </h3>
+                            <div class="details-grid">
+                                <div class="detail-item">
+                                    <label>Daty:</label>
+                                    <input type="date" name="filasianaDaty"
+                                           class="form-control editable-field"
+                                           th:value="${currentDetails != null and currentDetails.filasianaDaty != null ? #temporals.format(currentDetails.filasianaDaty, 'yyyy-MM-dd') : ''}" />
+                                </div>
+                                <div class="detail-item">
+                                    <label>Filohan'ny lasy:</label>
+                                    <input type="text" name="filasianaFiloha"
+                                           class="form-control editable-field"
+                                           placeholder="Anaran'ny filohan'ny lasy"
+                                           th:value="${currentDetails != null ? currentDetails.filasianaFiloha : ''}" />
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Bouton de sauvegarde -->
+                        <div class="details-section" style="border-bottom: none; padding-top: 20px;">
+                            <button type="submit" class="back-button" style="background: var(--primary);">
+                                <i class="fas fa-save"></i>
+                                Tehirizo ny antsipiriany
+                            </button>
+                        </div>
+                    </form>
+                    </div>
+                </div>
+
+                <!-- Section pour Ravinala (ID 3) -->
+                <div th:if="${personne.typeFiofanana != null and personne.typeFiofanana.id == 3}">
+                    <div th:with="filteredList=${personne.detailsFiofananaList != null ? personne.detailsFiofananaList.?[typeFiofanana.id == personne.typeFiofanana.id] : null}, currentDetails=${filteredList != null and !#lists.isEmpty(filteredList) ? filteredList[0] : null}">
+                    <form id="detailsFiofananaFormRavinala" th:action="@{/responsables/details/save-details-fiofanana}" method="post">
+                        <input type="hidden" name="id" th:value="${personne.id}">
+                        
+                        <div class="details-section">
+                            <h3 class="details-section-title">
+                                Ravinala
+                            </h3>
+                            <div class="details-grid">
+                                <div class="detail-item">
+                                    <label>Lasy ravinala:</label>
+                                    <input type="text" name="lasyRavinala"
+                                           class="form-control editable-field"
+                                           placeholder="Lasy ravinala"
+                                           th:value="${currentDetails != null ? currentDetails.lasyRavinala : ''}" />
+                                </div>
+                                <div class="detail-item">
+                                    <label>Soutenance:</label>
+                                    <input type="text" name="soutenance"
+                                           class="form-control editable-field"
+                                           placeholder="Soutenance"
+                                           th:value="${currentDetails != null ? currentDetails.soutenance : ''}" />
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="details-section" style="border-bottom: none; padding-top: 20px;">
+                            <button type="submit" class="back-button" style="background: var(--primary);">
+                                <i class="fas fa-save"></i>
+                                Tehirizo ny antsipiriany
+                            </button>
+                        </div>
+                    </form>
+                    </div>
+                </div>
+
+                <!-- Section pour TP2 (ID 4) -->
+                <div th:if="${personne.typeFiofanana != null and personne.typeFiofanana.id == 4}">
+                    <div th:with="filteredList=${personne.detailsFiofananaList != null ? personne.detailsFiofananaList.?[typeFiofanana.id == personne.typeFiofanana.id] : null}, currentDetails=${filteredList != null and !#lists.isEmpty(filteredList) ? filteredList[0] : null}">
+                    <form id="detailsFiofananaFormTp2" th:action="@{/responsables/details/save-details-fiofanana}" method="post">
+                        <input type="hidden" name="id" th:value="${personne.id}">
+                        
+                        <div class="details-section">
+                            <h3 class="details-section-title">
+                                TP2
+                            </h3>
+                            <div class="details-grid">
+                                <div class="detail-item">
+                                    <label>Lasy nanolorana TP2:</label>
+                                    <input type="text" name="lasyNanoloranaTp2"
+                                           class="form-control editable-field"
+                                           placeholder="Lasy nanolorana TP2"
+                                           th:value="${currentDetails != null ? currentDetails.lasyNanoloranaTp2 : ''}" />
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="details-section" style="border-bottom: none; padding-top: 20px;">
+                            <button type="submit" class="back-button" style="background: var(--primary);">
+                                <i class="fas fa-save"></i>
+                                Tehirizo ny antsipiriany
+                            </button>
+                        </div>
+                    </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Message si personne non trouvée -->
+            <div th:if="${personne == null}" class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>Tsy hita ny Mpiandraikitra</span>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div th:replace="~{fragments/footer :: footer}"></div>
+    </div>
+
+    <script>
+        // Toggle sidebar mobile
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        // Toggle sidebar collapse/expand
+        function toggleSidebarCollapse() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.querySelector('.main-content');
+            const toggleIcon = sidebar.querySelector('.sidebar-toggle i');
+            
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('sidebar-collapsed');
+            
+            if (sidebar.classList.contains('collapsed')) {
+                toggleIcon.classList.remove('fa-chevron-left');
+                toggleIcon.classList.add('fa-chevron-right');
+                localStorage.setItem('sidebarCollapsed', 'true');
+            } else {
+                toggleIcon.classList.remove('fa-chevron-right');
+                toggleIcon.classList.add('fa-chevron-left');
+                localStorage.setItem('sidebarCollapsed', 'false');
+            }
+        }
+        
+        // Restore sidebar state
+        document.addEventListener('DOMContentLoaded', function() {
+            const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            if (isCollapsed) {
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.querySelector('.main-content');
+                const toggleIcon = sidebar.querySelector('.sidebar-toggle i');
+                
+                sidebar.classList.add('collapsed');
+                mainContent.classList.add('sidebar-collapsed');
+                toggleIcon.classList.remove('fa-chevron-left');
+                toggleIcon.classList.add('fa-chevron-right');
+            }
+            
+            // Auto-hide alerts after 5 seconds
+            setTimeout(() => {
+                document.querySelectorAll('.alert').forEach(alert => {
+                    alert.style.opacity = '0';
+                    setTimeout(() => alert.remove(), 300);
+                });
+            }, 5000);
+            
+            // Sauvegarder la valeur actuelle du type fiofanana au chargement
+            const typeFiofananaSelect = document.getElementById('typeFiofananaSelect');
+            if (typeFiofananaSelect) {
+                typeFiofananaSelect.dataset.currentValue = typeFiofananaSelect.value;
+            }
+        });
+
+        // Fonction pour mettre à jour le type fiofanana avec confirmation
+        function updateTypeFiofanana(select) {
+            if (!select || !select.form) {
+                return;
+            }
+
+            const selectedValue = select.value;
+            const selectedText = select.options[select.selectedIndex].text;
+            const currentValue = select.dataset.currentValue || '';
+            
+            // Si la valeur n'a pas changé, ne rien faire
+            if (selectedValue === currentValue) {
+                return;
+            }
+
+            // Message de confirmation en malgache
+            let confirmMessage;
+            if (selectedValue === '') {
+                confirmMessage = 'Azo antoka ve ise fa te-hamafa ny type fiofanana ?';
+            } else {
+                confirmMessage = 'Azo antoka ve ise fa te-hanova ny type fiofanana ho "' + selectedText + '" ?';
+            }
+
+            if (confirm(confirmMessage)) {
+                // Optionnel : changer seulement le curseur pour indiquer le chargement
+                select.style.cursor = 'wait';
+
+                // Soumettre le formulaire (ne pas désactiver le select pour que la valeur soit bien envoyée)
+                select.form.submit();
+            } else {
+                // Restaurer la valeur précédente si l'utilisateur annule
+                select.value = currentValue;
+            }
+        }
+    </script>
+</body>
+</html>

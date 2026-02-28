@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="mg" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tsy nety - Tily</title>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0B1739 0%, #1a237e 50%, #0B1739 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .error-container {
+            text-align: center;
+            color: white;
+            max-width: 600px;
+        }
+        
+        .error-icon {
+            font-size: 100px;
+            color: #FF5A65;
+            margin-bottom: 30px;
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        .error-code {
+            font-size: 72px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #FF5A65 0%, #ff8a94 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .error-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        .error-message {
+            font-size: 16px;
+            opacity: 0.8;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+        
+        .error-details {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: left;
+            font-size: 14px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .error-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-back:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 28px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            text-decoration: none;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-home:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="error-code" th:text="${status != null ? status : '500'}">500</div>
+        <h1 class="error-title">Nisy tsy nety</h1>
+        <p class="error-message">
+            Nisy olana nitranga rehefa nampiasa ny rafitra.
+            <br>Mifandraisa amin'ny mpitantana raha mbola mitohy izany.
+        </p>
+        <div class="error-details" th:if="${message != null and message != ''}">
+            <strong>Antsipiriany:</strong>
+            <p th:text="${message}"></p>
+        </div>
+        <div class="error-actions">
+            <a href="javascript:history.back()" class="btn-back">
+                <i class="fas fa-arrow-left"></i>
+                Miverina
+            </a>
+            <a th:href="@{/dashboard}" class="btn-home">
+                <i class="fas fa-home"></i>
+                Miverina amin'ny dashboard
+            </a>
+        </div>
+    </div>
+</body>
+</html>

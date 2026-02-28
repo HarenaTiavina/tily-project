@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="mg" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration Rôles Filoha - Tily</title>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .config-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 24px;
+        }
+        .config-card h3 {
+            color: #0B1739;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .config-card h3 i {
+            color: #667eea;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .table-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table thead {
+            background: #f8f9fa;
+        }
+        .data-table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .data-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+        .actions-cell {
+            display: flex;
+            gap: 8px;
+        }
+        .btn-icon {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .btn-icon.edit {
+            background: #667eea;
+            color: white;
+        }
+        .btn-icon.edit:hover {
+            background: #5568d3;
+        }
+        .btn-icon.danger {
+            background: #dc3545;
+            color: white;
+        }
+        .btn-icon.danger:hover {
+            background: #c82333;
+        }
+        .empty-message {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .empty-message i {
+            font-size: 48px;
+            color: #ccc;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div th:replace="~{fragments/sidebar :: sidebar('configuration-filoha')}"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Topbar -->
+        <div th:replace="~{fragments/topbar :: topbar(${pageTitle}, ${userName})}"></div>
+
+        <!-- Page Content -->
+        <div class="dashboard-content">
+            <!-- Messages de notification -->
+            <div th:if="${successMessage}" class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                <span th:text="${successMessage}"></span>
+                <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span th:text="${errorMessage}"></span>
+                <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+            </div>
+
+            <!-- Formulaire d'ajout -->
+            <div class="config-card">
+                <h3>
+                    <i class="fas fa-plus-circle"></i>
+                    Hanampy Type Filoha
+                </h3>
+                <form th:action="@{/admin/configuration-filoha/ajouter}" method="post">
+                    <div class="form-group">
+                        <label for="nom">Anaran'ny Type Filoha <span class="required">*</span></label>
+                        <input type="text" id="nom" name="nom" required placeholder="Ohatra: Filoha Lehibe" maxlength="100">
+                    </div>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i>
+                        Tehirizina
+                    </button>
+                </form>
+            </div>
+
+            <!-- Tableau des rôles existants -->
+            <div class="table-card">
+                <h3 style="margin-bottom: 20px;">
+                    <i class="fas fa-list"></i>
+                    Lisitry ny Type Filoha
+                </h3>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Anarana</th>
+                                <th>Asa</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${#lists.isEmpty(typeFilohaList)}">
+                                <td colspan="3" class="empty-message">
+                                    <i class="fas fa-inbox"></i>
+                                    <p>Tsy misy Type Filoha hita</p>
+                                </td>
+                            </tr>
+                            <tr th:each="type : ${typeFilohaList}">
+                                <td th:text="${type.id}">-</td>
+                                <td>
+                                    <span th:text="${type.nom}">-</span>
+                                </td>
+                                <td class="actions-cell">
+                                    <button class="btn-icon edit" onclick="openEditModal([[${type.id}]], '[[${type.nom}]]')" title="Hanova">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <form th:action="@{/admin/configuration-filoha/supprimer}" method="post" style="display: inline;">
+                                        <input type="hidden" name="id" th:value="${type.id}">
+                                        <button type="submit" class="btn-icon danger" title="Hamafa" onclick="return confirm('Azo antoka ve ise fa te-hamafa ity Type Filoha ity ?')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div th:replace="~{fragments/footer :: footer}"></div>
+    </div>
+
+    <!-- Modal Modifier -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-edit"></i> Hanova Type Filoha</h2>
+                <button class="modal-close" onclick="closeEditModal()">&times;</button>
+            </div>
+            <form id="editForm" th:action="@{/admin/configuration-filoha/modifier}" method="post">
+                <input type="hidden" id="editId" name="id">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="editNom">Anaran'ny Type Filoha <span class="required">*</span></label>
+                        <input type="text" id="editNom" name="nom" required maxlength="100">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeEditModal()">
+                        <i class="fas fa-times"></i> Hanafoana
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i> Tehirizina
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openEditModal(id, nom) {
+            document.getElementById('editId').value = id;
+            document.getElementById('editNom').value = nom;
+            document.getElementById('editModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Auto-hide alerts after 5 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                document.querySelectorAll('.alert').forEach(alert => {
+                    alert.style.opacity = '0';
+                    setTimeout(() => alert.remove(), 300);
+                });
+            }, 5000);
+        });
+    </script>
+</body>
+</html>

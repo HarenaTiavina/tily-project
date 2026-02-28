@@ -32,7 +32,11 @@ public class Utilisateur {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idfivondronana")
-    private Fivondronana fivondronana;
+    private Fivondronana fivondronana; // Pour les utilisateurs Fivondronana (USER)
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idpersonne")
+    private Personne personne; // Pour les Filoha (lien direct avec Personne)
 
     // Constructors
     public Utilisateur() {
@@ -138,6 +142,18 @@ public class Utilisateur {
 
     public Integer getFivondronanaId() {
         return fivondronana != null ? fivondronana.getId() : null;
+    }
+
+    public Personne getPersonne() {
+        return personne;
+    }
+
+    public void setPersonne(Personne personne) {
+        this.personne = personne;
+    }
+
+    public boolean isFiloha() {
+        return personne != null && personne.isFiloha();
     }
 }
 

@@ -15,6 +15,9 @@ import tily.mg.entity.Personne;
 import tily.mg.entity.Fafi;
 import tily.mg.entity.PrixFafi;
 import tily.mg.entity.Utilisateur;
+import tily.mg.entity.TypeFiofanana;
+import tily.mg.entity.TypeFiloha;
+import tily.mg.entity.DetailsFiofanana;
 import tily.mg.service.AuthService;
 import tily.mg.service.DashboardService;
 import tily.mg.service.ExcelImportService;
@@ -186,19 +189,23 @@ public class WebController {
         model.addAttribute("pageTitle", "Responsables");
 
         boolean admin = hasAdminAccess();
+        Optional<Utilisateur> currentUser = getCurrentUser();
+        boolean isFiloha = currentUser.isPresent() && currentUser.get().isFiloha();
         Integer userFivondronanaId = getCurrentUserFivondronanaId();
 
         List<Personne> responsables;
 
-        if (admin) {
-            // Admin peut filtrer par Fivondronana ou voir tout
+        if (admin || isFiloha) {
+            // Admin et Filoha peuvent voir tous les responsables
             if (fivondronanaId != null || secteurId != null || andraikitraId != null || fizaranaId != null || dingamPiofananaId != null || hasFafi != null) {
                 responsables = personneService.filterResponsables(fivondronanaId, secteurId, andraikitraId, fizaranaId, dingamPiofananaId, hasFafi);
             } else {
                 responsables = personneService.findAllResponsables();
             }
-            // Admin peut voir la liste des Fivondronana pour filtrer
-            model.addAttribute("fivondronana", personneService.findAllFivondronana());
+            // Admin peut voir la liste des Fivondronana pour filtrer (Filoha non)
+            if (admin) {
+                model.addAttribute("fivondronana", personneService.findAllFivondronana());
+            }
         } else {
             // Utilisateur Fivondronana voit seulement son Fivondronana
             if (secteurId != null || andraikitraId != null || fizaranaId != null || dingamPiofananaId != null || hasFafi != null) {
@@ -225,6 +232,271 @@ public class WebController {
         return "responsables";
     }
 
+    @GetMapping("/responsables/details")
+    public String detailsResponsable(
+            @RequestParam Integer id,
+            Model model
+    ) {
+        addCommonAttributes(model);
+        model.addAttribute("pageTitle", "Détails Mpiandraikitra");
+
+        // Charger la personne avec toutes ses relations
+        Optional<Personne> personneOpt = personneService.findByIdWithAllRelations(id);
+        
+        if (personneOpt.isPresent()) {
+            Personne personne = personneOpt.get();
+            
+            // Vérifier les permissions : non-admin ne peut voir que son Fivondronana
+            if (!hasAdminAccess()) {
+                Integer userFivondronanaId = getCurrentUserFivondronanaId();
+                if (personne.getFivondronana() == null || !personne.getFivondronana().getId().equals(userFivondronanaId)) {
+                    model.addAttribute("errorMessage", "Tsy manan-kery ny fijerena ity Mpiandraikitra ity.");
+                    return "details-responsable";
+                }
+            }
+            
+            // Vérifier que c'est bien un responsable
+            if (!personne.isMpiandraikitra()) {
+                model.addAttribute("errorMessage", "Ity olona ity dia tsy Mpiandraikitra.");
+                return "details-responsable";
+            }
+            
+            model.addAttribute("personne", personne);
+            model.addAttribute("anneeCourante", fafiService.getAnneeCourante());
+            // Ajouter la liste des types de formation pour le dropdown
+            model.addAttribute("typeFiofanana", personneService.findAllTypeFiofanana());
+            // Ajouter la liste des Fivondronana pour les dropdowns de la section C
+            model.addAttribute("fivondronanaList", personneService.findAllFivondronana());
+        } else {
+            model.addAttribute("errorMessage", "Tsy hita ny Mpiandraikitra.");
+        }
+
+        return "details-responsable";
+    }
+
+    @PostMapping("/responsables/details/update-type-fiofanana")
+    public String updateTypeFiofanana(
+            @RequestParam Integer id,
+            @RequestParam(required = false) Integer typeFiofananaId,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            // Vérifier les permissions : seulement ceux qui ont accès aux mpiandraikitra
+            Optional<Personne> personneOpt = personneService.findByIdWithAllRelations(id);
+            
+            if (!personneOpt.isPresent()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Tsy hita ny Mpiandraikitra.");
+                return "redirect:/responsables/details?id=" + id;
+            }
+            
+            Personne personne = personneOpt.get();
+            
+            // Vérifier que c'est bien un responsable
+            if (!personne.isMpiandraikitra()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Ity olona ity dia tsy Mpiandraikitra.");
+                return "redirect:/responsables/details?id=" + id;
+            }
+            
+            // Vérifier les permissions : non-admin ne peut modifier que son Fivondronana
+            if (!hasAdminAccess()) {
+                Integer userFivondronanaId = getCurrentUserFivondronanaId();
+                if (personne.getFivondronana() == null || !personne.getFivondronana().getId().equals(userFivondronanaId)) {
+                    redirectAttributes.addFlashAttribute("errorMessage", "Tsy manan-kery ny fanovana ity Mpiandraikitra ity.");
+                    return "redirect:/responsables/details?id=" + id;
+                }
+            }
+            
+            // Mettre à jour le typeFiofanana
+            // Utiliser findById simple pour avoir une entité gérée par Hibernate
+            Optional<Personne> personneToUpdateOpt = personneService.findById(id);
+            if (!personneToUpdateOpt.isPresent()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Tsy hita ny Mpiandraikitra.");
+                return "redirect:/responsables/details?id=" + id;
+            }
+            
+            Personne personneToUpdate = personneToUpdateOpt.get();
+            
+            // Initialiser les types fiofanana s'ils n'existent pas dans la base
+            personneService.findAllTypeFiofanana(); // Cette méthode initialise automatiquement si nécessaire
+            
+            if (typeFiofananaId != null && typeFiofananaId > 0) {
+                Optional<TypeFiofanana> typeFiofananaOpt = personneService.findTypeFiofananaById(typeFiofananaId);
+                if (typeFiofananaOpt.isPresent()) {
+                    personneToUpdate.setTypeFiofanana(typeFiofananaOpt.get());
+                } else {
+                    redirectAttributes.addFlashAttribute("errorMessage", "Tsy hita ny type fiofanana voafidy (ID: " + typeFiofananaId + ").");
+                    return "redirect:/responsables/details?id=" + id;
+                }
+            } else {
+                personneToUpdate.setTypeFiofanana(null);
+            }
+            
+            // Sauvegarder avec flush pour forcer la persistance immédiate
+            Personne savedPersonne = personneService.saveAndFlush(personneToUpdate);
+            
+            // Vérifier que la sauvegarde a bien fonctionné
+            if (savedPersonne == null) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Nisy tsy nety rehefa nanova ny type fiofanana.");
+                return "redirect:/responsables/details?id=" + id;
+            }
+            
+            // Message de succès en malgache
+            if (typeFiofananaId != null) {
+                personneService.findTypeFiofananaById(typeFiofananaId).ifPresent(type -> {
+                    redirectAttributes.addFlashAttribute("successMessage", "Type fiofanana novaina soa! : " + type.getNom());
+                });
+            } else {
+                redirectAttributes.addFlashAttribute("successMessage", "Type fiofanana voafafa soa!");
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Nisy tsy nety rehefa nanova ny type fiofanana: " + e.getMessage());
+        }
+        
+        return "redirect:/responsables/details?id=" + id;
+    }
+
+    @PostMapping("/responsables/details/save-details-fiofanana")
+    public String saveDetailsFiofanana(
+            @RequestParam Integer id,
+            @RequestParam(required = false) String asan1,
+            @RequestParam(required = false) String asan2,
+            @RequestParam(required = false) String asan3,
+            @RequestParam(required = false) String asan4,
+            @RequestParam(required = false) String asan5,
+            @RequestParam(required = false) String asan6,
+            @RequestParam(required = false) String asan7,
+            @RequestParam(required = false) String asanFilohaNanome,
+            @RequestParam(required = false) String ezaka1,
+            @RequestParam(required = false) String ezaka2,
+            @RequestParam(required = false) String ezaka3,
+            @RequestParam(required = false) String ezaka4,
+            @RequestParam(required = false) String ezaka5,
+            @RequestParam(required = false) String ezaka6,
+            @RequestParam(required = false) String ezaka7,
+            @RequestParam(required = false) String ezakaFilohaNanome,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) LocalDate bitsikyDaty1,
+            @RequestParam(required = false) Integer bitsikyFivondronana1,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) LocalDate bitsikyDaty2,
+            @RequestParam(required = false) Integer bitsikyFivondronana2,
+            @RequestParam(required = false) String dinikyTheme1,
+            @RequestParam(required = false) String dinikyFiloha1,
+            @RequestParam(required = false) String dinikyTheme2,
+            @RequestParam(required = false) String dinikyFiloha2,
+            @RequestParam(required = false) String dinikyTheme3,
+            @RequestParam(required = false) String dinikyFiloha3,
+            @RequestParam(required = false) String dinikyTheme4,
+            @RequestParam(required = false) String dinikyFiloha4,
+            @RequestParam(required = false) String dinikyTheme5,
+            @RequestParam(required = false) String dinikyFiloha5,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) LocalDate filasianaDaty,
+            @RequestParam(required = false) String filasianaFiloha,
+            @RequestParam(required = false) String lasyRavinala,
+            @RequestParam(required = false) String soutenance,
+            @RequestParam(required = false) String lasyNanoloranaTp2,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            // Vérifier les permissions
+            Optional<Personne> personneOpt = personneService.findByIdWithAllRelations(id);
+            
+            if (!personneOpt.isPresent()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Tsy hita ny Mpiandraikitra.");
+                return "redirect:/responsables/details?id=" + id;
+            }
+            
+            Personne personne = personneOpt.get();
+            
+            // Vérifier que c'est bien un responsable
+            if (!personne.isMpiandraikitra()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Ity olona ity dia tsy Mpiandraikitra.");
+                return "redirect:/responsables/details?id=" + id;
+            }
+            
+            // Vérifier les permissions : non-admin ne peut modifier que son Fivondronana
+            if (!hasAdminAccess()) {
+                Integer userFivondronanaId = getCurrentUserFivondronanaId();
+                if (personne.getFivondronana() == null || !personne.getFivondronana().getId().equals(userFivondronanaId)) {
+                    redirectAttributes.addFlashAttribute("errorMessage", "Tsy manan-kery ny fanovana ity Mpiandraikitra ity.");
+                    return "redirect:/responsables/details?id=" + id;
+                }
+            }
+            
+            // Vérifier que la personne a un typeFiofanana
+            if (personne.getTypeFiofanana() == null) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Tsy manana type fiofanana ity Mpiandraikitra ity.");
+                return "redirect:/responsables/details?id=" + id;
+            }
+            
+            Integer typeFiofananaId = personne.getTypeFiofanana().getId();
+            
+            // Créer ou mettre à jour DetailsFiofanana
+            DetailsFiofanana details = new DetailsFiofanana();
+            
+            // Section A
+            details.setAsan1(asan1 != null && !asan1.trim().isEmpty() ? asan1.trim() : null);
+            details.setAsan2(asan2 != null && !asan2.trim().isEmpty() ? asan2.trim() : null);
+            details.setAsan3(asan3 != null && !asan3.trim().isEmpty() ? asan3.trim() : null);
+            details.setAsan4(asan4 != null && !asan4.trim().isEmpty() ? asan4.trim() : null);
+            details.setAsan5(asan5 != null && !asan5.trim().isEmpty() ? asan5.trim() : null);
+            details.setAsan6(asan6 != null && !asan6.trim().isEmpty() ? asan6.trim() : null);
+            details.setAsan7(asan7 != null && !asan7.trim().isEmpty() ? asan7.trim() : null);
+            details.setAsanFilohaNanome(asanFilohaNanome != null && !asanFilohaNanome.trim().isEmpty() ? asanFilohaNanome.trim() : null);
+            
+            // Section B
+            details.setEzaka1(ezaka1 != null && !ezaka1.trim().isEmpty() ? ezaka1.trim() : null);
+            details.setEzaka2(ezaka2 != null && !ezaka2.trim().isEmpty() ? ezaka2.trim() : null);
+            details.setEzaka3(ezaka3 != null && !ezaka3.trim().isEmpty() ? ezaka3.trim() : null);
+            details.setEzaka4(ezaka4 != null && !ezaka4.trim().isEmpty() ? ezaka4.trim() : null);
+            details.setEzaka5(ezaka5 != null && !ezaka5.trim().isEmpty() ? ezaka5.trim() : null);
+            details.setEzaka6(ezaka6 != null && !ezaka6.trim().isEmpty() ? ezaka6.trim() : null);
+            details.setEzaka7(ezaka7 != null && !ezaka7.trim().isEmpty() ? ezaka7.trim() : null);
+            details.setEzakaFilohaNanome(ezakaFilohaNanome != null && !ezakaFilohaNanome.trim().isEmpty() ? ezakaFilohaNanome.trim() : null);
+            
+            // Section C
+            details.setBitsikyDaty1(bitsikyDaty1);
+            if (bitsikyFivondronana1 != null && bitsikyFivondronana1 > 0) {
+                personneService.findFivondronanaById(bitsikyFivondronana1).ifPresent(details::setBitsikyFivondronana1);
+            }
+            details.setBitsikyDaty2(bitsikyDaty2);
+            if (bitsikyFivondronana2 != null && bitsikyFivondronana2 > 0) {
+                personneService.findFivondronanaById(bitsikyFivondronana2).ifPresent(details::setBitsikyFivondronana2);
+            }
+            
+            // Section D: Diniky ny filoha
+            details.setDinikyTheme1(dinikyTheme1 != null && !dinikyTheme1.trim().isEmpty() ? dinikyTheme1.trim() : null);
+            details.setDinikyFiloha1(dinikyFiloha1 != null && !dinikyFiloha1.trim().isEmpty() ? dinikyFiloha1.trim() : null);
+            details.setDinikyTheme2(dinikyTheme2 != null && !dinikyTheme2.trim().isEmpty() ? dinikyTheme2.trim() : null);
+            details.setDinikyFiloha2(dinikyFiloha2 != null && !dinikyFiloha2.trim().isEmpty() ? dinikyFiloha2.trim() : null);
+            details.setDinikyTheme3(dinikyTheme3 != null && !dinikyTheme3.trim().isEmpty() ? dinikyTheme3.trim() : null);
+            details.setDinikyFiloha3(dinikyFiloha3 != null && !dinikyFiloha3.trim().isEmpty() ? dinikyFiloha3.trim() : null);
+            details.setDinikyTheme4(dinikyTheme4 != null && !dinikyTheme4.trim().isEmpty() ? dinikyTheme4.trim() : null);
+            details.setDinikyFiloha4(dinikyFiloha4 != null && !dinikyFiloha4.trim().isEmpty() ? dinikyFiloha4.trim() : null);
+            details.setDinikyTheme5(dinikyTheme5 != null && !dinikyTheme5.trim().isEmpty() ? dinikyTheme5.trim() : null);
+            details.setDinikyFiloha5(dinikyFiloha5 != null && !dinikyFiloha5.trim().isEmpty() ? dinikyFiloha5.trim() : null);
+            
+            // Section E: Filasiana
+            details.setFilasianaDaty(filasianaDaty);
+            details.setFilasianaFiloha(filasianaFiloha != null && !filasianaFiloha.trim().isEmpty() ? filasianaFiloha.trim() : null);
+            
+            // Section F: Ravinala
+            details.setLasyRavinala(lasyRavinala != null && !lasyRavinala.trim().isEmpty() ? lasyRavinala.trim() : null);
+            details.setSoutenance(soutenance != null && !soutenance.trim().isEmpty() ? soutenance.trim() : null);
+            
+            // Section G: TP2
+            details.setLasyNanoloranaTp2(lasyNanoloranaTp2 != null && !lasyNanoloranaTp2.trim().isEmpty() ? lasyNanoloranaTp2.trim() : null);
+            
+            // Sauvegarder avec le typeFiofanana actuel
+            personneService.saveOrUpdateDetailsFiofanana(id, typeFiofananaId, details);
+            
+            redirectAttributes.addFlashAttribute("successMessage", "Ny antsipiriany dia voatahiry soa!");
+            
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Nisy tsy nety rehefa nanatahiry ny antsipiriany: " + e.getMessage());
+        }
+        
+        return "redirect:/responsables/details?id=" + id;
+    }
+
     @PostMapping("/responsables/ajouter")
     public String ajouterResponsable(
             @RequestParam String nom,
@@ -244,6 +516,12 @@ public class WebController {
             RedirectAttributes redirectAttributes
     ) {
         try {
+            // Vérifier les permissions : Filoha ne peut pas ajouter
+            Optional<Utilisateur> currentUser = getCurrentUser();
+            if (currentUser.isPresent() && currentUser.get().isFiloha()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Tsy manan-kery ny fanampiana Mpiandraikitra.");
+                return "redirect:/responsables";
+            }
             Personne personne = new Personne();
             personne.setNom(nom);
             personne.setPrenom(prenom);
@@ -293,7 +571,13 @@ public class WebController {
             RedirectAttributes redirectAttributes
     ) {
         try {
-            // Vérifier les permissions
+            // Vérifier les permissions : Filoha ne peut pas modifier
+            Optional<Utilisateur> currentUser = getCurrentUser();
+            if (currentUser.isPresent() && currentUser.get().isFiloha()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Tsy manan-kery ny fanovana ny Mpiandraikitra.");
+                return "redirect:/responsables";
+            }
+            
             if (!hasAdminAccess()) {
                 Integer userFivondronanaId = getCurrentUserFivondronanaId();
                 if (!personneService.personneAppartientAFivondronana(id, userFivondronanaId)) {
@@ -366,7 +650,13 @@ public class WebController {
             RedirectAttributes redirectAttributes
     ) {
         try {
-            // Vérifier les permissions
+            // Vérifier les permissions : Filoha ne peut pas supprimer
+            Optional<Utilisateur> currentUser = getCurrentUser();
+            if (currentUser.isPresent() && currentUser.get().isFiloha()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Tsy manan-kery ny famafana ny Mpiandraikitra.");
+                return "redirect:/responsables";
+            }
+            
             if (!hasAdminAccess()) {
                 Integer userFivondronanaId = getCurrentUserFivondronanaId();
                 if (!personneService.personneAppartientAFivondronana(id, userFivondronanaId)) {
@@ -397,19 +687,23 @@ public class WebController {
         model.addAttribute("pageTitle", "Élèves");
 
         boolean admin = hasAdminAccess();
+        Optional<Utilisateur> currentUser = getCurrentUser();
+        boolean isFiloha = currentUser.isPresent() && currentUser.get().isFiloha();
         Integer userFivondronanaId = getCurrentUserFivondronanaId();
 
         List<Personne> eleves;
 
-        if (admin) {
-            // Admin peut filtrer par Fivondronana ou voir tout
+        if (admin || isFiloha) {
+            // Admin et Filoha peuvent voir tous les eleves
             if (fivondronanaId != null || secteurId != null || fizaranaId != null || ambaratonga != null || hasFafi != null) {
                 eleves = personneService.filterEleves(fivondronanaId, secteurId, fizaranaId, ambaratonga, hasFafi);
             } else {
                 eleves = personneService.findAllEleves();
             }
-            // Admin peut voir la liste des Fivondronana pour filtrer
-            model.addAttribute("fivondronana", personneService.findAllFivondronana());
+            // Admin peut voir la liste des Fivondronana pour filtrer (Filoha non)
+            if (admin) {
+                model.addAttribute("fivondronana", personneService.findAllFivondronana());
+            }
         } else {
             // Utilisateur Fivondronana voit seulement son Fivondronana
             if (secteurId != null || fizaranaId != null || ambaratonga != null || hasFafi != null) {
@@ -450,6 +744,13 @@ public class WebController {
             RedirectAttributes redirectAttributes
     ) {
         try {
+            // Vérifier les permissions : Filoha ne peut pas ajouter
+            Optional<Utilisateur> currentUser = getCurrentUser();
+            if (currentUser.isPresent() && currentUser.get().isFiloha()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Tsy manan-kery ny fanampiana Beazina.");
+                return "redirect:/eleves";
+            }
+            
             Personne personne = new Personne();
             personne.setNom(nom);
             personne.setPrenom(prenom);
@@ -495,7 +796,13 @@ public class WebController {
             RedirectAttributes redirectAttributes
     ) {
         try {
-            // Vérifier les permissions
+            // Vérifier les permissions : Filoha ne peut pas modifier
+            Optional<Utilisateur> currentUser = getCurrentUser();
+            if (currentUser.isPresent() && currentUser.get().isFiloha()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Tsy manan-kery ny fanovana ny Beazina.");
+                return "redirect:/eleves";
+            }
+            
             if (!hasAdminAccess()) {
                 Integer userFivondronanaId = getCurrentUserFivondronanaId();
                 if (!personneService.personneAppartientAFivondronana(id, userFivondronanaId)) {
@@ -554,7 +861,13 @@ public class WebController {
             RedirectAttributes redirectAttributes
     ) {
         try {
-            // Vérifier les permissions
+            // Vérifier les permissions : Filoha ne peut pas supprimer
+            Optional<Utilisateur> currentUser = getCurrentUser();
+            if (currentUser.isPresent() && currentUser.get().isFiloha()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Tsy manan-kery ny famafana ny Beazina.");
+                return "redirect:/eleves";
+            }
+            
             if (!hasAdminAccess()) {
                 Integer userFivondronanaId = getCurrentUserFivondronanaId();
                 if (!personneService.personneAppartientAFivondronana(id, userFivondronanaId)) {
@@ -726,6 +1039,15 @@ public class WebController {
         model.addAttribute("pageTitle", "Gestion des Utilisateurs");
         model.addAttribute("utilisateurs", authService.findAllNonAdminUsers());
         model.addAttribute("fivondronana", personneService.findAllFivondronana());
+        // Liste des Filoha sans compte pour créer des comptes
+        List<Personne> filohaSansCompte = personneService.findAllFiloha().stream()
+            .filter(f -> {
+                // Vérifier si ce Filoha a déjà un compte
+                return authService.findAllNonAdminUsers().stream()
+                    .noneMatch(u -> u.getPersonne() != null && u.getPersonne().getId().equals(f.getId()));
+            })
+            .toList();
+        model.addAttribute("filohaSansCompte", filohaSansCompte);
 
         return "admin/utilisateurs";
     }
@@ -744,6 +1066,27 @@ public class WebController {
         try {
             authService.creerCompteFivondronana(email, motDePasse, fivondronanaId);
             redirectAttributes.addFlashAttribute("successMessage", "Utilisateur créé avec succès !");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Erreur : " + e.getMessage());
+        }
+
+        return "redirect:/admin/utilisateurs";
+    }
+
+    @PostMapping("/admin/utilisateurs/ajouter-filoha")
+    public String ajouterUtilisateurFiloha(
+            @RequestParam String email,
+            @RequestParam String motDePasse,
+            @RequestParam Integer personneId,
+            RedirectAttributes redirectAttributes
+    ) {
+        if (!isAdmin()) {
+            return "redirect:/access-denied";
+        }
+
+        try {
+            authService.creerCompteFiloha(email, motDePasse, personneId);
+            redirectAttributes.addFlashAttribute("successMessage", "Compte Filoha créé avec succès !");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Erreur : " + e.getMessage());
         }
@@ -912,5 +1255,568 @@ public class WebController {
         }
 
         return "redirect:/eleves";
+    }
+
+    // ========== FILOHA ==========
+
+    @GetMapping("/filoha")
+    public String filoha(
+            Model model,
+            @RequestParam(required = false) Integer typeFilohaId,
+            @RequestParam(required = false) Integer andraikitraId,
+            @RequestParam(required = false) Integer dingamPiofananaId,
+            @RequestParam(required = false) Integer typeFiofananaId,
+            @RequestParam(required = false) Boolean hasFafi
+    ) {
+        addCommonAttributes(model);
+        model.addAttribute("pageTitle", "Filoha");
+
+        List<Personne> filoha;
+
+        if (hasAdminAccess()) {
+            // Admin peut filtrer ou voir tout
+            if (typeFilohaId != null || andraikitraId != null || dingamPiofananaId != null || typeFiofananaId != null || hasFafi != null) {
+                filoha = personneService.filterFiloha(typeFilohaId, andraikitraId, dingamPiofananaId, typeFiofananaId, hasFafi);
+            } else {
+                filoha = personneService.findAllFiloha();
+            }
+        } else {
+            // Les Filoha connectés voient seulement leur propre profil
+            Optional<Utilisateur> currentUser = getCurrentUser();
+            if (currentUser.isPresent() && currentUser.get().isFiloha() && currentUser.get().getPersonne() != null) {
+                filoha = java.util.Collections.singletonList(currentUser.get().getPersonne());
+            } else {
+                filoha = java.util.Collections.emptyList();
+            }
+        }
+
+        model.addAttribute("filoha", filoha);
+        model.addAttribute("totalCount", filoha.size());
+
+        // Reference data for filters and form
+        model.addAttribute("typeFiloha", personneService.findAllTypeFiloha());
+        model.addAttribute("andraikitra", personneService.findAllAndraikitra());
+        model.addAttribute("dingamPiofanana", personneService.findAllDingamPiofanana());
+        model.addAttribute("typeFiofanana", personneService.findAllTypeFiofanana());
+        model.addAttribute("fafiStatuts", personneService.findAllFafiStatuts());
+        
+        // Données FAFI
+        model.addAttribute("anneeCourante", fafiService.getAnneeCourante());
+        model.addAttribute("prixFafi", fafiService.getPrixMpiandraikitraAnneeActuelle());
+
+        return "filoha";
+    }
+
+    @GetMapping("/filoha/details")
+    public String detailsFiloha(
+            @RequestParam Integer id,
+            Model model
+    ) {
+        addCommonAttributes(model);
+        model.addAttribute("pageTitle", "Détails Filoha");
+
+        // Charger la personne avec toutes ses relations
+        Optional<Personne> personneOpt = personneService.findByIdWithAllRelations(id);
+        
+        if (personneOpt.isPresent()) {
+            Personne personne = personneOpt.get();
+            
+            // Vérifier que c'est bien un Filoha
+            if (!personne.isFiloha()) {
+                model.addAttribute("errorMessage", "Ity olona ity dia tsy Filoha.");
+                return "details-filoha";
+            }
+            
+            // Vérifier les permissions : non-admin Filoha ne peut voir que son propre profil
+            if (!hasAdminAccess()) {
+                Optional<Utilisateur> currentUser = getCurrentUser();
+                if (!currentUser.isPresent() || !currentUser.get().isFiloha() || 
+                    currentUser.get().getPersonne() == null || 
+                    !currentUser.get().getPersonne().getId().equals(id)) {
+                    model.addAttribute("errorMessage", "Tsy manan-kery ny fijerena ity Filoha ity.");
+                    return "details-filoha";
+                }
+            }
+            
+            model.addAttribute("personne", personne);
+            model.addAttribute("anneeCourante", fafiService.getAnneeCourante());
+            model.addAttribute("typeFiofanana", personneService.findAllTypeFiofanana());
+            model.addAttribute("fivondronanaList", personneService.findAllFivondronana());
+        } else {
+            model.addAttribute("errorMessage", "Tsy hita ny Filoha.");
+        }
+
+        return "details-filoha";
+    }
+
+    @PostMapping("/filoha/details/update-type-fiofanana")
+    public String updateTypeFiofananaFiloha(
+            @RequestParam Integer id,
+            @RequestParam(required = false) Integer typeFiofananaId,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            Optional<Personne> personneOpt = personneService.findByIdWithAllRelations(id);
+            if (!personneOpt.isPresent()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Tsy hita ny Filoha.");
+                return "redirect:/filoha/details?id=" + id;
+            }
+            Personne personne = personneOpt.get();
+
+            if (!personne.isFiloha()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Ity olona ity dia tsy Filoha.");
+                return "redirect:/filoha/details?id=" + id;
+            }
+
+            // Vérifier les permissions
+            if (!hasAdminAccess()) {
+                Optional<Utilisateur> currentUser = getCurrentUser();
+                if (!currentUser.isPresent() || !currentUser.get().isFiloha() || 
+                    currentUser.get().getPersonne() == null || 
+                    !currentUser.get().getPersonne().getId().equals(id)) {
+                    redirectAttributes.addFlashAttribute("errorMessage", "Tsy manan-kery ny fanovana ity Filoha ity.");
+                    return "redirect:/filoha/details?id=" + id;
+                }
+            }
+
+            if (typeFiofananaId != null && typeFiofananaId > 0) {
+                Optional<TypeFiofanana> typeFiofananaOpt = personneService.findTypeFiofananaById(typeFiofananaId);
+                if (typeFiofananaOpt.isPresent()) {
+                    personne.setTypeFiofanana(typeFiofananaOpt.get());
+                    personneService.saveAndFlush(personne);
+                    redirectAttributes.addFlashAttribute("successMessage", "Type fiofanana voatahiry soa!");
+                } else {
+                    redirectAttributes.addFlashAttribute("errorMessage", "Tsy hita ny type fiofanana.");
+                }
+            } else {
+                personne.setTypeFiofanana(null);
+                personneService.saveAndFlush(personne);
+                redirectAttributes.addFlashAttribute("successMessage", "Type fiofanana voafafa soa!");
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Nisy tsy nety: " + e.getMessage());
+        }
+        return "redirect:/filoha/details?id=" + id;
+    }
+
+    @PostMapping("/filoha/details/save-details-fiofanana")
+    public String saveDetailsFiofananaFiloha(
+            @RequestParam Integer id,
+            @RequestParam(required = false) String asan1,
+            @RequestParam(required = false) String asan2,
+            @RequestParam(required = false) String asan3,
+            @RequestParam(required = false) String asan4,
+            @RequestParam(required = false) String asan5,
+            @RequestParam(required = false) String asan6,
+            @RequestParam(required = false) String asan7,
+            @RequestParam(required = false) String asanFilohaNanome,
+            @RequestParam(required = false) String ezaka1,
+            @RequestParam(required = false) String ezaka2,
+            @RequestParam(required = false) String ezaka3,
+            @RequestParam(required = false) String ezaka4,
+            @RequestParam(required = false) String ezaka5,
+            @RequestParam(required = false) String ezaka6,
+            @RequestParam(required = false) String ezaka7,
+            @RequestParam(required = false) String ezakaFilohaNanome,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate bitsikyDaty1,
+            @RequestParam(required = false) Integer bitsikyFivondronana1,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate bitsikyDaty2,
+            @RequestParam(required = false) Integer bitsikyFivondronana2,
+            @RequestParam(required = false) String dinikyTheme1,
+            @RequestParam(required = false) String dinikyFiloha1,
+            @RequestParam(required = false) String dinikyTheme2,
+            @RequestParam(required = false) String dinikyFiloha2,
+            @RequestParam(required = false) String dinikyTheme3,
+            @RequestParam(required = false) String dinikyFiloha3,
+            @RequestParam(required = false) String dinikyTheme4,
+            @RequestParam(required = false) String dinikyFiloha4,
+            @RequestParam(required = false) String dinikyTheme5,
+            @RequestParam(required = false) String dinikyFiloha5,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate filasianaDaty,
+            @RequestParam(required = false) String filasianaFiloha,
+            @RequestParam(required = false) String lasyRavinala,
+            @RequestParam(required = false) String soutenance,
+            @RequestParam(required = false) String lasyNanoloranaTp2,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            Optional<Personne> personneOpt = personneService.findByIdWithAllRelations(id);
+            if (!personneOpt.isPresent()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Tsy hita ny Filoha.");
+                return "redirect:/filoha/details?id=" + id;
+            }
+            Personne personne = personneOpt.get();
+
+            if (!personne.isFiloha()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Ity olona ity dia tsy Filoha.");
+                return "redirect:/filoha/details?id=" + id;
+            }
+
+            // Vérifier les permissions
+            if (!hasAdminAccess()) {
+                Optional<Utilisateur> currentUser = getCurrentUser();
+                if (!currentUser.isPresent() || !currentUser.get().isFiloha() || 
+                    currentUser.get().getPersonne() == null || 
+                    !currentUser.get().getPersonne().getId().equals(id)) {
+                    redirectAttributes.addFlashAttribute("errorMessage", "Tsy manan-kery ny fanovana ity Filoha ity.");
+                    return "redirect:/filoha/details?id=" + id;
+                }
+            }
+
+            // Ensure the person has a typeFiofanana before saving details
+            if (personne.getTypeFiofanana() == null) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Mifidy 'Type fiofanana' aloha vao manatahiry ny antsipiriany.");
+                return "redirect:/filoha/details?id=" + id;
+            }
+
+            DetailsFiofanana details = new DetailsFiofanana();
+            details.setAsan1(asan1 != null && !asan1.trim().isEmpty() ? asan1.trim() : null);
+            details.setAsan2(asan2 != null && !asan2.trim().isEmpty() ? asan2.trim() : null);
+            details.setAsan3(asan3 != null && !asan3.trim().isEmpty() ? asan3.trim() : null);
+            details.setAsan4(asan4 != null && !asan4.trim().isEmpty() ? asan4.trim() : null);
+            details.setAsan5(asan5 != null && !asan5.trim().isEmpty() ? asan5.trim() : null);
+            details.setAsan6(asan6 != null && !asan6.trim().isEmpty() ? asan6.trim() : null);
+            details.setAsan7(asan7 != null && !asan7.trim().isEmpty() ? asan7.trim() : null);
+            details.setAsanFilohaNanome(asanFilohaNanome != null && !asanFilohaNanome.trim().isEmpty() ? asanFilohaNanome.trim() : null);
+            details.setEzaka1(ezaka1 != null && !ezaka1.trim().isEmpty() ? ezaka1.trim() : null);
+            details.setEzaka2(ezaka2 != null && !ezaka2.trim().isEmpty() ? ezaka2.trim() : null);
+            details.setEzaka3(ezaka3 != null && !ezaka3.trim().isEmpty() ? ezaka3.trim() : null);
+            details.setEzaka4(ezaka4 != null && !ezaka4.trim().isEmpty() ? ezaka4.trim() : null);
+            details.setEzaka5(ezaka5 != null && !ezaka5.trim().isEmpty() ? ezaka5.trim() : null);
+            details.setEzaka6(ezaka6 != null && !ezaka6.trim().isEmpty() ? ezaka6.trim() : null);
+            details.setEzaka7(ezaka7 != null && !ezaka7.trim().isEmpty() ? ezaka7.trim() : null);
+            details.setEzakaFilohaNanome(ezakaFilohaNanome != null && !ezakaFilohaNanome.trim().isEmpty() ? ezakaFilohaNanome.trim() : null);
+            details.setBitsikyDaty1(bitsikyDaty1);
+            if (bitsikyFivondronana1 != null && bitsikyFivondronana1 > 0) {
+                personneService.findFivondronanaById(bitsikyFivondronana1).ifPresent(details::setBitsikyFivondronana1);
+            }
+            details.setBitsikyDaty2(bitsikyDaty2);
+            if (bitsikyFivondronana2 != null && bitsikyFivondronana2 > 0) {
+                personneService.findFivondronanaById(bitsikyFivondronana2).ifPresent(details::setBitsikyFivondronana2);
+            }
+            
+            // Section D: Diniky ny filoha
+            details.setDinikyTheme1(dinikyTheme1 != null && !dinikyTheme1.trim().isEmpty() ? dinikyTheme1.trim() : null);
+            details.setDinikyFiloha1(dinikyFiloha1 != null && !dinikyFiloha1.trim().isEmpty() ? dinikyFiloha1.trim() : null);
+            details.setDinikyTheme2(dinikyTheme2 != null && !dinikyTheme2.trim().isEmpty() ? dinikyTheme2.trim() : null);
+            details.setDinikyFiloha2(dinikyFiloha2 != null && !dinikyFiloha2.trim().isEmpty() ? dinikyFiloha2.trim() : null);
+            details.setDinikyTheme3(dinikyTheme3 != null && !dinikyTheme3.trim().isEmpty() ? dinikyTheme3.trim() : null);
+            details.setDinikyFiloha3(dinikyFiloha3 != null && !dinikyFiloha3.trim().isEmpty() ? dinikyFiloha3.trim() : null);
+            details.setDinikyTheme4(dinikyTheme4 != null && !dinikyTheme4.trim().isEmpty() ? dinikyTheme4.trim() : null);
+            details.setDinikyFiloha4(dinikyFiloha4 != null && !dinikyFiloha4.trim().isEmpty() ? dinikyFiloha4.trim() : null);
+            details.setDinikyTheme5(dinikyTheme5 != null && !dinikyTheme5.trim().isEmpty() ? dinikyTheme5.trim() : null);
+            details.setDinikyFiloha5(dinikyFiloha5 != null && !dinikyFiloha5.trim().isEmpty() ? dinikyFiloha5.trim() : null);
+            
+            // Section E: Filasiana
+            details.setFilasianaDaty(filasianaDaty);
+            details.setFilasianaFiloha(filasianaFiloha != null && !filasianaFiloha.trim().isEmpty() ? filasianaFiloha.trim() : null);
+            
+            // Section F: Ravinala
+            details.setLasyRavinala(lasyRavinala != null && !lasyRavinala.trim().isEmpty() ? lasyRavinala.trim() : null);
+            details.setSoutenance(soutenance != null && !soutenance.trim().isEmpty() ? soutenance.trim() : null);
+            
+            // Section G: TP2
+            details.setLasyNanoloranaTp2(lasyNanoloranaTp2 != null && !lasyNanoloranaTp2.trim().isEmpty() ? lasyNanoloranaTp2.trim() : null);
+            
+            // Set the current typeFiofanana to the details object
+            details.setTypeFiofanana(personne.getTypeFiofanana());
+
+            personneService.saveOrUpdateDetailsFiofanana(id, personne.getTypeFiofanana().getId(), details);
+
+            redirectAttributes.addFlashAttribute("successMessage", "Ny antsipiriany dia voatahiry soa!");
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Nisy tsy nety rehefa nanatahiry ny antsipiriany: " + e.getMessage());
+        }
+        return "redirect:/filoha/details?id=" + id;
+    }
+
+    // ========== CONFIGURATION RÔLES FILOHA ==========
+
+    @GetMapping("/admin/configuration-filoha")
+    public String configurationFiloha(Model model) {
+        if (!hasAdminAccess()) {
+            return "redirect:/access-denied";
+        }
+
+        addCommonAttributes(model);
+        model.addAttribute("pageTitle", "Configuration Rôles Filoha");
+        
+        List<TypeFiloha> typeFilohaList = personneService.findAllTypeFiloha();
+        model.addAttribute("typeFilohaList", typeFilohaList);
+        
+        return "admin/configuration-filoha";
+    }
+
+    @PostMapping("/admin/configuration-filoha/ajouter")
+    public String ajouterTypeFiloha(
+            @RequestParam String nom,
+            RedirectAttributes redirectAttributes
+    ) {
+        if (!hasAdminAccess()) {
+            return "redirect:/access-denied";
+        }
+
+        try {
+            // Vérifier si le nom existe déjà
+            if (personneService.findTypeFilohaByNom(nom).isPresent()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Ity anarana ity dia efa misy: " + nom);
+                return "redirect:/admin/configuration-filoha";
+            }
+
+            TypeFiloha typeFiloha = new TypeFiloha(nom);
+            personneService.saveTypeFiloha(typeFiloha);
+            
+            redirectAttributes.addFlashAttribute("successMessage", "Type Filoha voatahiry soa: " + nom);
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Nisy tsy nety: " + e.getMessage());
+        }
+
+        return "redirect:/admin/configuration-filoha";
+    }
+
+    @PostMapping("/admin/configuration-filoha/modifier")
+    public String modifierTypeFiloha(
+            @RequestParam Integer id,
+            @RequestParam String nom,
+            RedirectAttributes redirectAttributes
+    ) {
+        if (!hasAdminAccess()) {
+            return "redirect:/access-denied";
+        }
+
+        try {
+            Optional<TypeFiloha> typeFilohaOpt = personneService.findTypeFilohaById(id);
+            if (!typeFilohaOpt.isPresent()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Tsy hita ny Type Filoha.");
+                return "redirect:/admin/configuration-filoha";
+            }
+
+            // Vérifier si le nom existe déjà pour un autre type
+            Optional<TypeFiloha> existingOpt = personneService.findTypeFilohaByNom(nom);
+            if (existingOpt.isPresent() && !existingOpt.get().getId().equals(id)) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Ity anarana ity dia efa misy: " + nom);
+                return "redirect:/admin/configuration-filoha";
+            }
+
+            TypeFiloha typeFiloha = typeFilohaOpt.get();
+            typeFiloha.setNom(nom);
+            personneService.saveTypeFiloha(typeFiloha);
+            
+            redirectAttributes.addFlashAttribute("successMessage", "Type Filoha novaina soa!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Nisy tsy nety: " + e.getMessage());
+        }
+
+        return "redirect:/admin/configuration-filoha";
+    }
+
+    @PostMapping("/admin/configuration-filoha/supprimer")
+    public String supprimerTypeFiloha(
+            @RequestParam Integer id,
+            RedirectAttributes redirectAttributes
+    ) {
+        if (!hasAdminAccess()) {
+            return "redirect:/access-denied";
+        }
+
+        try {
+            Optional<TypeFiloha> typeFilohaOpt = personneService.findTypeFilohaById(id);
+            if (!typeFilohaOpt.isPresent()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Tsy hita ny Type Filoha.");
+                return "redirect:/admin/configuration-filoha";
+            }
+
+            // Vérifier si des personnes utilisent ce type
+            List<Personne> personnesAvecType = personneService.findAllFiloha().stream()
+                .filter(p -> p.getTypeFiloha() != null && p.getTypeFiloha().getId().equals(id))
+                .toList();
+            
+            if (!personnesAvecType.isEmpty()) {
+                redirectAttributes.addFlashAttribute("errorMessage", 
+                    "Tsy azo afafa ity Type Filoha ity satria misy Filoha " + personnesAvecType.size() + " mampiasa azy.");
+                return "redirect:/admin/configuration-filoha";
+            }
+
+            personneService.deleteTypeFiloha(id);
+            
+            redirectAttributes.addFlashAttribute("successMessage", "Type Filoha voafafa soa!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Nisy tsy nety: " + e.getMessage());
+        }
+
+        return "redirect:/admin/configuration-filoha";
+    }
+
+    @PostMapping("/filoha/ajouter")
+    public String ajouterFiloha(
+            @RequestParam String nom,
+            @RequestParam String prenom,
+            @RequestParam(required = false) String totem,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateNaissance,
+            @RequestParam(required = false) String numeroTelephone,
+            @RequestParam(required = false) String numeroCin,
+            @RequestParam(required = false) String nomPere,
+            @RequestParam(required = false) String nomMere,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFanekena,
+            @RequestParam(required = false) Integer typeFilohaId,
+            @RequestParam(required = false) Integer andraikitraId,
+            @RequestParam(required = false) Integer dingamPiofananaId,
+            @RequestParam(required = false) Integer typeFiofananaId,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            // Seuls les admin peuvent ajouter des Filoha
+            if (!hasAdminAccess()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Tsy manan-kery ny fanampiana Filoha.");
+                return "redirect:/filoha";
+            }
+
+            Personne personne = new Personne();
+            personne.setNom(nom);
+            personne.setPrenom(prenom);
+            personne.setTotem(totem);
+            personne.setDateNaissance(dateNaissance);
+            personne.setNumeroTelephone(numeroTelephone);
+            personne.setNumeroCin(numeroCin);
+            personne.setNomPere(nomPere);
+            personne.setNomMere(nomMere);
+            personne.setDateFanekena(dateFanekena);
+
+            personneService.createFiloha(personne, typeFilohaId, andraikitraId, dingamPiofananaId, typeFiofananaId);
+            
+            redirectAttributes.addFlashAttribute("successMessage", "Tafiditra Filoha !");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Nisy tsy nety :" + e.getMessage());
+        }
+        
+        return "redirect:/filoha";
+    }
+
+    @PostMapping("/filoha/modifier")
+    public String modifierFiloha(
+            @RequestParam Integer id,
+            @RequestParam String nom,
+            @RequestParam String prenom,
+            @RequestParam(required = false) String totem,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateNaissance,
+            @RequestParam(required = false) String numeroTelephone,
+            @RequestParam(required = false) String numeroCin,
+            @RequestParam(required = false) String nomPere,
+            @RequestParam(required = false) String nomMere,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFanekena,
+            @RequestParam(required = false) Integer typeFilohaId,
+            @RequestParam(required = false) Integer andraikitraId,
+            @RequestParam(required = false) Integer dingamPiofananaId,
+            @RequestParam(required = false) Integer typeFiofananaId,
+            @RequestParam(required = false) String numeroFafi,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            // Vérifier les permissions
+            if (!hasAdminAccess()) {
+                Optional<Utilisateur> currentUser = getCurrentUser();
+                if (!currentUser.isPresent() || !currentUser.get().isFiloha() || 
+                    currentUser.get().getPersonne() == null || 
+                    !currentUser.get().getPersonne().getId().equals(id)) {
+                    redirectAttributes.addFlashAttribute("errorMessage", "Tsy manan-kery ny fanovana ity Filoha ity.");
+                    return "redirect:/filoha";
+                }
+            }
+
+            personneService.findById(id).ifPresent(personne -> {
+                if (!personne.isFiloha()) {
+                    throw new RuntimeException("Ity olona ity dia tsy Filoha.");
+                }
+
+                personne.setNom(nom);
+                personne.setPrenom(prenom);
+                personne.setTotem(totem);
+                personne.setDateNaissance(dateNaissance);
+                personne.setNumeroTelephone(numeroTelephone);
+                personne.setNumeroCin(numeroCin);
+                personne.setNomPere(nomPere);
+                personne.setNomMere(nomMere);
+                personne.setDateFanekena(dateFanekena);
+
+                // Filoha n'a pas de secteur ni fivondronana
+                personne.setSecteur(null);
+                personne.setFivondronana(null);
+                personne.setFizarana(null);
+
+                if (typeFilohaId != null) {
+                    personneService.findTypeFilohaById(typeFilohaId).ifPresent(personne::setTypeFiloha);
+                } else {
+                    personne.setTypeFiloha(null);
+                }
+
+                if (andraikitraId != null) {
+                    personneService.findAndraikitraById(andraikitraId).ifPresent(personne::setAndraikitra);
+                } else {
+                    personne.setAndraikitra(null);
+                }
+
+                if (dingamPiofananaId != null) {
+                    personneService.findDingamPiofananaById(dingamPiofananaId).ifPresent(personne::setDingamPiofanana);
+                } else {
+                    personne.setDingamPiofanana(null);
+                }
+
+                if (typeFiofananaId != null) {
+                    personneService.findTypeFiofananaById(typeFiofananaId).ifPresent(personne::setTypeFiofanana);
+                } else {
+                    personne.setTypeFiofanana(null);
+                }
+
+                // Mettre à jour le numéro FAFI si fourni
+                if (numeroFafi != null && !numeroFafi.trim().isEmpty()) {
+                    if (personne.getFafi() == null) {
+                        Fafi fafi = new Fafi();
+                        fafi.setPersonne(personne);
+                        fafi.setNumeroFafi(numeroFafi.trim());
+                        fafi.setStatut("Active");
+                        fafi.setAnnee(fafiService.getAnneeCourante());
+                        fafi.setMontant(fafiService.getPrixMpiandraikitraAnneeActuelle());
+                        personne.setFafi(fafi);
+                    } else {
+                        personne.getFafi().setNumeroFafi(numeroFafi.trim());
+                    }
+                }
+
+                personneService.save(personne);
+            });
+            
+            redirectAttributes.addFlashAttribute("successMessage", "Voatahiry soa ny Filoha !");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Nisy tsy nety : " + e.getMessage());
+        }
+        
+        return "redirect:/filoha";
+    }
+
+    @PostMapping("/filoha/supprimer")
+    public String supprimerFiloha(
+            @RequestParam Integer id,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            // Seuls les admin peuvent supprimer des Filoha
+            if (!hasAdminAccess()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Tsy manan-kery ny famafana Filoha.");
+                return "redirect:/filoha";
+            }
+
+            Optional<Personne> personneOpt = personneService.findById(id);
+            if (personneOpt.isPresent() && personneOpt.get().isFiloha()) {
+                personneService.delete(id);
+                redirectAttributes.addFlashAttribute("successMessage", "Voafafa soa ny Filoha !");
+            } else {
+                redirectAttributes.addFlashAttribute("errorMessage", "Tsy hita ny Filoha.");
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Nisy tsy nety : " + e.getMessage());
+        }
+        
+        return "redirect:/filoha";
     }
 }

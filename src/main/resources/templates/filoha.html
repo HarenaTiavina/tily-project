@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mpiandraikitra - Tily</title>
+    <title>Filoha - Tily</title>
     <link rel="stylesheet" th:href="@{/css/dashboard.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <!-- Sidebar -->
-    <div th:replace="~{fragments/sidebar :: sidebar('responsables')}"></div>
+    <div th:replace="~{fragments/sidebar :: sidebar('filoha')}"></div>
 
     <!-- Main Content -->
     <div class="main-content">
@@ -33,19 +33,19 @@
             <!-- Header avec actions -->
             <div class="page-header">
                 <div class="header-left">
-                    <h2>Lisitry ny Mpiandraikitra</h2>
-                    <span class="record-count" id="recordCount" th:text="${totalCount} + ' Mpiandraikitra'">0 Mpiandraikitra</span>
+                    <h2>Lisitry ny Filoha</h2>
+                    <span class="record-count" id="recordCount" th:text="${totalCount} + ' Filoha'">0 Filoha</span>
                 </div>
-                <div class="header-actions">
-                    <button th:if="${isAdmin}" class="btn-success" id="payFafiMultipleBtn" onclick="openPayFafiMultipleModal()" style="display: none; margin-right: 10px;">
+                <div class="header-actions" th:if="${isAdmin or isStrictAdmin}">
+                    <button class="btn-success" id="payFafiMultipleBtn" onclick="openPayFafiMultipleModal()" style="display: none; margin-right: 10px;">
                         <i class="fas fa-money-bill-wave"></i>
                         Handoa FAFI (<span id="selectedCount">0</span>)
                     </button>
-                    <label for="excelFileMpiandraikitra" class="btn-secondary" style="cursor: pointer; margin-right: 10px;">
+                    <label for="excelFileFiloha" class="btn-secondary" style="cursor: pointer; margin-right: 10px;">
                         <i class="fas fa-file-excel"></i>
                         Ampidirina avy amin'ny Excel
                     </label>
-                    <input type="file" id="excelFileMpiandraikitra" accept=".xlsx,.xls,.csv" style="display: none;" onchange="uploadExcelMpiandraikitra(this)">
+                    <input type="file" id="excelFileFiloha" accept=".xlsx,.xls,.csv" style="display: none;" onchange="uploadExcelFiloha(this)">
                     <button class="btn-primary" onclick="openAddModal()">
                         <i class="fas fa-plus"></i>
                         Hanampy
@@ -69,26 +69,18 @@
                             <input type="text" id="searchInput" placeholder="Anarana, fanampin'anarana, totem..." onkeyup="applyFilters()">
                         </div>
                     </div>
-                    <!-- Filtre Fivondronana (admin seulement) -->
-                    <div class="filter-group" th:if="${isAdmin}">
-                        <label>Fivondronana</label>
-                        <select id="filterFivondronana" onchange="applyFilters()">
-                            <option value="">Ny Fivondronana rehetra</option>
-                            <option th:each="fiv : ${fivondronana}" th:value="${fiv.nom}" th:text="${fiv.nom}"></option>
+                    <div class="filter-group">
+                        <label>Type Filoha</label>
+                        <select id="filterTypeFiloha" onchange="applyFilters()">
+                            <option value="">Ny rehetra</option>
+                            <option th:each="type : ${typeFiloha}" th:value="${type.nom}" th:text="${type.nom}"></option>
                         </select>
                     </div>
                     <div class="filter-group">
-                        <label>Faritra</label>
-                        <select id="filterSecteur" onchange="applyFilters()">
-                            <option value="">Ny Faritra rehetra</option>
-                            <option th:each="secteur : ${secteurs}" th:value="${secteur.nom}" th:text="${secteur.nom}"></option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label>Sampana</label>
-                        <select id="filterFizarana" onchange="applyFilters()">
-                            <option value="">Ny sampana rehetra</option>
-                            <option th:each="fizarana : ${fizarana}" th:value="${fizarana.nom}" th:text="${fizarana.nom}"></option>
+                        <label>Andraikitra</label>
+                        <select id="filterAndraikitra" onchange="applyFilters()">
+                            <option value="">Ny rehetra</option>
+                            <option th:each="andraikitra : ${andraikitra}" th:value="${andraikitra.nom}" th:text="${andraikitra.nom}"></option>
                         </select>
                     </div>
                     <div class="filter-group">
@@ -96,6 +88,13 @@
                         <select id="filterDingamPiofanana" onchange="applyFilters()">
                             <option value="">Ny rehetra</option>
                             <option th:each="dingam : ${dingamPiofanana}" th:value="${dingam.nom}" th:text="${dingam.nom}"></option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Type fiofanana</label>
+                        <select id="filterTypeFiofanana" onchange="applyFilters()">
+                            <option value="">Ny rehetra</option>
+                            <option th:each="type : ${typeFiofanana}" th:value="${type.nom}" th:text="${type.nom}"></option>
                         </select>
                     </div>
                     <div class="filter-group">
@@ -119,10 +118,10 @@
                 </div>
             </div>
 
-            <!-- Tableau des Responsables -->
+            <!-- Tableau des Filoha -->
             <div class="table-card">
                 <div class="table-container">
-                    <table class="data-table" id="responsablesTable">
+                    <table class="data-table" id="filohaTable">
                         <thead>
                             <tr>
                                 <th th:if="${isAdmin}" style="width: 40px;"><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)"></th>
@@ -133,89 +132,84 @@
                                 <th class="sortable" onclick="sortTable(5)">Daty nahaterahana <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(6)">N° CIN <i class="fas fa-sort"></i></th>
                                 <th class="sortable" onclick="sortTable(7)">Finday <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(8)">Faritra <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(9)">Sampana <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(10)">Andraikitra <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(11)">Dingam-piofanana <i class="fas fa-sort"></i></th>
-                                <th class="sortable" onclick="sortTable(12)" th:if="${isAdmin}">Fivondronana <i class="fas fa-sort"></i></th>
-                                <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(13)' : 'sortTable(12)'">Fanekena <i class="fas fa-sort"></i></th>
-                                <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(14)' : 'sortTable(13)'">FAFI <span th:text="${anneeCourante}"></span> <i class="fas fa-sort"></i></th>
-                                <th class="sortable" th:onclick="${isAdmin} ? 'sortTable(15)' : 'sortTable(14)'">Laharana FAFI <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(8)">Type Filoha <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(9)">Andraikitra <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(10)">Dingam-piofanana <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(11)">Type fiofanana <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(12)">Fanekena <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(13)">FAFI <span th:text="${anneeCourante}"></span> <i class="fas fa-sort"></i></th>
+                                <th class="sortable" onclick="sortTable(14)">Laharana FAFI <i class="fas fa-sort"></i></th>
                                 <th>Asa</th>
                             </tr>
                         </thead>
                         <tbody>
                             <!-- Message si aucune donnée -->
-                            <tr th:if="${#lists.isEmpty(responsables)}">
-                                <td th:colspan="${isAdmin} ? 17 : 16" class="empty-message">
+                            <tr th:if="${#lists.isEmpty(filoha)}">
+                                <td th:colspan="15" class="empty-message">
                                     <i class="fas fa-inbox"></i>
-                                    <p>Tsy misy Mpiandraikitra hita</p>
+                                    <p>Tsy misy Filoha hita</p>
                                 </td>
                             </tr>
                             <!-- Données dynamiques -->
-                            <tr th:each="resp : ${responsables}" 
+                            <tr th:each="f : ${filoha}" 
                                 class="clickable-row"
-                                th:data-id="${resp.id}"
-                                th:data-nom="${resp.nom}"
-                                th:data-prenom="${resp.prenom}"
-                                th:data-totem="${resp.totem}"
-                                th:data-datenaissance="${resp.dateNaissance}"
-                                th:data-numerocin="${resp.numeroCin}"
-                                th:data-numerotelephone="${resp.numeroTelephone}"
-                                th:data-nompere="${resp.nomPere}"
-                                th:data-nommere="${resp.nomMere}"
-                                th:data-datefanekena="${resp.dateFanekena}"
-                                th:data-secteur="${resp.secteur != null ? resp.secteur.nom : ''}"
-                                th:data-secteurid="${resp.secteur != null ? resp.secteur.id : ''}"
-                                th:data-fizarana="${resp.fizarana != null ? resp.fizarana.nom : ''}"
-                                th:data-fizaranaid="${resp.fizarana != null ? resp.fizarana.id : ''}"
-                                th:data-andraikitra="${resp.andraikitra != null ? resp.andraikitra.nom : ''}"
-                                th:data-andraikitraid="${resp.andraikitra != null ? resp.andraikitra.id : ''}"
-                                th:data-fivondronana="${resp.fivondronana != null ? resp.fivondronana.nom : ''}"
-                                th:data-fivondronanaid="${resp.fivondronana != null ? resp.fivondronana.id : ''}"
-                                th:data-dingampiofanana="${resp.dingamPiofanana != null ? resp.dingamPiofanana.nom : ''}"
-                                th:data-dingampiofananaid="${resp.dingamPiofanana != null ? resp.dingamPiofanana.id : ''}"
-                                th:data-fafi="${resp.fafi != null && resp.fafi.statut == 'Active' && resp.fafi.annee == anneeCourante ? 'Eny' : 'Tsia'}"
-                                th:data-fafiannee="${resp.fafi != null ? resp.fafi.annee : ''}"
-                                th:data-numerofafi="${resp.fafi != null ? resp.fafi.numeroFafi : ''}"
-                                th:data-fafimontant="${resp.fafi != null && resp.fafi.montant != null ? resp.fafi.montant.toString() : ''}"
-                                th:data-fafidatepaiement="${resp.fafi != null && resp.fafi.datePaiement != null ? #temporals.format(resp.fafi.datePaiement, 'yyyy-MM-dd') : ''}"
-                                th:data-fafistatut="${resp.fafi != null ? resp.fafi.statut : ''}"
-                                onclick="window.location.href='/responsables/details?id=' + this.dataset.id">
+                                th:data-id="${f.id}"
+                                th:data-nom="${f.nom}"
+                                th:data-prenom="${f.prenom}"
+                                th:data-totem="${f.totem}"
+                                th:data-datenaissance="${f.dateNaissance}"
+                                th:data-numerocin="${f.numeroCin}"
+                                th:data-numerotelephone="${f.numeroTelephone}"
+                                th:data-nompere="${f.nomPere}"
+                                th:data-nommere="${f.nomMere}"
+                                th:data-datefanekena="${f.dateFanekena}"
+                                th:data-typefiloha="${f.typeFiloha != null ? f.typeFiloha.nom : ''}"
+                                th:data-typefilohaid="${f.typeFiloha != null ? f.typeFiloha.id : ''}"
+                                th:data-andraikitra="${f.andraikitra != null ? f.andraikitra.nom : ''}"
+                                th:data-andraikitraid="${f.andraikitra != null ? f.andraikitra.id : ''}"
+                                th:data-dingampiofanana="${f.dingamPiofanana != null ? f.dingamPiofanana.nom : ''}"
+                                th:data-dingampiofananaid="${f.dingamPiofanana != null ? f.dingamPiofanana.id : ''}"
+                                th:data-typefiofanana="${f.typeFiofanana != null ? f.typeFiofanana.nom : ''}"
+                                th:data-typefiofananaid="${f.typeFiofanana != null ? f.typeFiofanana.id : ''}"
+                                th:data-fafi="${f.fafi != null && f.fafi.statut == 'Active' && f.fafi.annee == anneeCourante ? 'Eny' : 'Tsia'}"
+                                th:data-fafiannee="${f.fafi != null ? f.fafi.annee : ''}"
+                                th:data-numerofafi="${f.fafi != null ? f.fafi.numeroFafi : ''}"
+                                th:data-fafimontant="${f.fafi != null && f.fafi.montant != null ? f.fafi.montant.toString() : ''}"
+                                th:data-fafidatepaiement="${f.fafi != null && f.fafi.datePaiement != null ? #temporals.format(f.fafi.datePaiement, 'yyyy-MM-dd') : ''}"
+                                th:data-fafistatut="${f.fafi != null ? f.fafi.statut : ''}"
+                                onclick="window.location.href='/filoha/details?id=' + this.dataset.id">
                                 <td th:if="${isAdmin}" onclick="event.stopPropagation();">
-                                    <input type="checkbox" class="row-checkbox" th:value="${resp.id}" onclick="updateSelectedCount(); event.stopPropagation();">
+                                    <input type="checkbox" class="row-checkbox" th:value="${f.id}" onclick="updateSelectedCount(); event.stopPropagation();">
                                 </td>
                                 <td>
-                                    <img th:if="${resp.image != null and !resp.image.isEmpty()}" th:src="${resp.image}" class="avatar" alt="Photo">
-                                    <img th:unless="${resp.image != null and !resp.image.isEmpty()}" 
-                                         th:src="'https://ui-avatars.com/api/?name=' + ${resp.prenom} + '+' + ${resp.nom} + '&background=667eea&color=fff'" 
+                                    <img th:if="${f.image != null and !f.image.isEmpty()}" th:src="${f.image}" class="avatar" alt="Photo">
+                                    <img th:unless="${f.image != null and !f.image.isEmpty()}" 
+                                         th:src="'https://ui-avatars.com/api/?name=' + ${f.prenom} + '+' + ${f.nom} + '&background=667eea&color=fff'" 
                                          class="avatar" alt="Photo">
                                 </td>
-                                <td th:text="${resp.nom}">-</td>
-                                <td th:text="${resp.prenom}">-</td>
-                                <td th:text="${resp.totem}">-</td>
-                                <td th:text="${resp.dateNaissance != null ? #temporals.format(resp.dateNaissance, 'dd/MM/yyyy') : '-'}">-</td>
-                                <td th:text="${resp.numeroCin}">-</td>
-                                <td th:text="${resp.numeroTelephone}">-</td>
-                                <td th:text="${resp.secteur != null ? resp.secteur.nom : '-'}">-</td>
-                                <td th:text="${resp.fizarana != null ? resp.fizarana.nom : '-'}">-</td>
-                                <td th:text="${resp.andraikitra != null ? resp.andraikitra.nom : '-'}">-</td>
-                                <td th:text="${resp.dingamPiofanana != null ? resp.dingamPiofanana.nom : '-'}">-</td>
-                                <td th:if="${isAdmin}" th:text="${resp.fivondronana != null ? resp.fivondronana.nom : '-'}">-</td>
-                                <td th:text="${resp.dateFanekena != null ? #temporals.format(resp.dateFanekena, 'dd/MM/yyyy') : '-'}">-</td>
+                                <td th:text="${f.nom}">-</td>
+                                <td th:text="${f.prenom}">-</td>
+                                <td th:text="${f.totem}">-</td>
+                                <td th:text="${f.dateNaissance != null ? #temporals.format(f.dateNaissance, 'dd/MM/yyyy') : '-'}">-</td>
+                                <td th:text="${f.numeroCin}">-</td>
+                                <td th:text="${f.numeroTelephone}">-</td>
+                                <td th:text="${f.typeFiloha != null ? f.typeFiloha.nom : '-'}">-</td>
+                                <td th:text="${f.andraikitra != null ? f.andraikitra.nom : '-'}">-</td>
+                                <td th:text="${f.dingamPiofanana != null ? f.dingamPiofanana.nom : '-'}">-</td>
+                                <td th:text="${f.typeFiofanana != null ? f.typeFiofanana.nom : '-'}">-</td>
+                                <td th:text="${f.dateFanekena != null ? #temporals.format(f.dateFanekena, 'dd/MM/yyyy') : '-'}">-</td>
                                 <td>
-                                    <span th:if="${resp.fafi != null && resp.fafi.statut == 'Active' && resp.fafi.annee == anneeCourante}" class="status-badge delivered">Eny</span>
-                                    <span th:unless="${resp.fafi != null && resp.fafi.statut == 'Active' && resp.fafi.annee == anneeCourante}" class="status-badge pending">Tsia</span>
+                                    <span th:if="${f.fafi != null && f.fafi.statut == 'Active' && f.fafi.annee == anneeCourante}" class="status-badge delivered">Eny</span>
+                                    <span th:unless="${f.fafi != null && f.fafi.statut == 'Active' && f.fafi.annee == anneeCourante}" class="status-badge pending">Tsia</span>
                                 </td>
-                                <td th:text="${resp.fafi != null && resp.fafi.numeroFafi != null ? resp.fafi.numeroFafi : '-'}">-</td>
-                                <td class="actions-cell" onclick="event.stopPropagation();" th:if="${isAdmin or isStrictAdmin}">
-                                    <button class="btn-icon edit-btn" title="Hanova" th:data-id="${resp.id}"><i class="fas fa-edit"></i></button>
-                                    <form th:action="@{/responsables/supprimer}" method="post" style="display: inline;">
-                                        <input type="hidden" name="id" th:value="${resp.id}">
-                                        <button type="submit" class="btn-icon danger" title="Hamafa" onclick="return confirm('Azo antoka ve ise fa te-hamafa ity Mpiandraikitra ity ?')"><i class="fas fa-trash"></i></button>
+                                <td th:text="${f.fafi != null && f.fafi.numeroFafi != null ? f.fafi.numeroFafi : '-'}">-</td>
+                                <td class="actions-cell" onclick="event.stopPropagation();" th:if="${isAdmin}">
+                                    <button class="btn-icon edit-btn" title="Hanova" th:data-id="${f.id}"><i class="fas fa-edit"></i></button>
+                                    <form th:action="@{/filoha/supprimer}" method="post" style="display: inline;">
+                                        <input type="hidden" name="id" th:value="${f.id}">
+                                        <button type="submit" class="btn-icon danger" title="Hamafa" onclick="return confirm('Azo antoka ve ise fa te-hamafa ity Filoha ity ?')"><i class="fas fa-trash"></i></button>
                                     </form>
                                 </td>
-                                <td th:unless="${isAdmin or isStrictAdmin}">-</td>
                             </tr>
                         </tbody>
                     </table>
@@ -250,10 +244,10 @@
     <div id="addModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2><i class="fas fa-user-plus"></i> Hanampy Mpiandraikitra</h2>
+                <h2><i class="fas fa-user-plus"></i> Hanampy Filoha</h2>
                 <button class="modal-close" onclick="closeAddModal()">&times;</button>
             </div>
-            <form th:action="@{/responsables/ajouter}" method="post">
+            <form th:action="@{/filoha/ajouter}" method="post">
                 <div class="modal-body">
                     <div class="form-row">
                         <div class="form-group">
@@ -297,21 +291,12 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="secteurId">Faritra</label>
-                            <select id="secteurId" name="secteurId">
+                            <label for="typeFilohaId">Type Filoha</label>
+                            <select id="typeFilohaId" name="typeFilohaId">
                                 <option value="">-- Mifidy --</option>
-                                <option th:each="secteur : ${secteurs}" th:value="${secteur.id}" th:text="${secteur.nom}"></option>
+                                <option th:each="type : ${typeFiloha}" th:value="${type.id}" th:text="${type.nom}"></option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label for="fizaranaId">Sampana</label>
-                            <select id="fizaranaId" name="fizaranaId">
-                                <option value="">-- Mifidy --</option>
-                                <option th:each="fizarana : ${fizarana}" th:value="${fizarana.id}" th:text="${fizarana.nom}"></option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-row">
                         <div class="form-group">
                             <label for="andraikitraId">Andraikitra</label>
                             <select id="andraikitraId" name="andraikitraId">
@@ -319,11 +304,20 @@
                                 <option th:each="andraikitra : ${andraikitra}" th:value="${andraikitra.id}" th:text="${andraikitra.nom}"></option>
                             </select>
                         </div>
+                    </div>
+                    <div class="form-row">
                         <div class="form-group">
                             <label for="dingamPiofananaId">Dingam-piofanana</label>
                             <select id="dingamPiofananaId" name="dingamPiofananaId">
                                 <option value="">-- Mifidy --</option>
                                 <option th:each="dingam : ${dingamPiofanana}" th:value="${dingam.id}" th:text="${dingam.nom}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="typeFiofananaId">Type fiofanana</label>
+                            <select id="typeFiofananaId" name="typeFiofananaId">
+                                <option value="">-- Mifidy --</option>
+                                <option th:each="type : ${typeFiofanana}" th:value="${type.id}" th:text="${type.nom}"></option>
                             </select>
                         </div>
                     </div>
@@ -353,10 +347,10 @@
     <div id="editModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2><i class="fas fa-user-edit"></i> Hanova Mpiandraikitra</h2>
+                <h2><i class="fas fa-user-edit"></i> Hanova Filoha</h2>
                 <button class="modal-close" onclick="closeEditModal()">&times;</button>
             </div>
-            <form th:action="@{/responsables/modifier}" method="post">
+            <form th:action="@{/filoha/modifier}" method="post">
                 <input type="hidden" id="editId" name="id">
                 <div class="modal-body">
                     <div class="form-row">
@@ -401,21 +395,12 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="editSecteurId">Faritra</label>
-                            <select id="editSecteurId" name="secteurId">
+                            <label for="editTypeFilohaId">Type Filoha</label>
+                            <select id="editTypeFilohaId" name="typeFilohaId">
                                 <option value="">-- Mifidy --</option>
-                                <option th:each="secteur : ${secteurs}" th:value="${secteur.id}" th:text="${secteur.nom}"></option>
+                                <option th:each="type : ${typeFiloha}" th:value="${type.id}" th:text="${type.nom}"></option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label for="editFizaranaId">Sampana</label>
-                            <select id="editFizaranaId" name="fizaranaId">
-                                <option value="">-- Mifidy --</option>
-                                <option th:each="fizarana : ${fizarana}" th:value="${fizarana.id}" th:text="${fizarana.nom}"></option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-row">
                         <div class="form-group">
                             <label for="editAndraikitraId">Andraikitra</label>
                             <select id="editAndraikitraId" name="andraikitraId">
@@ -423,11 +408,20 @@
                                 <option th:each="andraikitra : ${andraikitra}" th:value="${andraikitra.id}" th:text="${andraikitra.nom}"></option>
                             </select>
                         </div>
+                    </div>
+                    <div class="form-row">
                         <div class="form-group">
                             <label for="editDingamPiofananaId">Dingam-piofanana</label>
                             <select id="editDingamPiofananaId" name="dingamPiofananaId">
                                 <option value="">-- Mifidy --</option>
                                 <option th:each="dingam : ${dingamPiofanana}" th:value="${dingam.id}" th:text="${dingam.nom}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editTypeFiofananaId">Type fiofanana</label>
+                            <select id="editTypeFiofananaId" name="typeFiofananaId">
+                                <option value="">-- Mifidy --</option>
+                                <option th:each="type : ${typeFiofanana}" th:value="${type.id}" th:text="${type.nom}"></option>
                             </select>
                         </div>
                     </div>
@@ -465,13 +459,13 @@
                 <h2><i class="fas fa-money-bill-wave"></i> Handoa FAFI ho an'ny olona maromaro</h2>
                 <button class="modal-close" onclick="closePayFafiMultipleModal()">&times;</button>
             </div>
-            <form th:action="@{/responsables/payer-fafi-multiple}" method="post" id="payFafiMultipleForm">
+            <form th:action="@{/filoha/payer-fafi-multiple}" method="post" id="payFafiMultipleForm">
                 <div class="modal-body">
                     <div class="alert alert-info" style="margin-bottom: 20px;">
                         <i class="fas fa-info-circle"></i>
                         <span id="payFafiInfo"></span>
                     </div>
-                    <p style="margin-bottom: 15px;">ise dia handoa FAFI ho an'ny <strong id="selectedPersonsCount">0</strong> Mpiandraikitra.</p>
+                        <p style="margin-bottom: 15px;">ise dia handoa FAFI ho an'ny <strong id="selectedPersonsCount">0</strong> Filoha.</p>
                     <p style="margin-bottom: 15px;">Vidiny: <strong th:text="${#numbers.formatDecimal(prixFafi, 0, 'COMMA', 0, 'POINT')} + ' Ar'"></strong> x <span id="selectedPersonsCountPrice">0</span> = <strong id="totalPrice">0 Ar</strong></p>
                     <p style="color: #666; font-size: 14px;">Ny FAFI dia manan-kery mandritra ny taona <span th:text="${anneeCourante}"></span>.</p>
                     <div id="selectedPersonsContainer"></div>
@@ -582,7 +576,7 @@
         let sortDirection = {};
         
         function sortTable(columnIndex) {
-            const table = document.getElementById('responsablesTable');
+            const table = document.getElementById('filohaTable');
             const tbody = table.querySelector('tbody');
             const rows = Array.from(tbody.querySelectorAll('tr:not(.empty-message)'));
             
@@ -625,7 +619,7 @@
             const filterFivondronanaEl = document.getElementById('filterFivondronana');
             const fivondronanaValue = filterFivondronanaEl ? filterFivondronanaEl.value : '';
             
-            const table = document.getElementById('responsablesTable');
+            const table = document.getElementById('filohaTable');
             const rows = table.querySelectorAll('tbody tr:not(.empty-message)');
             
             // Filtrer les lignes
@@ -758,8 +752,8 @@
             document.getElementById('editNomPere').value = row.dataset.nompere || '';
             document.getElementById('editNomMere').value = row.dataset.nommere || '';
             document.getElementById('editDateFanekena').value = row.dataset.datefanekena || '';
-            document.getElementById('editSecteurId').value = row.dataset.secteurid || '';
-            document.getElementById('editFizaranaId').value = row.dataset.fizaranaid || '';
+            document.getElementById('editTypeFilohaId').value = row.dataset.typefilohaid || '';
+            document.getElementById('editTypeFiofananaId').value = row.dataset.typefiofananaid || '';
             document.getElementById('editAndraikitraId').value = row.dataset.andraikitraid || '';
             document.getElementById('editDingamPiofananaId').value = row.dataset.dingampiofananaid || '';
             document.getElementById('editNumeroFafi').value = row.dataset.numerofafi || '';
@@ -959,7 +953,7 @@
 
         // Export PDF
         function exportToPDF() {
-            const table = document.getElementById('responsablesTable');
+            const table = document.getElementById('filohaTable');
             const rows = table.querySelectorAll('tbody tr:not(.empty-message)');
             const visibleRows = Array.from(rows).filter(row => row.style.display !== 'none');
             
@@ -1098,7 +1092,7 @@
                 loadingMsg.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Import en cours...';
                 document.querySelector('.dashboard-content').insertBefore(loadingMsg, document.querySelector('.dashboard-content').firstChild);
                 
-                fetch('/responsables/import-excel', {
+                fetch('/filoha/import-excel', {
                     method: 'POST',
                     body: formData
                 })

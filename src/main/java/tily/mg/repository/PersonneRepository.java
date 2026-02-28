@@ -20,6 +20,21 @@ public interface PersonneRepository extends JpaRepository<Personne, Integer> {
     @Query("SELECT p FROM Personne p LEFT JOIN FETCH p.fafi WHERE p.id = :id")
     Optional<Personne> findByIdWithFafi(@Param("id") Integer id);
     
+    // Find by id with all relations loaded for details page
+    @Query("SELECT DISTINCT p FROM Personne p " +
+           "LEFT JOIN FETCH p.fafi " +
+           "LEFT JOIN FETCH p.secteur " +
+           "LEFT JOIN FETCH p.andraikitra " +
+           "LEFT JOIN FETCH p.fizarana " +
+           "LEFT JOIN FETCH p.typePersonne " +
+           "LEFT JOIN FETCH p.fivondronana " +
+           "LEFT JOIN FETCH p.dingamPiofanana " +
+           "LEFT JOIN FETCH p.typeFiofanana " +
+           "LEFT JOIN FETCH p.typeFiloha " +
+           "LEFT JOIN FETCH p.detailsFiofananaList " +
+           "WHERE p.id = :id")
+    Optional<Personne> findByIdWithAllRelations(@Param("id") Integer id);
+    
     // ========== ADMIN: Toutes les personnes ==========
     
     // Find ALL responsables (admin)
@@ -31,6 +46,7 @@ public interface PersonneRepository extends JpaRepository<Personne, Integer> {
            "LEFT JOIN FETCH p.typePersonne " +
            "LEFT JOIN FETCH p.fivondronana " +
            "LEFT JOIN FETCH p.dingamPiofanana " +
+           "LEFT JOIN FETCH p.typeFiofanana " +
            "WHERE p.typePersonne.nom = 'Responsable'")
     List<Personne> findAllResponsables();
     
@@ -55,6 +71,7 @@ public interface PersonneRepository extends JpaRepository<Personne, Integer> {
            "LEFT JOIN FETCH p.typePersonne " +
            "LEFT JOIN FETCH p.fivondronana " +
            "LEFT JOIN FETCH p.dingamPiofanana " +
+           "LEFT JOIN FETCH p.typeFiofanana " +
            "WHERE p.typePersonne.nom = 'Responsable' " +
            "AND p.fivondronana.id = :fivondronanaId")
     List<Personne> findResponsablesByFivondronana(@Param("fivondronanaId") Integer fivondronanaId);
@@ -137,6 +154,7 @@ public interface PersonneRepository extends JpaRepository<Personne, Integer> {
            "LEFT JOIN FETCH p.typePersonne " +
            "LEFT JOIN FETCH p.fivondronana " +
            "LEFT JOIN FETCH p.dingamPiofanana " +
+           "LEFT JOIN FETCH p.typeFiofanana " +
            "WHERE p.typePersonne.nom = 'Responsable' " +
            "AND (:fivondronanaId IS NULL OR p.fivondronana.id = :fivondronanaId) " +
            "AND (:secteurId IS NULL OR p.secteur.id = :secteurId) " +
@@ -189,6 +207,7 @@ public interface PersonneRepository extends JpaRepository<Personne, Integer> {
            "LEFT JOIN FETCH p.typePersonne " +
            "LEFT JOIN FETCH p.fivondronana " +
            "LEFT JOIN FETCH p.dingamPiofanana " +
+           "LEFT JOIN FETCH p.typeFiofanana " +
            "WHERE p.typePersonne.nom = 'Responsable' " +
            "AND p.fivondronana.id = :fivondronanaId " +
            "AND (:secteurId IS NULL OR p.secteur.id = :secteurId) " +
@@ -227,6 +246,43 @@ public interface PersonneRepository extends JpaRepository<Personne, Integer> {
         @Param("secteurId") Integer secteurId,
         @Param("fizaranaId") Integer fizaranaId,
         @Param("ambaratonga") String ambaratonga,
+        @Param("hasFafi") Boolean hasFafi
+    );
+
+    // ========== FILOHA ==========
+    
+    // Find ALL filoha (admin)
+    @Query("SELECT DISTINCT p FROM Personne p " +
+           "LEFT JOIN FETCH p.fafi " +
+           "LEFT JOIN FETCH p.andraikitra " +
+           "LEFT JOIN FETCH p.typePersonne " +
+           "LEFT JOIN FETCH p.dingamPiofanana " +
+           "LEFT JOIN FETCH p.typeFiofanana " +
+           "LEFT JOIN FETCH p.typeFiloha " +
+           "WHERE p.typePersonne.nom = 'Filoha'")
+    List<Personne> findAllFiloha();
+    
+    // Filter filoha par typeFiloha, andraikitra, dingamPiofanana, typeFiofanana, hasFafi
+    @Query("SELECT DISTINCT p FROM Personne p " +
+           "LEFT JOIN FETCH p.fafi " +
+           "LEFT JOIN FETCH p.andraikitra " +
+           "LEFT JOIN FETCH p.typePersonne " +
+           "LEFT JOIN FETCH p.dingamPiofanana " +
+           "LEFT JOIN FETCH p.typeFiofanana " +
+           "LEFT JOIN FETCH p.typeFiloha " +
+           "WHERE p.typePersonne.nom = 'Filoha' " +
+           "AND (:typeFilohaId IS NULL OR p.typeFiloha.id = :typeFilohaId) " +
+           "AND (:andraikitraId IS NULL OR p.andraikitra.id = :andraikitraId) " +
+           "AND (:dingamPiofananaId IS NULL OR p.dingamPiofanana.id = :dingamPiofananaId) " +
+           "AND (:typeFiofananaId IS NULL OR p.typeFiofanana.id = :typeFiofananaId) " +
+           "AND (:hasFafi IS NULL OR " +
+           "(:hasFafi = true AND p.fafi IS NOT NULL AND p.fafi.statut = 'Active') OR " +
+           "(:hasFafi = false AND (p.fafi IS NULL OR p.fafi.statut != 'Active')))")
+    List<Personne> filterFiloha(
+        @Param("typeFilohaId") Integer typeFilohaId,
+        @Param("andraikitraId") Integer andraikitraId,
+        @Param("dingamPiofananaId") Integer dingamPiofananaId,
+        @Param("typeFiofananaId") Integer typeFiofananaId,
         @Param("hasFafi") Boolean hasFafi
     );
 }

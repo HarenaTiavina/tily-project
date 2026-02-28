@@ -5,8 +5,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tily.mg.entity.Fivondronana;
+import tily.mg.entity.Personne;
 import tily.mg.entity.Utilisateur;
 import tily.mg.repository.FivondronanaRepository;
+import tily.mg.repository.PersonneRepository;
 import tily.mg.repository.UtilisateurRepository;
 
 import java.time.LocalDateTime;
@@ -22,6 +24,9 @@ public class AuthService {
 
     @Autowired
     private FivondronanaRepository fivondronanaRepository;
+
+    @Autowired
+    private PersonneRepository personneRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -68,6 +73,37 @@ public class AuthService {
         utilisateur.setMotDePasse(passwordEncoder.encode(motDePasse));
         utilisateur.setFivondronana(null); // Admin n'a pas de Fivondronana
         utilisateur.setRole("ADMIN");
+        utilisateur.setActif(true);
+        utilisateur.setDateCreation(LocalDateTime.now());
+
+        return utilisateurRepository.save(utilisateur);
+    }
+
+    /**
+     * Créer un compte pour un Filoha
+     */
+    public Utilisateur creerCompteFiloha(String email, String motDePasse, Integer personneId) {
+        
+        // Vérifier si l'email existe déjà
+        if (utilisateurRepository.existsByEmail(email)) {
+            throw new RuntimeException("Cet email est déjà utilisé");
+        }
+
+        // Vérifier que la Personne existe et est un Filoha
+        Personne personne = personneRepository.findById(personneId)
+            .orElseThrow(() -> new RuntimeException("Personne non trouvée"));
+        
+        if (!personne.isFiloha()) {
+            throw new RuntimeException("Cette personne n'est pas un Filoha");
+        }
+
+        // Créer l'utilisateur Filoha
+        Utilisateur utilisateur = new Utilisateur();
+        utilisateur.setEmail(email);
+        utilisateur.setMotDePasse(passwordEncoder.encode(motDePasse));
+        utilisateur.setPersonne(personne);
+        utilisateur.setFivondronana(null); // Filoha n'a pas de Fivondronana
+        utilisateur.setRole("FILOHA");
         utilisateur.setActif(true);
         utilisateur.setDateCreation(LocalDateTime.now());
 
@@ -146,6 +182,15 @@ public class AuthService {
      */
     public List<Utilisateur> findAllNonAdminUsers() {
         return utilisateurRepository.findAllNonAdmin();
+    }
+
+    /**
+     * Récupérer tous les utilisateurs (non-admin) avec leurs relations chargées
+     */
+    public List<Utilisateur> findAllNonAdminUsersWithRelations() {
+        List<Utilisateur> users = utilisateurRepository.findAllNonAdmin();
+        // Les relations sont déjà chargées via les requêtes dans le repository
+        return users;
     }
 
     /**

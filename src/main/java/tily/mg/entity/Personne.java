@@ -73,6 +73,17 @@ public class Personne {
     @JoinColumn(name = "iddingampiofanana")
     private DingamPiofanana dingamPiofanana; // Dingam-piofanana = Niveau de formation pour les Mpiandraikitra
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idtypefiofanana")
+    private TypeFiofanana typeFiofanana; // TypeFiofanana = Type de formation pour les Mpiandraikitra (fanomababa, fanaterana, ravinala, TP2)
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idtypefiloha")
+    private TypeFiloha typeFiloha; // TypeFiloha = Type/rôle de Filoha (les Filoha n'ont pas de fivondronana ni secteur)
+
+    @OneToMany(mappedBy = "personne", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private java.util.List<DetailsFiofanana> detailsFiofananaList; // Liste des détails de formation par type (sections A, B, C)
+
     // Constructors
     public Personne() {}
 
@@ -229,6 +240,30 @@ public class Personne {
         this.dingamPiofanana = dingamPiofanana;
     }
 
+    public TypeFiofanana getTypeFiofanana() {
+        return typeFiofanana;
+    }
+
+    public void setTypeFiofanana(TypeFiofanana typeFiofanana) {
+        this.typeFiofanana = typeFiofanana;
+    }
+
+    public java.util.List<DetailsFiofanana> getDetailsFiofananaList() {
+        return detailsFiofananaList;
+    }
+
+    public void setDetailsFiofananaList(java.util.List<DetailsFiofanana> detailsFiofananaList) {
+        this.detailsFiofananaList = detailsFiofananaList;
+    }
+
+    public TypeFiloha getTypeFiloha() {
+        return typeFiloha;
+    }
+
+    public void setTypeFiloha(TypeFiloha typeFiloha) {
+        this.typeFiloha = typeFiloha;
+    }
+
     // Helper methods
     public String getNomComplet() {
         return prenom + " " + nom;
@@ -240,6 +275,10 @@ public class Personne {
 
     public boolean isBeazina() {
         return typePersonne != null && "Eleve".equalsIgnoreCase(typePersonne.getNom()); // Beazina = Élève en malgache
+    }
+
+    public boolean isFiloha() {
+        return typePersonne != null && "Filoha".equalsIgnoreCase(typePersonne.getNom());
     }
     
     // Méthodes de compatibilité (deprecated)

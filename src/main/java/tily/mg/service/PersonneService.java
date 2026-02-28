@@ -38,7 +38,16 @@ public class PersonneService {
 
     @Autowired
     private DingamPiofananaRepository dingamPiofananaRepository;
-
+    
+    @Autowired
+    private TypeFiofananaRepository typeFiofananaRepository;
+    
+    @Autowired
+    private DetailsFiofananaRepository detailsFiofananaRepository;
+    
+    @Autowired
+    private TypeFilohaRepository typeFilohaRepository;
+ 
     // CRUD Operations
     public List<Personne> findAll() {
         return personneRepository.findAll();
@@ -47,9 +56,26 @@ public class PersonneService {
     public Optional<Personne> findById(Integer id) {
         return personneRepository.findById(id);
     }
+    
+    public Optional<Personne> findByIdWithAllRelations(Integer id) {
+        Optional<Personne> personneOpt = personneRepository.findByIdWithAllRelations(id);
+        if (personneOpt.isPresent()) {
+            Personne personne = personneOpt.get();
+            // Recharger les détails avec leurs relations pour éviter les problèmes de lazy loading
+            if (personne.getId() != null) {
+                List<DetailsFiofanana> detailsList = detailsFiofananaRepository.findAllByPersonneId(personne.getId());
+                personne.setDetailsFiofananaList(detailsList);
+            }
+        }
+        return personneOpt;
+    }
 
     public Personne save(Personne personne) {
         return personneRepository.save(personne);
+    }
+    
+    public Personne saveAndFlush(Personne personne) {
+        return personneRepository.saveAndFlush(personne);
     }
 
     public void delete(Integer id) {
@@ -64,6 +90,10 @@ public class PersonneService {
 
     public List<Personne> findAllEleves() {
         return personneRepository.findAllEleves();
+    }
+
+    public List<Personne> findAllFiloha() {
+        return personneRepository.findAllFiloha();
     }
 
     public Long countResponsables() {
@@ -89,6 +119,10 @@ public class PersonneService {
 
     public List<Personne> filterEleves(Integer fivondronanaId, Integer secteurId, Integer fizaranaId, String ambaratonga, Boolean hasFafi) {
         return personneRepository.filterEleves(fivondronanaId, secteurId, fizaranaId, ambaratonga, hasFafi);
+    }
+
+    public List<Personne> filterFiloha(Integer typeFilohaId, Integer andraikitraId, Integer dingamPiofananaId, Integer typeFiofananaId, Boolean hasFafi) {
+        return personneRepository.filterFiloha(typeFilohaId, andraikitraId, dingamPiofananaId, typeFiofananaId, hasFafi);
     }
 
     // ========== FIVONDRONANA: Personnes par Fivondronana ==========
@@ -151,6 +185,26 @@ public class PersonneService {
         return dingamPiofananaRepository.findAll();
     }
 
+    public List<TypeFiloha> findAllTypeFiloha() {
+        return typeFilohaRepository.findAllByOrderByNomAsc();
+    }
+
+    public Optional<TypeFiloha> findTypeFilohaById(Integer id) {
+        return typeFilohaRepository.findById(id);
+    }
+
+    public Optional<TypeFiloha> findTypeFilohaByNom(String nom) {
+        return typeFilohaRepository.findByNom(nom);
+    }
+
+    public TypeFiloha saveTypeFiloha(TypeFiloha typeFiloha) {
+        return typeFilohaRepository.save(typeFiloha);
+    }
+
+    public void deleteTypeFiloha(Integer id) {
+        typeFilohaRepository.deleteById(id);
+    }
+
     // Statistics
     public BigDecimal getTotalFafiMontant() {
         BigDecimal total = fafiRepository.getTotalMontantActive();
@@ -194,6 +248,75 @@ public class PersonneService {
 
     public Optional<DingamPiofanana> findDingamPiofananaById(Integer id) {
         return dingamPiofananaRepository.findById(id);
+    }
+    
+    public List<TypeFiofanana> findAllTypeFiofanana() {
+        // Initialiser les types fiofanana s'ils n'existent pas
+        initializeTypeFiofananaIfNeeded();
+        return typeFiofananaRepository.findAllByOrderByNomAsc();
+    }
+    
+    public Optional<TypeFiofanana> findTypeFiofananaById(Integer id) {
+        return typeFiofananaRepository.findById(id);
+    }
+    
+    /**
+     * Initialise les types fiofanana s'ils n'existent pas dans la base de données
+     */
+    private void initializeTypeFiofananaIfNeeded() {
+        long count = typeFiofananaRepository.count();
+        if (count == 0) {
+            // Insérer les 4 types de formation
+            TypeFiofanana fanomababa = new TypeFiofanana("fanomababa");
+            TypeFiofanana fanaterana = new TypeFiofanana("fanaterana");
+            TypeFiofanana ravinala = new TypeFiofanana("ravinala");
+            TypeFiofanana tp2 = new TypeFiofanana("TP2");
+            
+            typeFiofananaRepository.save(fanomababa);
+            typeFiofananaRepository.save(fanaterana);
+            typeFiofananaRepository.save(ravinala);
+            typeFiofananaRepository.save(tp2);
+            
+            typeFiofananaRepository.flush();
+        }
+    }
+
+    // Create new Filoha (sans fivondronana ni secteur)
+    public Personne createFiloha(Personne personne, Integer typeFilohaId, Integer andraikitraId, Integer dingamPiofananaId, Integer typeFiofananaId) {
+        // Set type to Filoha - créer si n'existe pas
+        TypePersonne typeFiloha = typePersonneRepository.findByNom("Filoha")
+            .orElseGet(() -> {
+                TypePersonne newType = new TypePersonne("Filoha");
+                return typePersonneRepository.save(newType);
+            });
+        personne.setTypePersonne(typeFiloha);
+        
+        // Set typeFiloha if provided
+        if (typeFilohaId != null) {
+            typeFilohaRepository.findById(typeFilohaId).ifPresent(personne::setTypeFiloha);
+        }
+        
+        // Set andraikitra if provided
+        if (andraikitraId != null) {
+            andraikitraRepository.findById(andraikitraId).ifPresent(personne::setAndraikitra);
+        }
+        
+        // Set dingamPiofanana if provided
+        if (dingamPiofananaId != null) {
+            dingamPiofananaRepository.findById(dingamPiofananaId).ifPresent(personne::setDingamPiofanana);
+        }
+        
+        // Set typeFiofanana if provided
+        if (typeFiofananaId != null) {
+            typeFiofananaRepository.findById(typeFiofananaId).ifPresent(personne::setTypeFiofanana);
+        }
+        
+        // Filoha n'a pas de fivondronana ni secteur
+        personne.setFivondronana(null);
+        personne.setSecteur(null);
+        personne.setFizarana(null);
+        
+        return personneRepository.save(personne);
     }
 
     // Create new Responsable avec Fivondronana
@@ -318,5 +441,97 @@ public class PersonneService {
             return personne.getFivondronana() != null && personne.getFivondronana().getId().equals(fivondronanaId);
         }
         return false;
+    }
+
+    // ========== DETAILS FIOFANANA ==========
+    
+    public Optional<DetailsFiofanana> findDetailsFiofananaByPersonneIdAndTypeFiofananaId(Integer personneId, Integer typeFiofananaId) {
+        return detailsFiofananaRepository.findByPersonneIdAndTypeFiofananaId(personneId, typeFiofananaId);
+    }
+    
+    public DetailsFiofanana saveOrUpdateDetailsFiofanana(Integer personneId, Integer typeFiofananaId, DetailsFiofanana details) {
+        Optional<Personne> personneOpt = personneRepository.findById(personneId);
+        if (!personneOpt.isPresent()) {
+            throw new RuntimeException("Personne non trouvée avec l'ID: " + personneId);
+        }
+        
+        Personne personne = personneOpt.get();
+        
+        // Vérifier que le typeFiofanana existe
+        Optional<TypeFiofanana> typeFiofananaOpt = findTypeFiofananaById(typeFiofananaId);
+        if (!typeFiofananaOpt.isPresent()) {
+            throw new RuntimeException("TypeFiofanana non trouvé avec l'ID: " + typeFiofananaId);
+        }
+        
+        TypeFiofanana typeFiofanana = typeFiofananaOpt.get();
+        
+        // Chercher les détails existants pour ce type
+        Optional<DetailsFiofanana> existingOpt = detailsFiofananaRepository.findByPersonneIdAndTypeFiofananaId(personneId, typeFiofananaId);
+        
+        DetailsFiofanana detailsToSave;
+        if (existingOpt.isPresent()) {
+            // Mettre à jour les détails existants
+            detailsToSave = existingOpt.get();
+        } else {
+            // Créer de nouveaux détails
+            detailsToSave = new DetailsFiofanana();
+            detailsToSave.setPersonne(personne);
+            detailsToSave.setTypeFiofanana(typeFiofanana);
+        }
+        
+        // Copier les valeurs depuis l'objet fourni
+        if (details != null) {
+            // Section A
+            detailsToSave.setAsan1(details.getAsan1());
+            detailsToSave.setAsan2(details.getAsan2());
+            detailsToSave.setAsan3(details.getAsan3());
+            detailsToSave.setAsan4(details.getAsan4());
+            detailsToSave.setAsan5(details.getAsan5());
+            detailsToSave.setAsan6(details.getAsan6());
+            detailsToSave.setAsan7(details.getAsan7());
+            detailsToSave.setAsanFilohaNanome(details.getAsanFilohaNanome());
+            
+            // Section B
+            detailsToSave.setEzaka1(details.getEzaka1());
+            detailsToSave.setEzaka2(details.getEzaka2());
+            detailsToSave.setEzaka3(details.getEzaka3());
+            detailsToSave.setEzaka4(details.getEzaka4());
+            detailsToSave.setEzaka5(details.getEzaka5());
+            detailsToSave.setEzaka6(details.getEzaka6());
+            detailsToSave.setEzaka7(details.getEzaka7());
+            detailsToSave.setEzakaFilohaNanome(details.getEzakaFilohaNanome());
+            
+            // Section C
+            detailsToSave.setBitsikyDaty1(details.getBitsikyDaty1());
+            detailsToSave.setBitsikyFivondronana1(details.getBitsikyFivondronana1());
+            detailsToSave.setBitsikyDaty2(details.getBitsikyDaty2());
+            detailsToSave.setBitsikyFivondronana2(details.getBitsikyFivondronana2());
+            
+            // Section D: Diniky ny filoha
+            detailsToSave.setDinikyTheme1(details.getDinikyTheme1());
+            detailsToSave.setDinikyFiloha1(details.getDinikyFiloha1());
+            detailsToSave.setDinikyTheme2(details.getDinikyTheme2());
+            detailsToSave.setDinikyFiloha2(details.getDinikyFiloha2());
+            detailsToSave.setDinikyTheme3(details.getDinikyTheme3());
+            detailsToSave.setDinikyFiloha3(details.getDinikyFiloha3());
+            detailsToSave.setDinikyTheme4(details.getDinikyTheme4());
+            detailsToSave.setDinikyFiloha4(details.getDinikyFiloha4());
+            detailsToSave.setDinikyTheme5(details.getDinikyTheme5());
+            detailsToSave.setDinikyFiloha5(details.getDinikyFiloha5());
+            
+            // Section E: Filasiana
+            detailsToSave.setFilasianaDaty(details.getFilasianaDaty());
+            detailsToSave.setFilasianaFiloha(details.getFilasianaFiloha());
+            
+            // Section F: Ravinala
+            detailsToSave.setLasyRavinala(details.getLasyRavinala());
+            detailsToSave.setSoutenance(details.getSoutenance());
+            
+            // Section G: TP2
+            detailsToSave.setLasyNanoloranaTp2(details.getLasyNanoloranaTp2());
+        }
+        
+        // Sauvegarder
+        return detailsFiofananaRepository.saveAndFlush(detailsToSave);
     }
 }

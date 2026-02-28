@@ -16,10 +16,18 @@ public interface UtilisateurRepository extends JpaRepository<Utilisateur, Intege
     
     boolean existsByEmail(String email);
     
-    @Query("SELECT u FROM Utilisateur u LEFT JOIN FETCH u.fivondronana WHERE u.email = :email")
+    @Query("SELECT u FROM Utilisateur u " +
+           "LEFT JOIN FETCH u.fivondronana " +
+           "LEFT JOIN FETCH u.personne p " +
+           "LEFT JOIN FETCH p.typePersonne " +
+           "WHERE u.email = :email")
     Optional<Utilisateur> findByEmailWithFivondronana(@Param("email") String email);
     
-    @Query("SELECT u FROM Utilisateur u LEFT JOIN FETCH u.fivondronana WHERE u.id = :id")
+    @Query("SELECT u FROM Utilisateur u " +
+           "LEFT JOIN FETCH u.fivondronana " +
+           "LEFT JOIN FETCH u.personne p " +
+           "LEFT JOIN FETCH p.typePersonne " +
+           "WHERE u.id = :id")
     Optional<Utilisateur> findByIdWithDetails(@Param("id") Integer id);
     
     // Trouver tous les utilisateurs par Fivondronana
@@ -27,6 +35,10 @@ public interface UtilisateurRepository extends JpaRepository<Utilisateur, Intege
     List<Utilisateur> findByFivondronanaId(@Param("fivondronanaId") Integer fivondronanaId);
     
     // Trouver tous les utilisateurs non-admin
-    @Query("SELECT u FROM Utilisateur u LEFT JOIN FETCH u.fivondronana WHERE u.role != 'ADMIN'")
+    @Query("SELECT DISTINCT u FROM Utilisateur u " +
+           "LEFT JOIN FETCH u.fivondronana " +
+           "LEFT JOIN FETCH u.personne p " +
+           "LEFT JOIN FETCH p.typePersonne " +
+           "WHERE u.role != 'ADMIN'")
     List<Utilisateur> findAllNonAdmin();
 }
