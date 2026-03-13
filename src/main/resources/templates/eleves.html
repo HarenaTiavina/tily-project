@@ -36,7 +36,7 @@
                     <h2>Lisitry ny Beazina</h2>
                     <span class="record-count" id="recordCount" th:text="${totalCount} + ' Beazina'">0 Beazina</span>
                 </div>
-                <div class="header-actions" th:if="${isAdmin or isStrictAdmin}">
+                <div class="header-actions">
                     <button th:if="${isAdmin}" class="btn-success" id="payFafiMultipleBtn" onclick="openPayFafiMultipleModal()" style="display: none; margin-right: 10px;">
                         <i class="fas fa-money-bill-wave"></i>
                         Handoa FAFI (<span id="selectedCount">0</span>)
