@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import tily.mg.entity.Personne;
-import tily.mg.entity.Fafi;
 import tily.mg.entity.PrixFafi;
 import tily.mg.entity.Utilisateur;
 import tily.mg.entity.TypeFiofanana;
@@ -86,12 +85,43 @@ public class WebController {
         return getCurrentUser().map(Utilisateur::getNomComplet).orElse("Utilisateur");
     }
 
+    /**
+     * Vérifie si l'utilisateur connecté peut gérer les personnes de son Fivondronana
+     * (ADMIN, DFAF ou USER rattaché à un Fivondronana — pas les Filoha)
+     */
+    private boolean canManagePersonnes() {
+        if (hasAdminAccess()) {
+            return true;
+        }
+        return getCurrentUser()
+                .map(user -> user.getFivondronana() != null && !user.isFiloha())
+                .orElse(false);
+    }
+
+    /**
+     * Vérifie si l'utilisateur connecté peut modifier/supprimer une personne donnée
+     */
+    private boolean canManagePersonne(Integer personneId) {
+        if (hasAdminAccess()) {
+            return true;
+        }
+        Optional<Utilisateur> currentUser = getCurrentUser();
+        if (currentUser.isEmpty() || currentUser.get().isFiloha()) {
+            return false;
+        }
+        Integer userFivondronanaId = getCurrentUserFivondronanaId();
+        return userFivondronanaId != null
+                && personneService.personneAppartientAFivondronana(personneId, userFivondronanaId);
+    }
+
     private void addCommonAttributes(Model model) {
         model.addAttribute("userName", getCurrentUserName());
         model.addAttribute("isAdmin", hasAdminAccess());
         model.addAttribute("isStrictAdmin", isAdmin());
+        model.addAttribute("canManagePersonnes", canManagePersonnes());
         getCurrentUser().ifPresent(user -> {
             model.addAttribute("currentUser", user);
+            model.addAttribute("isFiloha", user.isFiloha());
             if (user.getFivondronana() != null) {
                 model.addAttribute("currentFivondronana", user.getFivondronana());
             }
@@ -571,70 +601,16 @@ public class WebController {
             RedirectAttributes redirectAttributes
     ) {
         try {
-            // Vérifier les permissions : Filoha ne peut pas modifier
-            Optional<Utilisateur> currentUser = getCurrentUser();
-            if (currentUser.isPresent() && currentUser.get().isFiloha()) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Tsy manan-kery ny fanovana ny Mpiandraikitra.");
+            if (!canManagePersonne(id)) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Tsy manan-kery ny fanovana ity olona ity.");
                 return "redirect:/responsables";
             }
-            
-            if (!hasAdminAccess()) {
-                Integer userFivondronanaId = getCurrentUserFivondronanaId();
-                if (!personneService.personneAppartientAFivondronana(id, userFivondronanaId)) {
-                    redirectAttributes.addFlashAttribute("errorMessage", "Vous n'avez pas la permission de modifier cette personne");
-                    return "redirect:/responsables";
-                }
-            }
 
-            personneService.findById(id).ifPresent(personne -> {
-                personne.setNom(nom);
-                personne.setPrenom(prenom);
-                personne.setTotem(totem);
-                personne.setDateNaissance(dateNaissance);
-                personne.setAmbaratonga(null);
-                personne.setNumeroTelephone(numeroTelephone);
-                personne.setNumeroCin(numeroCin);
-                personne.setNomPere(nomPere);
-                personne.setNomMere(nomMere);
-                personne.setDateFanekena(dateFanekena);
-
-                if (secteurId != null) {
-                    personneService.findSecteurById(secteurId).ifPresent(personne::setSecteur);
-                } else {
-                    personne.setSecteur(null);
-                }
-
-                if (andraikitraId != null) {
-                    personneService.findAndraikitraById(andraikitraId).ifPresent(personne::setAndraikitra);
-                } else {
-                    personne.setAndraikitra(null);
-                }
-
-                if (fizaranaId != null) {
-                    personneService.findFizaranaById(fizaranaId).ifPresent(personne::setFizarana);
-                } else {
-                    personne.setFizarana(null);
-                }
-
-                if (dingamPiofananaId != null) {
-                    personneService.findDingamPiofananaById(dingamPiofananaId).ifPresent(personne::setDingamPiofanana);
-                } else {
-                    personne.setDingamPiofanana(null);
-                }
-
-                // Mettre à jour le numéro FAFI
-                if (numeroFafi != null && !numeroFafi.trim().isEmpty()) {
-                    if (personne.getFafi() == null) {
-                        Fafi fafi = new Fafi();
-                        fafi.setNumeroFafi(numeroFafi.trim());
-                        personne.setFafi(fafi);
-                    } else {
-                        personne.getFafi().setNumeroFafi(numeroFafi.trim());
-                    }
-                }
-
-                personneService.save(personne);
-            });
+            personneService.updateResponsable(
+                    id, nom, prenom, totem, dateNaissance, numeroTelephone, numeroCin,
+                    nomPere, nomMere, dateFanekena, secteurId, andraikitraId, fizaranaId,
+                    dingamPiofananaId, numeroFafi
+            );
             
             redirectAttributes.addFlashAttribute("successMessage", "Responsable modifié avec succès !");
         } catch (Exception e) {
@@ -650,19 +626,9 @@ public class WebController {
             RedirectAttributes redirectAttributes
     ) {
         try {
-            // Vérifier les permissions : Filoha ne peut pas supprimer
-            Optional<Utilisateur> currentUser = getCurrentUser();
-            if (currentUser.isPresent() && currentUser.get().isFiloha()) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Tsy manan-kery ny famafana ny Mpiandraikitra.");
+            if (!canManagePersonne(id)) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Tsy manan-kery ny famafana ity olona ity.");
                 return "redirect:/responsables";
-            }
-            
-            if (!hasAdminAccess()) {
-                Integer userFivondronanaId = getCurrentUserFivondronanaId();
-                if (!personneService.personneAppartientAFivondronana(id, userFivondronanaId)) {
-                    redirectAttributes.addFlashAttribute("errorMessage", "Vous n'avez pas la permission de supprimer cette personne");
-                    return "redirect:/responsables";
-                }
             }
 
             personneService.delete(id);
@@ -796,56 +762,15 @@ public class WebController {
             RedirectAttributes redirectAttributes
     ) {
         try {
-            // Vérifier les permissions : Filoha ne peut pas modifier
-            Optional<Utilisateur> currentUser = getCurrentUser();
-            if (currentUser.isPresent() && currentUser.get().isFiloha()) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Tsy manan-kery ny fanovana ny Beazina.");
+            if (!canManagePersonne(id)) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Tsy manan-kery ny fanovana ity olona ity.");
                 return "redirect:/eleves";
             }
-            
-            if (!hasAdminAccess()) {
-                Integer userFivondronanaId = getCurrentUserFivondronanaId();
-                if (!personneService.personneAppartientAFivondronana(id, userFivondronanaId)) {
-                    redirectAttributes.addFlashAttribute("errorMessage", "Vous n'avez pas la permission de modifier cette personne");
-                    return "redirect:/eleves";
-                }
-            }
 
-            personneService.findById(id).ifPresent(personne -> {
-                personne.setNom(nom);
-                personne.setPrenom(prenom);
-                personne.setTotem(totem);
-                personne.setDateNaissance(dateNaissance);
-                personne.setAmbaratonga(ambaratonga);
-                personne.setNomPere(nomPere);
-                personne.setNomMere(nomMere);
-                personne.setDateFanekena(dateFanekena);
-
-                if (secteurId != null) {
-                    personneService.findSecteurById(secteurId).ifPresent(personne::setSecteur);
-                } else {
-                    personne.setSecteur(null);
-                }
-
-                if (fizaranaId != null) {
-                    personneService.findFizaranaById(fizaranaId).ifPresent(personne::setFizarana);
-                } else {
-                    personne.setFizarana(null);
-                }
-
-                // Mettre à jour le numéro FAFI
-                if (numeroFafi != null && !numeroFafi.trim().isEmpty()) {
-                    if (personne.getFafi() == null) {
-                        Fafi fafi = new Fafi();
-                        fafi.setNumeroFafi(numeroFafi.trim());
-                        personne.setFafi(fafi);
-                    } else {
-                        personne.getFafi().setNumeroFafi(numeroFafi.trim());
-                    }
-                }
-
-                personneService.save(personne);
-            });
+            personneService.updateEleve(
+                    id, nom, prenom, totem, dateNaissance, ambaratonga,
+                    nomPere, nomMere, dateFanekena, secteurId, fizaranaId, numeroFafi
+            );
             
             redirectAttributes.addFlashAttribute("successMessage", "Élève modifié avec succès !");
         } catch (Exception e) {
@@ -861,19 +786,9 @@ public class WebController {
             RedirectAttributes redirectAttributes
     ) {
         try {
-            // Vérifier les permissions : Filoha ne peut pas supprimer
-            Optional<Utilisateur> currentUser = getCurrentUser();
-            if (currentUser.isPresent() && currentUser.get().isFiloha()) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Tsy manan-kery ny famafana ny Beazina.");
+            if (!canManagePersonne(id)) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Tsy manan-kery ny famafana ity olona ity.");
                 return "redirect:/eleves";
-            }
-            
-            if (!hasAdminAccess()) {
-                Integer userFivondronanaId = getCurrentUserFivondronanaId();
-                if (!personneService.personneAppartientAFivondronana(id, userFivondronanaId)) {
-                    redirectAttributes.addFlashAttribute("errorMessage", "Vous n'avez pas la permission de supprimer cette personne");
-                    return "redirect:/eleves";
-                }
             }
 
             personneService.delete(id);
@@ -1724,67 +1639,11 @@ public class WebController {
                 }
             }
 
-            personneService.findById(id).ifPresent(personne -> {
-                if (!personne.isFiloha()) {
-                    throw new RuntimeException("Ity olona ity dia tsy Filoha.");
-                }
-
-                personne.setNom(nom);
-                personne.setPrenom(prenom);
-                personne.setTotem(totem);
-                personne.setDateNaissance(dateNaissance);
-                personne.setNumeroTelephone(numeroTelephone);
-                personne.setNumeroCin(numeroCin);
-                personne.setNomPere(nomPere);
-                personne.setNomMere(nomMere);
-                personne.setDateFanekena(dateFanekena);
-
-                // Filoha n'a pas de secteur ni fivondronana
-                personne.setSecteur(null);
-                personne.setFivondronana(null);
-                personne.setFizarana(null);
-
-                if (typeFilohaId != null) {
-                    personneService.findTypeFilohaById(typeFilohaId).ifPresent(personne::setTypeFiloha);
-                } else {
-                    personne.setTypeFiloha(null);
-                }
-
-                if (andraikitraId != null) {
-                    personneService.findAndraikitraById(andraikitraId).ifPresent(personne::setAndraikitra);
-                } else {
-                    personne.setAndraikitra(null);
-                }
-
-                if (dingamPiofananaId != null) {
-                    personneService.findDingamPiofananaById(dingamPiofananaId).ifPresent(personne::setDingamPiofanana);
-                } else {
-                    personne.setDingamPiofanana(null);
-                }
-
-                if (typeFiofananaId != null) {
-                    personneService.findTypeFiofananaById(typeFiofananaId).ifPresent(personne::setTypeFiofanana);
-                } else {
-                    personne.setTypeFiofanana(null);
-                }
-
-                // Mettre à jour le numéro FAFI si fourni
-                if (numeroFafi != null && !numeroFafi.trim().isEmpty()) {
-                    if (personne.getFafi() == null) {
-                        Fafi fafi = new Fafi();
-                        fafi.setPersonne(personne);
-                        fafi.setNumeroFafi(numeroFafi.trim());
-                        fafi.setStatut("Active");
-                        fafi.setAnnee(fafiService.getAnneeCourante());
-                        fafi.setMontant(fafiService.getPrixMpiandraikitraAnneeActuelle());
-                        personne.setFafi(fafi);
-                    } else {
-                        personne.getFafi().setNumeroFafi(numeroFafi.trim());
-                    }
-                }
-
-                personneService.save(personne);
-            });
+            personneService.updateFiloha(
+                    id, nom, prenom, totem, dateNaissance, numeroTelephone, numeroCin,
+                    nomPere, nomMere, dateFanekena, typeFilohaId, andraikitraId,
+                    dingamPiofananaId, typeFiofananaId, numeroFafi
+            );
             
             redirectAttributes.addFlashAttribute("successMessage", "Voatahiry soa ny Filoha !");
         } catch (Exception e) {

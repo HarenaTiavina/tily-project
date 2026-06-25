@@ -47,6 +47,9 @@ public class PersonneService {
     
     @Autowired
     private TypeFilohaRepository typeFilohaRepository;
+
+    @Autowired
+    private FafiService fafiService;
  
     // CRUD Operations
     public List<Personne> findAll() {
@@ -381,6 +384,200 @@ public class PersonneService {
     // Récupérer les statuts FAFI (liste fixe pour éviter les problèmes si certains statuts n'existent pas encore en base)
     public List<String> findAllFafiStatuts() {
         return java.util.Arrays.asList("Active", "Inactive");
+    }
+
+    public Personne updateResponsable(
+            Integer id,
+            String nom,
+            String prenom,
+            String totem,
+            LocalDate dateNaissance,
+            String numeroTelephone,
+            String numeroCin,
+            String nomPere,
+            String nomMere,
+            LocalDate dateFanekena,
+            Integer secteurId,
+            Integer andraikitraId,
+            Integer fizaranaId,
+            Integer dingamPiofananaId,
+            String numeroFafi
+    ) {
+        Personne personne = personneRepository.findByIdWithFafi(id)
+                .orElseThrow(() -> new RuntimeException("Personne non trouvée avec l'ID: " + id));
+
+        personne.setNom(nom);
+        personne.setPrenom(prenom);
+        personne.setTotem(totem);
+        personne.setDateNaissance(dateNaissance);
+        personne.setAmbaratonga(null);
+        personne.setNumeroTelephone(numeroTelephone);
+        personne.setNumeroCin(numeroCin);
+        personne.setNomPere(nomPere);
+        personne.setNomMere(nomMere);
+        personne.setDateFanekena(dateFanekena);
+
+        if (secteurId != null) {
+            secteurRepository.findById(secteurId).ifPresent(personne::setSecteur);
+        } else {
+            personne.setSecteur(null);
+        }
+
+        if (andraikitraId != null) {
+            andraikitraRepository.findById(andraikitraId).ifPresent(personne::setAndraikitra);
+        } else {
+            personne.setAndraikitra(null);
+        }
+
+        if (fizaranaId != null) {
+            fizaranaRepository.findById(fizaranaId).ifPresent(personne::setFizarana);
+        } else {
+            personne.setFizarana(null);
+        }
+
+        if (dingamPiofananaId != null) {
+            dingamPiofananaRepository.findById(dingamPiofananaId).ifPresent(personne::setDingamPiofanana);
+        } else {
+            personne.setDingamPiofanana(null);
+        }
+
+        updateNumeroFafiIfPresent(personne, numeroFafi);
+        return personneRepository.save(personne);
+    }
+
+    public Personne updateEleve(
+            Integer id,
+            String nom,
+            String prenom,
+            String totem,
+            LocalDate dateNaissance,
+            String ambaratonga,
+            String nomPere,
+            String nomMere,
+            LocalDate dateFanekena,
+            Integer secteurId,
+            Integer fizaranaId,
+            String numeroFafi
+    ) {
+        Personne personne = personneRepository.findByIdWithFafi(id)
+                .orElseThrow(() -> new RuntimeException("Personne non trouvée avec l'ID: " + id));
+
+        personne.setNom(nom);
+        personne.setPrenom(prenom);
+        personne.setTotem(totem);
+        personne.setDateNaissance(dateNaissance);
+        personne.setAmbaratonga(ambaratonga);
+        personne.setNomPere(nomPere);
+        personne.setNomMere(nomMere);
+        personne.setDateFanekena(dateFanekena);
+
+        if (secteurId != null) {
+            secteurRepository.findById(secteurId).ifPresent(personne::setSecteur);
+        } else {
+            personne.setSecteur(null);
+        }
+
+        if (fizaranaId != null) {
+            fizaranaRepository.findById(fizaranaId).ifPresent(personne::setFizarana);
+        } else {
+            personne.setFizarana(null);
+        }
+
+        updateNumeroFafiIfPresent(personne, numeroFafi);
+        return personneRepository.save(personne);
+    }
+
+    public Personne updateFiloha(
+            Integer id,
+            String nom,
+            String prenom,
+            String totem,
+            LocalDate dateNaissance,
+            String numeroTelephone,
+            String numeroCin,
+            String nomPere,
+            String nomMere,
+            LocalDate dateFanekena,
+            Integer typeFilohaId,
+            Integer andraikitraId,
+            Integer dingamPiofananaId,
+            Integer typeFiofananaId,
+            String numeroFafi
+    ) {
+        Personne personne = personneRepository.findByIdWithFafi(id)
+                .orElseThrow(() -> new RuntimeException("Personne non trouvée avec l'ID: " + id));
+
+        if (!personne.isFiloha()) {
+            throw new RuntimeException("Ity olona ity dia tsy Filoha.");
+        }
+
+        personne.setNom(nom);
+        personne.setPrenom(prenom);
+        personne.setTotem(totem);
+        personne.setDateNaissance(dateNaissance);
+        personne.setNumeroTelephone(numeroTelephone);
+        personne.setNumeroCin(numeroCin);
+        personne.setNomPere(nomPere);
+        personne.setNomMere(nomMere);
+        personne.setDateFanekena(dateFanekena);
+        personne.setSecteur(null);
+        personne.setFivondronana(null);
+        personne.setFizarana(null);
+
+        if (typeFilohaId != null) {
+            typeFilohaRepository.findById(typeFilohaId).ifPresent(personne::setTypeFiloha);
+        } else {
+            personne.setTypeFiloha(null);
+        }
+
+        if (andraikitraId != null) {
+            andraikitraRepository.findById(andraikitraId).ifPresent(personne::setAndraikitra);
+        } else {
+            personne.setAndraikitra(null);
+        }
+
+        if (dingamPiofananaId != null) {
+            dingamPiofananaRepository.findById(dingamPiofananaId).ifPresent(personne::setDingamPiofanana);
+        } else {
+            personne.setDingamPiofanana(null);
+        }
+
+        if (typeFiofananaId != null) {
+            typeFiofananaRepository.findById(typeFiofananaId).ifPresent(personne::setTypeFiofanana);
+        } else {
+            personne.setTypeFiofanana(null);
+        }
+
+        updateFilohaNumeroFafiIfPresent(personne, numeroFafi);
+        return personneRepository.save(personne);
+    }
+
+    private void updateNumeroFafiIfPresent(Personne personne, String numeroFafi) {
+        if (numeroFafi != null && !numeroFafi.trim().isEmpty()) {
+            if (personne.getFafi() == null) {
+                Fafi fafi = new Fafi();
+                fafi.setNumeroFafi(numeroFafi.trim());
+                personne.setFafi(fafi);
+            } else {
+                personne.getFafi().setNumeroFafi(numeroFafi.trim());
+            }
+        }
+    }
+
+    private void updateFilohaNumeroFafiIfPresent(Personne personne, String numeroFafi) {
+        if (numeroFafi != null && !numeroFafi.trim().isEmpty()) {
+            if (personne.getFafi() == null) {
+                Fafi fafi = new Fafi();
+                fafi.setPersonne(personne);
+                fafi.setNumeroFafi(numeroFafi.trim());
+                fafi.setStatut("Active");
+                fafi.setAnnee(fafiService.getAnneeCourante());
+                fafi.setMontant(fafiService.getPrixMpiandraikitraAnneeActuelle());
+                personne.setFafi(fafi);
+            } else {
+                personne.getFafi().setNumeroFafi(numeroFafi.trim());
+            }
+        }
     }
 
     // Mettre à jour ou créer le FAFI d'une personne

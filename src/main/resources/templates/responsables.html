@@ -208,14 +208,14 @@
                                     <span th:unless="${resp.fafi != null && resp.fafi.statut == 'Active' && resp.fafi.annee == anneeCourante}" class="status-badge pending">Tsia</span>
                                 </td>
                                 <td th:text="${resp.fafi != null && resp.fafi.numeroFafi != null ? resp.fafi.numeroFafi : '-'}">-</td>
-                                <td class="actions-cell" onclick="event.stopPropagation();" th:if="${isAdmin or isStrictAdmin}">
+                                <td class="actions-cell" onclick="event.stopPropagation();" th:if="${canManagePersonnes}">
                                     <button class="btn-icon edit-btn" title="Hanova" th:data-id="${resp.id}"><i class="fas fa-edit"></i></button>
                                     <form th:action="@{/responsables/supprimer}" method="post" style="display: inline;">
                                         <input type="hidden" name="id" th:value="${resp.id}">
                                         <button type="submit" class="btn-icon danger" title="Hamafa" onclick="return confirm('Azo antoka ve ise fa te-hamafa ity Mpiandraikitra ity ?')"><i class="fas fa-trash"></i></button>
                                     </form>
                                 </td>
-                                <td th:unless="${isAdmin or isStrictAdmin}">-</td>
+                                <td th:unless="${canManagePersonnes}">-</td>
                             </tr>
                         </tbody>
                     </table>
